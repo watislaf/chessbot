@@ -1,13 +1,11 @@
 from bin.controller import Controller
-from tools.move_validator import MoveValidator
 
-import CHESSAI
+import cppimport.output.outputcpp
 
 controller = Controller()
 
 if __name__ == "__main__":
     # garik part
-    CHESSAI.add(1,2)
-    #controller.startView()
-    #MoveValidator()
+    controller.start_view()
+    # MoveValidator()
     # bots play

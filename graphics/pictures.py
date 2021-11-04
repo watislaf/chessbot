@@ -1,3 +1,3 @@
 import os
-
-PICTURES_PATH = '\\'.join(os.path.realpath(__file__).split("\\")[:-1])
+print(__file__)
+PICTURES_PATH = '/'.join(__file__.split("/")[:-1])

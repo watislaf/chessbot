@@ -1,3 +1,5 @@
-import os
+#!bin/python
 
-OUTCPP_PATH = '\\'.join(os.path.realpath(__file__).split("\\")[:-1])
+import cppimport.output.chessai as chessai
+
+print(chessai.add(1, 2))
