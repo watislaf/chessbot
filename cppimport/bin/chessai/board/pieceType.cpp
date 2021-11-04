@@ -1,7 +1,9 @@
 enum class PieceType {
-  IS_DIAGONAL,
-  IS_STRAIGHT,
-  IS_PONE,
+  IS_KING,
+  IS_QUEEN,
+  IS_BISHOP,
   IS_HORSE,
-  IS_KING
+  IS_RUCK,
+  IS_PONE,
+  IS_NONE,
 };

@@ -7,14 +7,15 @@
 class Piece {
 
  public:
-  Piece(int px, int py);
-  explicit Piece(const Position& posi);
+
+  explicit Piece(const Position& pos,
+                 PieceType piece_type_ = PieceType::IS_NONE);
 
   const Position& getPosition() const;
 
  private:
-  Position pos_;
   PieceType piece_type_;
+  Position pos_;
 };
 
 #endif // CHESS_PIECE_H

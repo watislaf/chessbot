@@ -1,9 +1,7 @@
 #include "piece.h"
 
-Piece::Piece(int px, int py) : pos_(px, py) {}
-
 const Position& Piece::getPosition() const {
   return this->pos_;
 }
 
-Piece::Piece(const Position& posi) : pos_(posi) {}
+Piece::Piece(const Position& pos, PieceType piece_type_) : pos_(pos),piece_type_(piece_type_) {}
