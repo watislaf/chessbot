@@ -2,17 +2,17 @@
 #define CHESS_PIECE_H
 
 #include <abstracts/position.h>
-#include <board/pieceColor.cpp>
-#include <board/pieceType.cpp>
+#include <abstracts/pieceColor.h>
+#include <abstracts/pieceType.h>
 
 class Piece {
 
  public:
 
   explicit Piece(const Position& pos,
-                 PieceType piece_type_ = PieceType::IS_NONE,
+                 PieceType piece_type_ = PieceType::tNONE,
                  PieceColor piece_color = PieceColor::WHITE);
-  PieceColor GetPieceColor() const;
+  PieceColor getPieceColor() const;
   PieceType getType() const;
 
   const Position& getPosition() const;

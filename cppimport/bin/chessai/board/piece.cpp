@@ -11,6 +11,6 @@ PieceType Piece::getType() const {
   return this->piece_type_;
 }
 
-PieceColor Piece::GetPieceColor() const {
+PieceColor Piece::getPieceColor() const {
   return piece_color_;
 }
