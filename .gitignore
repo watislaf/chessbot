@@ -1,3 +1,7 @@
 .idea
+
 venv
 .githubtoken
+
+extra/pybind11
+cmake-build-debug
