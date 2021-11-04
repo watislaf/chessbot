@@ -21,10 +21,11 @@ add_executable(
         ${BIN_DIR}/board/board.cpp
         ${BIN_DIR}/board/piece.cpp
         ${BIN_DIR}/board/pieceType.cpp
+        ${BIN_DIR}/board/pieceColor.cpp
         ${BIN_DIR}/tools/moveGenerator.cpp
         ${BIN_DIR}/abstracts/move.cpp
         ${BIN_DIR}/abstracts/position.cpp
-)
+        ../bin/chessai/abstracts/move_type.cpp ../bin/chessai/abstracts/move_type.h)
 
 target_include_directories(hellotest PRIVATE ${BIN_DIR})
 target_link_libraries(

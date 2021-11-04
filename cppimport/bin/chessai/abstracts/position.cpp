@@ -12,6 +12,8 @@ int Position::GetX() const {
 int Position::GetY() const {
   return y;
 }
-Position::Position(int px, int py):x(px),y(py) {
+Position::Position(int px, int py) : x(px), y(py) {}
 
+Position Position::operator+(const Position& other) {
+  return {GetX() + other.GetX(), GetY() + other.GetY()};
 }

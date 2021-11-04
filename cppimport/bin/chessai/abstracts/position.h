@@ -11,6 +11,8 @@ class Position {
   int GetX() const;
   int GetY() const;
 
+  Position operator+(const Position& other);
+
  private:
   int x;
   int y;
