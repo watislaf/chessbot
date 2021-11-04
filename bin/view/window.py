@@ -1,7 +1,7 @@
 import pygame
 from pygame.surface import Surface
 
-from bin import FEN
+from tools import FEN
 from graphics.pictures import PICTURES_PATH
 
 class Window:
