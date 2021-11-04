@@ -1,4 +1,4 @@
-from tools.FEN import FEN
+from bin.tools.FEN import FEN
 from bin.view.window import Window
 
 

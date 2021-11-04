@@ -1,7 +1,5 @@
 from bin.controller import Controller
 
-import cppimport.output.outputcpp
-
 controller = Controller()
 
 if __name__ == "__main__":

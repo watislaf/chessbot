@@ -4,4 +4,4 @@ venv
 .githubtoken
 
 cmake-build-debug
-/extra/pybind11/
+extra/pybind11/*
