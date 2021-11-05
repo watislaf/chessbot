@@ -1,3 +1,4 @@
+#include <tools/pricer.h>
 #include "move.h"
 
 Move::Move(const Position& from, const Position& to)
@@ -5,11 +6,16 @@ Move::Move(const Position& from, const Position& to)
 
 Move::Move(const Piece& from, const Position& to)
     : start_(from.getPosition()), end_(to) {}
-int Move::GetPriceOfEndPiece() const {
-  return price_of_end_piece_;
-}
-void Move::SetPriceOfEndPiece(int price_of_end_piece) {
-  price_of_end_piece_ = price_of_end_piece;
+
+Move::Move(const Piece& from, const Piece& to) : start_(from.getPosition()),
+                                                 end_(to.getPosition()) {
+  if (to.getType() != PieceType::tNONE) {
+    if (to.getPieceColor() == from.getPieceColor()) {
+      defend_price_ = Pricer::GetPrice(to);
+    } else {
+      attack_price_ = Pricer::GetPrice(to);
+    }
+  }
 }
 bool Move::IsCanMakeNewFigure() const {
   return can_make_new_figure;
@@ -62,5 +68,20 @@ const Position& Move::GetEnd() const {
 }
 void Move::SetEnd(const Position& end) {
   end_ = end;
+}
+int Move::GetAttackPrice() const {
+  return attack_price_;
+}
+void Move::SetAttackPrice(int attack_price) {
+  attack_price_ = attack_price;
+}
+int Move::GetDefendPrice() const {
+  return defend_price_;
+}
+void Move::SetDefendPrice(int defend_price) {
+  defend_price_ = defend_price;
+}
+bool Move::IsBrakeRightCastle() const {
+  return brake_right_castle_;
 }
 

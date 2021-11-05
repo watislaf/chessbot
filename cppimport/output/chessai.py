@@ -23,7 +23,7 @@ namespace py = pybind11;       [now we can add attributes in python even if they
 PYBIND11_MODULE(example, m) {   [v]
     py::class_<Pet>(m, "Pet", py::dynamic_attr())
         .def(py::init<const std::string &>())  [<- constructor ]
-        .def("setName", &Pet::setName)moveGenerator::board_.GetPiece(position).getType()
+        .def("setName", &Pet::setName)MovesGenerator::board_.GetPiece(position).getType()
         .def("getName", &Pet::getName)
         .def_readwrite("name", &Pet::name); [<- We can also directly expose the name field using the ]
                     [v specify C++ parent type]
