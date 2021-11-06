@@ -3,35 +3,52 @@
 
 #include "piece.h"
 #include <vector>
+#include <list>
+#include <memory>
+#include "tools/fen.h"
+#include "abstracts/move.h"
 
 class Board {
 
  public:
-  Piece GetPiece(const Position& position) const;
-  void SetPiece(const Piece& piece);
+  explicit Board(FEN fen);
+  std::string getFen();
+  void apply(const Move&);
+  void unApply(const Move&);
+
+  std::shared_ptr<Piece> getPiece(const Position& position);
   // Castle
-  bool IsLcAvailable(const Piece& piece) const;
-  bool IsRcAvailable(const Piece& piece) const;
-  void BrakeLc(const Piece& piece);
-  void BrakeRc(const Piece& piece);
-  Position GetKingPosition(const Piece& piece) const;
+  bool isLcAvailable(const Piece& piece) const;
+  bool isRcAvailable(const Piece& piece) const;
+  void setBrakeLc(const Piece& piece, bool brake);
+  void setBrakeRc(const Piece& piece, bool brake);
+  Position getKingPosition(const Piece& piece) const;
+  bool isWhiteMove() const;
 
-  bool IsWhiteMove() const;
-  bool IsBlackMove() const;
-  void NextMove();
-  int GetPrevLongPonMove() const;
-  void SetPrevLongPonMove(int prev_long_pon_move) const;
-
+  bool isBlackMove() const;
+  void nextMove();
+  int getPrevLongPonMove() const;
+  void setPrevLongPonMove(int prev_long_pon_move);
+  int getLastPassantX() const;
+  std::string toStr() const;
  private:
-  std::vector<std::vector<Piece>> board;
-  bool is_white_move_ = true;
-  int prev_long_pon_move_ = 0;
 
+  void hardMove(std::shared_ptr<Piece> piece,
+                std::shared_ptr<Piece> piece_1);
+
+  std::vector<std::vector<std::shared_ptr<Piece>>> board_ =
+      std::vector<std::vector<std::shared_ptr<Piece>>>(8,
+                                                       std::vector<std::shared_ptr<
+                                                           Piece>>(8));
+  std::list<std::shared_ptr<Piece>> active_pieces;
+  bool is_white_move_ = true;
+  int last_passant_x_ = 0;
   struct Castle {
-    Position king_position;
+    Position king_position = {0, 0};
     bool LC_ = true;
     bool RC_ = true;
   } whiteCastle, blackCastle;
+  int move_count_ = 0;
 };
 
 #endif // CHESS_BOARD_H

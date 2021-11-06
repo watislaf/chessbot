@@ -1,14 +1,8 @@
 #include <tools/pricer.h>
 #include "move.h"
 
-Move::Move(const Position& from, const Position& to)
-    : start_(from), end_(to) {}
-
-Move::Move(const Piece& from, const Position& to)
-    : start_(from.getPosition()), end_(to) {}
-
-Move::Move(const Piece& from, const Piece& to) : start_(from.getPosition()),
-                                                 end_(to.getPosition()) {
+Move::Move(const Piece& from, const Piece& to) : start_(from),
+                                                 end_(to) {
   if (to.getType() != PieceType::tNONE) {
     if (to.getPieceColor() == from.getPieceColor()) {
       defend_price_ = Pricer::GetPrice(to);
@@ -17,11 +11,25 @@ Move::Move(const Piece& from, const Piece& to) : start_(from.getPosition()),
     }
   }
 }
-bool Move::IsCanMakeNewFigure() const {
-  return can_make_new_figure;
+void Move::SetIsCastle(bool b) {
+  if (b) {
+    SetBrakeRightCastle(true);
+    SetBrakeLeftCastle(true);
+  }
+  this->is_castle_ = b;
+}
+void Move::SetIsDoubleDistancePone(bool double_distance_pone,
+                                   int prev_passant) {
+  this->is_double_distance_pone_ = double_distance_pone;
+  if (double_distance_pone) {
+    this->prev_passant_ = prev_passant;
+  }
+}
+bool Move::isCanMakeNewFigure() const {
+  return can_make_new_figure_;
 }
 void Move::SetCanMakeNewFigure(bool can_make_new_figure) {
-  this->can_make_new_figure = can_make_new_figure;
+  this->can_make_new_figure_ = can_make_new_figure;
 }
 bool Move::IsBrakeLeftCastle() const {
   return brake_left_castle_;
@@ -35,38 +43,28 @@ bool Move::IsBrakeFeltCastle() const {
 void Move::SetBrakeRightCastle(bool brake_felt_castle) {
   this->brake_right_castle_ = brake_felt_castle;
 }
-void Move::SetIsCastle(bool b) {
-  if (b) {
-    SetBrakeRightCastle(true);
-    SetBrakeLeftCastle(true);
-  }
-  this->is_castle = b;
-}
 bool Move::IsCastle() const {
-  return is_castle;
+  return is_castle_;
 }
 bool Move::IsDoubleDistancePone() const {
-  return is_double_distance_pone;
-}
-void Move::SetIsDoubleDistancePone(bool double_distance_pone) {
-  this->is_double_distance_pone = double_distance_pone;
+  return is_double_distance_pone_;
 }
 bool Move::IsPassant() const {
-  return is_passant;
+  return is_passant_;
 }
 void Move::SetIsPassant(bool is_passant) {
-  this->is_passant = is_passant;
+  this->is_passant_ = is_passant;
 }
-const Position& Move::GetStart() const {
+const Piece& Move::getStart() const {
   return start_;
 }
-void Move::SetStart(const Position& start) {
+void Move::SetStart(const Piece& start) {
   start_ = start;
 }
-const Position& Move::GetEnd() const {
+const Piece& Move::getEnd() const {
   return end_;
 }
-void Move::SetEnd(const Position& end) {
+void Move::SetEnd(const Piece& end) {
   end_ = end;
 }
 int Move::GetAttackPrice() const {
@@ -83,5 +81,19 @@ void Move::SetDefendPrice(int defend_price) {
 }
 bool Move::IsBrakeRightCastle() const {
   return brake_right_castle_;
+}
+PieceType Move::GetNewPieceType() const {
+  return new_piece_type;
+}
+void Move::SetNewPieceType(PieceType new_piece_type) {
+  Move::new_piece_type = new_piece_type;
+}
+int Move::PrevPassant() const {
+  return prev_passant_;
+}
+
+std::string Move::toStr() const {
+  return std::string("(") + getStart().getPosition().toStr() + ","
+      + getEnd().getPosition().toStr() + ")";
 }
 

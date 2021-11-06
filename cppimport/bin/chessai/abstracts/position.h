@@ -1,15 +1,17 @@
 #ifndef POSITION_H
 #define POSITION_H
 
+#include <string>
 class Position {
 
  public:
-  Position(int px,int py);
+  Position(int px, int py);
 
+  std::string toStr() const;
   void SetX(int x);
   void SetY(int y);
-  int GetX() const;
-  int GetY() const;
+  int getX() const;
+  int getY() const;
 
   Position operator+(const Position& other) const;
 

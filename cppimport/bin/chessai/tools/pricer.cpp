@@ -10,4 +10,5 @@ int Pricer::GetPrice(const Piece& piece) {
     case PieceType::tBISHOP: return 3;
     case PieceType::tHORSE:return 3;
   }
+  return 0;
 }
