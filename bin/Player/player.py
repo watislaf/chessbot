@@ -1,2 +1,3 @@
 
 class Player:
+    pass
