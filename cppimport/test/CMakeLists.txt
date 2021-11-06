@@ -11,26 +11,16 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-set(BIN_DIR ${CMAKE_CURRENT_LIST_DIR}/../bin/chessai)
-
 #CMAKE_CURRENT_LIST_DIR - get current cmake dir
 add_executable(
-        hellotest
-        ${CMAKE_CURRENT_LIST_DIR}/hellotest.cpp
-        ${BIN_DIR}/chessAi.cpp
-        ${BIN_DIR}/board/board.cpp
-        ${BIN_DIR}/board/piece.cpp
-        ${BIN_DIR}/board/pieceType.cpp
-        ${BIN_DIR}/tools/moveGenerator.cpp
-        ${BIN_DIR}/abstracts/move.cpp
-        ${BIN_DIR}/abstracts/position.cpp
+        ${MY_TESTS_TO_AI}
+        ${CMAKE_CURRENT_LIST_DIR}/test.cpp
 )
 
-target_include_directories(hellotest PRIVATE ${BIN_DIR})
 target_link_libraries(
-        hellotest
-        gtest_main
+        ${MY_TESTS_TO_AI} gtest_main ${MY_AI_LIB}
 )
+
 
 include(GoogleTest)
-gtest_discover_tests(hellotest)
+gtest_discover_tests(${MY_TESTS_TO_AI})

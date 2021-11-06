@@ -1,5 +1,30 @@
+#include <string>
+#include <algorithm>
 #include "chessAi.h"
 
-int add(int i, int j) {
-    return i + j;
-};
+void ChessAi::startNewGame(const std::string& fen) {
+  board_ = std::make_shared<Board>(FEN(fen));
+}
+
+std::string ChessAi::getPossibleMovesForPiece(int x, int y) {
+  auto moves =
+      moves_generator.generateMoves(board_, board_->getPiece(Position(x, y)));
+
+  std::remove_if(moves.begin(),
+                 moves.end(),
+                 [](const Move& move) {
+                   return move.getStart().getPieceColor()
+                       == move.getEnd().getPieceColor();
+                 });
+  std::string answer = "";
+  for (auto move: moves) {
+    answer += move.toStr() + " ";
+  }
+  return answer;
+}
+std::string ChessAi::getBoardStr() const {
+  return  board_->toStr();
+}
+std::string ChessAi::getFen() const {
+  return  board_->getFen();
+}

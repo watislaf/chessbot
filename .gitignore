@@ -5,3 +5,5 @@ venv
 
 cmake-build-debug
 extra/pybind11/*
+/cppimport/output/*.so
+/cppimport/bin/lib/*.a

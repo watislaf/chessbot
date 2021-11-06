@@ -1,38 +1,37 @@
 import os, sys
-# import sys
+import re
+from ast import literal_eval as make_tuple
 
 import CPPchessai
 
-# Documentation
-# help(CPPchessai) # get info about what the function does
+class Move:
+    position_from = (0, 0)
+    position_to = (0, 0)
+
+    def __init__(self, strin: str):
+        my_tur = re.findall(r'[(][0-9],[0-9][)]', strin[1:-1])
+        self.position_from = make_tuple(my_tur[0])
+        self.position_to = make_tuple(my_tur[1])
+
+    def __str__(self):
+        return "(({},{}),({},{}))".format(self.position_from[0],
+                                          self.position_from[1],
+                                          self.position_to[0],
+                                          self.position_to[1])
 
 
-"""struct Pet {
-    Pet(const std::string &name) : name(name) { }
-        void setName(const std::string &name_) { name = name_; }
-        const std::string &getName() const { return name; }
-        std::string name;
-    };
-    struct Dog : Pet {
-        Dog(const std::string &name) : Pet(name) { }
-        std::string bark() const { return "woof!"; }
-    };
+class ChessAi:
+    wrappedChessAi = None
 
-namespace py = pybind11;       [now we can add attributes in python even if they are not in class]
-                                [|]
-PYBIND11_MODULE(example, m) {   [v]
-    py::class_<Pet>(m, "Pet", py::dynamic_attr())
-        .def(py::init<const std::string &>())  [<- constructor ]
-        .def("setName", &Pet::setName)
-        .def("getName", &Pet::getName)
-        .def_readwrite("name", &Pet::name); [<- We can also directly expose the name field using the ]
-                    [v specify C++ parent type]
-    py::class_<Dog, Pet>(m, "Dog")
-    .def(py::init<const std::string &>())
-    .def("bark", &Dog::bark);
-}
-_____
-p = example.Pet("Molly")
-p.setName("Charly")
-p.getName()
-"""
+    def __init__(self):
+        self.wrappedChessAi = CPPchessai.ChessAi()
+
+    def start_new_game(self,
+                     fen: str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"):
+        self.wrappedChessAi.startNewGame(fen)
+
+    def get_possible_moves(self, x: int, y: int):
+        moves_str = self.wrappedChessAi.getPossibleMovesForPiece(x, y).split(
+            " ")[:-1]
+        return tuple(map(lambda move_str: Move(move_str), moves_str))
+

@@ -6,12 +6,19 @@ void Position::SetX(int x) {
 void Position::SetY(int y) {
   Position::y = y;
 }
-int Position::GetX() const {
+int Position::getX() const {
   return x;
 }
-int Position::GetY() const {
+int Position::getY() const {
   return y;
 }
-Position::Position(int px, int py):x(px),y(py) {
+Position::Position(int px, int py) : x(px), y(py) {}
 
+Position Position::operator+(const Position& other) const {
+  return {getX() + other.getX(), getY() + other.getY()};
+}
+
+std::string Position::toStr() const {
+  return std::string("(") + std::to_string(getX()) + ","
+      + std::to_string(getY()) + ")";
 }
