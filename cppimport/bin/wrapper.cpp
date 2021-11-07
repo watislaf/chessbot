@@ -5,7 +5,7 @@ namespace py = pybind11;
 
 using namespace pybind11::literals;
 
-PYBIND11_MODULE(CPPchessai, module) {
+PYBIND11_MODULE(wrap, module) {
   py::class_<FEN>(module, "FEN", py::dynamic_attr()).
       def(py::init<const std::string &>());
 

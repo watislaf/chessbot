@@ -11,34 +11,37 @@ class Controller:
     view = None
     white_player_ = None
     black_player_ = None
+    __view__is_initialized = False
 
-    def __init__(self,
-                 str_fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"):
-        self.fen = FEN(str_fen)
-        self.view = View(FEN(str_fen))
+    def __init__(self):
+        self.view = View()
 
     def start_view(self):
-        self.view.start()
+        self.__view__is_initialized = self.view.start()
         pass
 
-    def start_game(self):
+    def start_game(self, str_fen: str):
+        if self.__view__is_initialized :
+            self.view.set_board(str_fen)
+        #self.white_player_.start_game(str_fen)
+        #self.black_player.start_game(str_fen)
+
         while True:
             print("HARD PROCESS LALALLAL")
+            #        while True:
+            #            if (self.fen.whosMowe() == "w"):
+            #                move = self.white_player_.get_move()
+            #            else:
+            #                move = self.black_player_.get_move()
+            #            if (move.isNotValid()):
+            #                print(self.fen.whosMowe(), " Lose")
+            #                break
+            #            self.white_player_.apply_move(move)
+            #            self.black_player_.apply_move(move)
+            # if self.__view__is_initialized :
+            #     self.view.apply_move(move)
             time.sleep(1)
             pass
-
-    #        self.while_player_.start_prcess()
-    #        self.black_player_.start_prcess()
-    #        while True:
-    #            if (self.fen.whosMowe() == "w"):
-    #                move = self.white_player_.get_move()
-    #            else:
-    #                move = self.black_player_.get_move()
-    #            if (move.isNotValid()):
-    #                print(self.fen.whosMowe(), " Lose")
-    #                break
-    #            self.white_player_.apply_move(move)
-    #            self.black_player_.apply_move(move)
 
     def set_white_payer(self, player: Player):
         self.white_player_ = player

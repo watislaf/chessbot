@@ -15,4 +15,8 @@ TEST(ChessAi, Basic) {
       "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   EXPECT_STREQ(chess_ai.getPossibleMovesForPiece(4, 1).c_str(),
                std::string("((4,1),(4,2)) ((4,1),(4,3)) ").c_str());
+  EXPECT_STREQ(chess_ai.getPossibleMovesForPiece(0,6).c_str(),
+               std::string("((0,6),(0,5)) ((0,6),(0,4)) ").c_str());
+
+  EXPECT_TRUE(false) << chess_ai.getPossibleMovesForPiece(1, 0).c_str() ;
 }

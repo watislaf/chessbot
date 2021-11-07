@@ -2,7 +2,7 @@ import os, sys
 import re
 from ast import literal_eval as make_tuple
 
-import CPPchessai
+import wrap
 
 
 class Move:
@@ -29,7 +29,7 @@ class ChessAi:
     wrappedChessAi = None
 
     def __init__(self):
-        self.wrappedChessAi = CPPchessai.ChessAi()
+        self.wrappedChessAi = wrap.ChessAi()
 
     def start_new_game(self,
                        fen: str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"):
@@ -37,6 +37,8 @@ class ChessAi:
 
     def get_possible_moves(self, x: int, y: int):
         moves_str = self.wrappedChessAi.getPossibleMovesForPiece(x, y)
-        if len(moves_str) == 0:
+        if moves_str != "":
             moves_str = moves_str.split(" ")[:-1]
-        return tuple(map(lambda move_str: Move(move_str), moves_str))
+            return tuple(map(lambda move_str: Move(move_str), moves_str))
+        else:
+            return tuple()

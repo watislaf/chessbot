@@ -10,7 +10,10 @@ class FEN:
     def moveCount(self):
         return self.rules[5]
 
-    def __init__(self,new_fen):
+    def isInit(self):
+        return len(self.array) != 0
+
+    def __init__(self, new_fen):
         self.fen = new_fen
         self.rules = new_fen.split(' ')
 
@@ -29,7 +32,6 @@ class FEN:
                          'b' + self.lines[y][x].lower()),
                      range(0, 8))],
                  range(0, 8))]
-
 
     def __getitem__(self, item: int):
         return self.array[item]

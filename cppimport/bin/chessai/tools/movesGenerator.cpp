@@ -37,11 +37,9 @@ std::vector<Move> MovesGenerator::generateMoves(std::shared_ptr<Board> board,
 void MovesGenerator::horseMove(bool reduce_tNone) {
   for (int left = -1; left <= 1; left += 2) {
     for (int top = -1; top <= 2; top += 2) {
-      insertPositionsToMoves(goByVector(Position(2, 3),
-                                        1,
-                                        false,
-                                        0));
-      insertPositionsToMoves(goByVector(Position(3, 2), 1));
+      insertPositionsToMoves(goByVector(Position(1*left, 2*top),
+                                        1));
+      insertPositionsToMoves(goByVector(Position(2*left, 1*top), 1));
     }
   }
 }
@@ -175,7 +173,9 @@ void MovesGenerator::poneSpecialMove() {
       moves_.emplace_back(
           *piece_,
           *board_->getPiece(piece_->getPosition()
-                                + Position(0, 2)));
+                                + Position(0,
+                                           piece_color == PieceColor::WHITE ? 2
+                                                                            : -2)));
       moves_.back().SetIsDoubleDistancePone(true, board_->getLastPassantX());
     }
   }
