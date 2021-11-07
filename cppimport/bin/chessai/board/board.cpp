@@ -61,13 +61,13 @@ Position Board::getKingPosition(const Piece& piece) const {
 void Board::apply(const Move& move) {
   hardMove(getPiece(move.getStart().getPosition()),
            getPiece(move.getEnd().getPosition()));
-  if (move.IsBrakeLeftCastle()) {
+  if (move.isBrakeLeftCastle()) {
     setBrakeLc(move.getStart(), true);
   }
-  if (move.IsBrakeRightCastle()) {
+  if (move.isBrakeRightCastle()) {
     setBrakeRc(move.getStart(), true);
   }
-  if (move.IsCastle()) {
+  if (move.isCastle()) {
     if (move.getEnd().getPosition().getX() < 3) {
       // LEFT RUCK PLACE
       hardMove(getPiece(
@@ -89,7 +89,7 @@ void Board::apply(const Move& move) {
   } else {
     last_passant_x_ = -1;
   }
-  if (move.IsPassant()) {
+  if (move.isPassant()) {
     int back = -1;
     if (move.getStart().getPieceColor() == PieceColor::BLACK) {
       back = 1;
@@ -99,7 +99,7 @@ void Board::apply(const Move& move) {
   }
   if (move.isCanMakeNewFigure()) {
     getPiece(move.getEnd().getPosition())->setType(
-        move.GetNewPieceType());
+        move.getNewPieceType());
   }
 }
 
@@ -108,13 +108,13 @@ void Board::unApply(const Move& move) {
   hardMove(getPiece(move.getEnd().getPosition()),
            getPiece(move.getStart().getPosition()));
 
-  if (move.IsBrakeLeftCastle()) {
+  if (move.isBrakeLeftCastle()) {
     setBrakeLc(move.getStart(), false);
   }
-  if (move.IsBrakeRightCastle()) {
+  if (move.isBrakeRightCastle()) {
     setBrakeRc(move.getStart(), false);
   }
-  if (move.IsCastle()) {
+  if (move.isCastle()) {
     if (move.getEnd().getPosition().getX() < 3) {
       // LEFT RUCK PLACE
       hardMove(getPiece(
@@ -132,7 +132,7 @@ void Board::unApply(const Move& move) {
   }
   last_passant_x_ = move.PrevPassant();
 
-  if (move.IsPassant()) {
+  if (move.isPassant()) {
     int back = -1;
     if (move.getStart().getPieceColor() == PieceColor::BLACK) {
       back = 1;

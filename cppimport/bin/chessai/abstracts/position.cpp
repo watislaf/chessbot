@@ -1,9 +1,9 @@
 #include "position.h"
 
-void Position::SetX(int x) {
+void Position::setX(int x) {
   Position::x = x;
 }
-void Position::SetY(int y) {
+void Position::setY(int y) {
   Position::y = y;
 }
 int Position::getX() const {

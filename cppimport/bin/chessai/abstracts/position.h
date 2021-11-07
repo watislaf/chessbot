@@ -8,8 +8,8 @@ class Position {
   Position(int px, int py);
 
   std::string toStr() const;
-  void SetX(int x);
-  void SetY(int y);
+  void setX(int x);
+  void setY(int y);
   int getX() const;
   int getY() const;
 

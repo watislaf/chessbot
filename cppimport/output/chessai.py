@@ -1,44 +1,17 @@
-import os, sys
-import re
-from ast import literal_eval as make_tuple
-
-import wrap
-
-
-class Move:
-    position_from = (0, 0)
-    position_to = (0, 0)
-
-    def __init__(self, *args):
-        if len(args) == 1:
-            my_tur = re.findall(r'[(][0-9],[0-9][)]', args[0][1:-1])
-            self.position_from = make_tuple(my_tur[0])
-            self.position_to = make_tuple(my_tur[1])
-        else:
-            self.position_from = args[0]
-            self.position_to = args[1]
-
-    def __str__(self):
-        return "(({},{}),({},{}))".format(self.position_from[0],
-                                          self.position_from[1],
-                                          self.position_to[0],
-                                          self.position_to[1])
+from bin.tools.move import PieceMove
+import CPPChessLib as lib
 
 
 class ChessAi:
-    wrappedChessAi = None
+    __CPPChessLib = None
 
     def __init__(self):
-        self.wrappedChessAi = wrap.ChessAi()
+        self.__CPPChessLib = lib.ChessAi()
 
-    def start_new_game(self,
-                       fen: str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"):
-        self.wrappedChessAi.startNewGame(fen)
+    def start_new_game(self, str_fen: str):
+        self.__CPPChessLib.startNewGame(str_fen)
 
-    def get_possible_moves(self, x: int, y: int):
-        moves_str = self.wrappedChessAi.getPossibleMovesForPiece(x, y)
-        if moves_str != "":
-            moves_str = moves_str.split(" ")[:-1]
-            return tuple(map(lambda move_str: Move(move_str), moves_str))
-        else:
-            return tuple()
+    def get_possible_moves_for_position(self, x: int, y: int):
+        mowes_strings = self.__CPPChessLib.getPossibleMovesForPosition(x, y) \
+                            .split(" ")[:-1]
+        return tuple(map(lambda move_str: PieceMove(move_str), mowes_strings))

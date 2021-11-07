@@ -2,9 +2,11 @@
 #define PRICER_H
 
 #include <board/piece.h>
+
 class Pricer {
  public:
-  static int GetPrice(const Piece& piece);
+  static int getPrice(const Piece& piece);
+
 };
 
 #endif //PRICER_H

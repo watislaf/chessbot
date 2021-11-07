@@ -11,14 +11,17 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-#CMAKE_CURRENT_LIST_DIR - get current cmake dir
+#Add execute
 add_executable(
         ${MY_TESTS_TO_AI}
         ${CMAKE_CURRENT_LIST_DIR}/test.cpp
 )
 
+#Add library
 target_link_libraries(
-        ${MY_TESTS_TO_AI} gtest_main ${MY_AI_LIB}
+        ${MY_TESTS_TO_AI}
+        gtest_main
+        ${MY_AI_LIB}
 )
 
 

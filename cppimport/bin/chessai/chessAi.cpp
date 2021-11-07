@@ -2,30 +2,36 @@
 #include <algorithm>
 #include "chessAi.h"
 
-void ChessAi::startNewGame(const std::string& fen) {
-  board_ = std::make_shared<Board>(FEN(fen));
+void ChessAi::startNewGame(const std::string& fen_str) {
+  board_ = std::make_shared<Board>(FEN(fen_str));
 }
 
-std::string ChessAi::getPossibleMovesForPiece(int x, int y) {
-  auto moves =
-      moves_generator.generateMoves(board_, board_->getPiece(Position(x, y)));
+std::string ChessAi::getPossibleMovesForPosition(int x, int y) {
+  auto moves = moves_generator.generateMoves(
+      board_, board_->getPiece(Position(x, y)));
 
-  auto end = std::remove_if(moves.begin(),
-                            moves.end(),
-                            [](const Move& move) {
-                              return move.getEnd().getType() != PieceType::tNONE
-                                  && move.getStart().getPieceColor()
-                                      == move.getEnd().getPieceColor();
-                            });
-  std::string answer = "";
-  for (auto i = moves.begin(); i != end; i++) {
-    answer += (*i).toStr() + " ";
+  moves.erase(
+      std::remove_if(
+          moves.begin(), moves.end(),
+          [](const Move& move) {
+            return move.getEnd().getType() != PieceType::tNONE
+                && move.getStart().getPieceColor()
+                    == move.getEnd().getPieceColor();
+          }), moves.end()
+  );
+
+  std::string answer;
+  for (const auto& move: moves) {
+    answer += move.toStr() + " ";
   }
+
   return answer;
 }
+
 std::string ChessAi::getBoardStr() const {
   return board_->toStr();
 }
-std::string ChessAi::getFen() const {
+
+std::string ChessAi::getFenStr() const {
   return board_->getFen();
 }

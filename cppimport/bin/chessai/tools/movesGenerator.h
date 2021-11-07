@@ -4,32 +4,33 @@
 #include "board/board.h"
 
 class MovesGenerator {
+
  public:
   std::vector<Move> generateMoves(std::shared_ptr<Board> board,
-                                  std::shared_ptr<const Piece> piece);
- private:
-  std::vector<Position> goByVector(Position vector,
-                                   int max_length = 8,
-                                   bool only_tNone = false,
-                                   bool reduce_tNone = false);
-  void horseMove(bool reduce_tNone = false);
-  void kingMove(bool reduce_tNone = false);
-  void ruckMove(bool reduce_tNone = false);
-  void queenMove(bool reduce_tNone = false);
-  void bishopMove(bool reduce_tNone = false);
-  void poneMove(bool reduce_tNone = false);
+                                  const std::shared_ptr<const Piece>& piece);
 
-  void castleMove();
-  bool isShahDanger(Move move);
+ private:
+  std::vector<Position> goByVector(
+      Position vector, int max_length = 8,
+      bool only_tNone = false, bool reduce_tNone = false);
+
+  void bishopMove(bool reduce_tNone = false);
+  void horseMove(bool reduce_tNone = false);
+  void queenMove(bool reduce_tNone = false);
+  void kingMove(bool reduce_tNone = false);
+  void poneMove(bool reduce_tNone = false);
+  void ruckMove(bool reduce_tNone = false);
   void poneSpecialMove();
+  void castleMove();
+
+  bool isShahDanger(Move move);
   bool isShah();
 
+  bool isPieceOnMoves(PieceType type);
   void insertPositionsToMoves(const std::vector<Position>& positions);
 
   std::shared_ptr<Board> board_;
-  std::shared_ptr<const Piece> piece_;
+  std::shared_ptr<const Piece> current_piece_;
   std::vector<Move> moves_;
-
-  bool movesAreAttacking(PieceType type);
 };
 #endif //CHESS_MOVEGENERATOR_H

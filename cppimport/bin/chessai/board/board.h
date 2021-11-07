@@ -25,14 +25,14 @@ class Board {
   Position getKingPosition(const Piece& piece) const;
   bool isWhiteMove() const;
 
-  bool isBlackMove() const;
   void nextMove();
+  bool isBlackMove() const;
   int getPrevLongPonMove() const;
   void setPrevLongPonMove(int prev_long_pon_move);
   int getLastPassantX() const;
   std::string toStr() const;
- private:
 
+ private:
   void hardMove(std::shared_ptr<Piece> piece,
                 std::shared_ptr<Piece> piece_1);
 
