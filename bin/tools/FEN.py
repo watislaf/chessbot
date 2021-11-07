@@ -10,8 +10,7 @@ class FEN:
     def moveCount(self):
         return self.rules[5]
 
-    def __init__(self,
-                 new_fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"):
+    def __init__(self,new_fen):
         self.fen = new_fen
         self.rules = new_fen.split(' ')
 
@@ -24,12 +23,13 @@ class FEN:
         self.array = [
             *map(lambda x: [
                 *map(lambda y:
-                     '_' if self.lines[x][y] == '_' else (
-                         'w' + self.lines[x][y] if self.lines[x][y].islower()
+                     '_' if self.lines[y][x] == '_' else (
+                         'w' + self.lines[y][x] if self.lines[y][x].islower()
                          else
-                         'b' + self.lines[x][y].lower()),
+                         'b' + self.lines[y][x].lower()),
                      range(0, 8))],
                  range(0, 8))]
+
 
     def __getitem__(self, item: int):
         return self.array[item]

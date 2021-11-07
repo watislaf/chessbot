@@ -1,13 +1,15 @@
-from bin.tools.FEN import FEN
+import threading
+
 from bin.view.window import Window
 
 
 class View:
-    window = None
-    fen = FEN()
-
-    def __init__(self):
-        self.window = Window(self.fen)
+    window_ = None
+    view_thread_ = None
+    def __init__(self, fen):
+        self.window_ = Window(fen)
 
     def start(self):
-        self.window.start()
+        self.window_.start()
+        #self.view_thread_ = threading.Thread(target=self.window_.start)
+        #self.view_thread_.start()

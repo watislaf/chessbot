@@ -8,11 +8,14 @@
 class ChessAi {
  public:
   void startNewGame(const std::string& FEN);
+  // START GENERATING TREE
+  // GIVE BEST MOVE
+  // MOVE MADE
   std::string getPossibleMovesForPiece(int x, int y);
 
   std::string getBoardStr() const;
-
   std::string getFen() const;
+
  private:
   std::shared_ptr<Board> board_;
   MovesGenerator moves_generator;
