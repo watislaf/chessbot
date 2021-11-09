@@ -4,10 +4,10 @@
 #include <board/piece.h>
 #include <string>
 #include "position.h"
-
+#include "memory"
 class Move {
  public:
-  Move(const Piece& from, const Piece& to);
+  Move(const std::shared_ptr<const Piece>& from, const std::shared_ptr<const Piece>& to);
 
   void setIsDoubleDistancePone(bool double_distance_pone, int prev_passant);
   void setCanMakeNewFigure(bool can_make_new_figure);
@@ -17,16 +17,14 @@ class Move {
   void setAttackPrice(int attack_price);
   void setDefendPrice(int defend_price);
   void setIsPassant(bool is_passant);
-  void setStart(const Piece& start);
-  bool IsDoubleDistancePone() const;
+  bool isDoubleDistancePone() const;
   PieceType getNewPieceType() const;
   bool isCanMakeNewFigure() const;
   bool isBrakeRightCastle() const;
   bool isBrakeLeftCastle() const;
   bool isBrakeFeltCastle() const;
-  const Piece& getStart() const;
-  void setEnd(const Piece& end);
-  const Piece& getEnd() const;
+  std::shared_ptr<const Piece> getStart() const;
+  std::shared_ptr<const Piece> getEnd() const;
   int getAttackPrice() const;
   int getDefendPrice() const;
   void setIsCastle(bool b);
@@ -36,8 +34,8 @@ class Move {
   int PrevPassant() const;
   std::string toStr() const;
  private:
-  Piece start_;
-  Piece end_;
+  std::shared_ptr<const Piece> start_;
+  std::shared_ptr<const Piece> end_;
 
   int attack_price_{};// 1 3 3 4 7 1000
   int defend_price_{};// 1 3 3 4 7 1000

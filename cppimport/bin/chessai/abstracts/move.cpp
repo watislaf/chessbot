@@ -1,23 +1,25 @@
 #include <tools/pricer.h>
 #include "move.h"
 
-Move::Move(const Piece& from, const Piece& to) : start_(from),
-                                                 end_(to) {
-  if (to.getType() != PieceType::tNONE) {
-    if (to.getPieceColor() == from.getPieceColor()) {
+Move::Move(const std::shared_ptr<const Piece>& from,
+           const std::shared_ptr<const Piece>& to) : start_(from), end_(to) {
+  if (to->getType() != PieceType::tNONE) {
+    if (to->getPieceColor() == from->getPieceColor()) {
       defend_price_ = Pricer::getPrice(to);
     } else {
       attack_price_ = Pricer::getPrice(to);
     }
   }
 }
-void Move::setIsCastle(bool b) {
-  if (b) {
+
+void Move::setIsCastle(bool is_castle) {
+  if (is_castle) {
     setBrakeRightCastle(true);
     setBrakeLeftCastle(true);
   }
-  this->is_castle_ = b;
+  this->is_castle_ = is_castle;
 }
+
 void Move::setIsDoubleDistancePone(bool double_distance_pone,
                                    int prev_passant) {
   this->is_double_distance_pone_ = double_distance_pone;
@@ -46,7 +48,7 @@ void Move::setBrakeRightCastle(bool brake_felt_castle) {
 bool Move::isCastle() const {
   return is_castle_;
 }
-bool Move::IsDoubleDistancePone() const {
+bool Move::isDoubleDistancePone() const {
   return is_double_distance_pone_;
 }
 bool Move::isPassant() const {
@@ -55,21 +57,18 @@ bool Move::isPassant() const {
 void Move::setIsPassant(bool is_passant) {
   this->is_passant_ = is_passant;
 }
-const Piece& Move::getStart() const {
+std::shared_ptr<const Piece> Move::getStart() const {
   return start_;
 }
-void Move::setStart(const Piece& start) {
-  start_ = start;
-}
-const Piece& Move::getEnd() const {
+
+std::shared_ptr<const Piece> Move::getEnd() const {
   return end_;
 }
-void Move::setEnd(const Piece& end) {
-  end_ = end;
-}
+
 int Move::getAttackPrice() const {
   return attack_price_;
 }
+
 void Move::setAttackPrice(int attack_price) {
   attack_price_ = attack_price;
 }
@@ -93,7 +92,7 @@ int Move::PrevPassant() const {
 }
 
 std::string Move::toStr() const {
-  return std::string("(") + getStart().getPosition().toStr() + ","
-      + getEnd().getPosition().toStr() + ")";
+  return std::string("(") + getStart()->getPosition().toStr() + ","
+      + getEnd()->getPosition().toStr() + ")";
 }
 

@@ -6,39 +6,42 @@ from bin.window import Window
 
 
 class Controller:
-    __window = None
-    __white_player_ = None
-    __black_player_ = None
+    window = None
+    window_event_obj = None
+    __white_player = None
+    __black_player = None
+    __window_is_inicialized = False
+
+    def __init__(self):
+        self.window_event_obj = threading.Event()
 
     def start_window(self):
-        self.__window = Window()
-        threading.Thread(target=self.__window.start_loop, daemon=True).start()
+        self.window = Window(self.window_event_obj)
+        threading.Thread(target=self.window.start_loop,
+                         daemon=True).start()
+        self.__window_is_inicialized = True
 
     def start_game(self, str_fen: str):
-        if self.__window is not None:
-            self.__window.start_board_from_fen_str(str_fen)
-        # self.white_player_.start_game(str_fen)
-        # self.black_player.start_game(str_fen)
+        if self.window is not None:
+            self.window.start_board_from_fen_str(str_fen)
+        self.__white_player.start_game(str_fen)
+        self.__black_player.start_game(str_fen)
 
         while True:
-            print("HARD PROCESS LALALLAL")
-            #        while True:
-            #            if (self.fen.whosMowe() == "w"):
-            #                move = self.white_player_.get_move()
-            #            else:
-            #                move = self.black_player_.get_move()
-            #            if (move.isNotValid()):
-            #                print(self.fen.whosMowe(), " Lose")
+            if self.__white_player.whosMowe() == "w":
+                move = self.__white_player.get_move()
+            else:
+                move = self.__black_player.get_move()
+            #            if move.isNotValid():
+            #                print(self.__white_player.whosMowe(), " Lose")
             #                break
-            #            self.white_player_.apply_move(move)
-            #            self.black_player_.apply_move(move)
-            # if self.__view__is_initialized :
-            #     self.view.apply_move(move)
-            time.sleep(1)
-            pass
+            self.__white_player.apply_move(move)
+            self.__black_player.apply_move(move)
+            if self.__window_is_inicialized:
+                self.window.apply_move(move)
 
     def set_white_player(self, player: Player):
-        self.__white_player_ = player
+        self.__white_player = player
 
     def set_black_player(self, player: Player):
-        self.__black_player_ = player
+        self.__black_player = player

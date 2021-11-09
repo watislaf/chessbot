@@ -20,3 +20,6 @@ class ChessAi:
         mowes_strings = self.__CPPChessLib.getPossibleMovesForPosition(x, y) \
                             .split(" ")[:-1]
         return tuple(map(lambda move_str: PieceMove(move_str), mowes_strings))
+
+    def apply_move(self, move):
+        self.__CPPChessLib.applyMove(*move.position_from, *move.position_to)

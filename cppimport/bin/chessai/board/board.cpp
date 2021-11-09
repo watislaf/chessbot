@@ -1,34 +1,34 @@
 #include <string>
 #include "board.h"
 
-std::shared_ptr<Piece> Board::getPiece(const Position& position) {
+std::shared_ptr<const Piece> Board::getPiece(const Position& position) const {
   return board_[position.getX()][position.getY()];
 }
 
-bool Board::isLcAvailable(const Piece& piece) const {
-  if (piece.getPieceColor() == PieceColor::WHITE) {
+bool Board::isLcAvailable(const std::shared_ptr<const Piece>& piece) const {
+  if (piece->getPieceColor() == PieceColor::WHITE) {
     return whiteCastle.LC_;
   }
   return blackCastle.LC_;
 }
 
-void Board::setBrakeLc(const Piece& piece, bool brake) {
-  if (piece.getPieceColor() == PieceColor::WHITE) {
+void Board::setBrakeLc(const std::shared_ptr<const Piece>& piece, bool brake) {
+  if (piece->getPieceColor() == PieceColor::WHITE) {
     whiteCastle.LC_ = brake;
   }
   blackCastle.LC_ = brake;
 
 }
-void Board::setBrakeRc(const Piece& piece, bool brake) {
-  if (piece.getPieceColor() == PieceColor::WHITE) {
+void Board::setBrakeRc(const std::shared_ptr<const Piece>& piece, bool brake) {
+  if (piece->getPieceColor() == PieceColor::WHITE) {
     whiteCastle.RC_ = brake;
   }
   blackCastle.RC_ = brake;
 
 }
 
-bool Board::isRcAvailable(const Piece& piece) const {
-  if (piece.getPieceColor() == PieceColor::WHITE) {
+bool Board::isRcAvailable(const std::shared_ptr<const Piece>& piece) const {
+  if (piece->getPieceColor() == PieceColor::WHITE) {
     return whiteCastle.RC_;
   }
   return blackCastle.RC_;
@@ -37,148 +37,29 @@ bool Board::isRcAvailable(const Piece& piece) const {
 bool Board::isWhiteMove() const {
   return is_white_move_;
 }
-void Board::nextMove() {
-  is_white_move_ = !is_white_move_;
-  move_count_++;
-}
 bool Board::isBlackMove() const {
   return !is_white_move_;
 }
-int Board::getPrevLongPonMove() const {
-  return last_passant_x_;
-}
-void Board::setPrevLongPonMove(int prev_long_pon_move) {
-  last_passant_x_ = prev_long_pon_move;
-}
 
-Position Board::getKingPosition(const Piece& piece) const {
-  if (piece.getPieceColor() == PieceColor::WHITE) {
-    return whiteCastle.king_position;
-  }
-  return blackCastle.king_position;
-}
+void Board::setPiece(const Piece& piece_template_object) {
+  int x = piece_template_object.getPosition().getX();
+  int y = piece_template_object.getPosition().getY();
 
-void Board::apply(const Move& move) {
-  hardMove(getPiece(move.getStart().getPosition()),
-           getPiece(move.getEnd().getPosition()));
-  if (move.isBrakeLeftCastle()) {
-    setBrakeLc(move.getStart(), true);
-  }
-  if (move.isBrakeRightCastle()) {
-    setBrakeRc(move.getStart(), true);
-  }
-  if (move.isCastle()) {
-    if (move.getEnd().getPosition().getX() < 3) {
-      // LEFT RUCK PLACE
-      hardMove(getPiece(
-                   Position(0, move.getEnd().getPosition().getY())),
-               getPiece(
-                   Position(move.getEnd().getPosition().getX() + 1,
-                            move.getEnd().getPosition().getY())));
+  board_[x][y] = (std::make_shared<Piece>(piece_template_object));
+  if (board_[x][y]->getType() == PieceType::tKING) {
+    if (board_[x][y]->getPieceColor() == PieceColor::WHITE) {
+      whiteCastle.king_position = {x, y};
     } else {
-      // Right ruck
-      hardMove(getPiece(
-                   Position(7, move.getEnd().getPosition().getY())),
-               getPiece(
-                   Position(move.getEnd().getPosition().getX() - 1,
-                            move.getEnd().getPosition().getY())));
+      blackCastle.king_position = {x, y};
     }
   }
-  if (move.IsDoubleDistancePone()) {
-    last_passant_x_ = move.getStart().getPosition().getX();
-  } else {
-    last_passant_x_ = -1;
-  }
-  if (move.isPassant()) {
-    int back = -1;
-    if (move.getStart().getPieceColor() == PieceColor::BLACK) {
-      back = 1;
-    }
-    hardMove(getPiece(move.getStart().getPosition()),
-             getPiece(move.getEnd().getPosition() + Position(0, back)));
-  }
-  if (move.isCanMakeNewFigure()) {
-    getPiece(move.getEnd().getPosition())->setType(
-        move.getNewPieceType());
-  }
-}
-
-void Board::unApply(const Move& move) {
-  // King get Pone
-  hardMove(getPiece(move.getEnd().getPosition()),
-           getPiece(move.getStart().getPosition()));
-
-  if (move.isBrakeLeftCastle()) {
-    setBrakeLc(move.getStart(), false);
-  }
-  if (move.isBrakeRightCastle()) {
-    setBrakeRc(move.getStart(), false);
-  }
-  if (move.isCastle()) {
-    if (move.getEnd().getPosition().getX() < 3) {
-      // LEFT RUCK PLACE
-      hardMove(getPiece(
-                   Position(move.getEnd().getPosition().getX() + 1,
-                            move.getEnd().getPosition().getY())),
-               getPiece(
-                   Position(0, move.getEnd().getPosition().getY())));
-    } else {
-      // Right ruck
-      hardMove(getPiece(
-                   Position(move.getEnd().getPosition().getX() - 1,
-                            move.getEnd().getPosition().getY())),
-               getPiece(Position(7, move.getEnd().getPosition().getY())));
-    }
-  }
-  last_passant_x_ = move.PrevPassant();
-
-  if (move.isPassant()) {
-    int back = -1;
-    if (move.getStart().getPieceColor() == PieceColor::BLACK) {
-      back = 1;
-    }
-    hardMove(getPiece(move.getEnd().getPosition() + Position(0, back)),
-             getPiece(move.getStart().getPosition()));
-    auto position_to_pone_be = move.getEnd().getPosition() + Position(0, back);
-    board_[position_to_pone_be.getX()][position_to_pone_be.getY()]->setPieceColor(
-        move.getStart().getPieceColor());
-  }
-  if (move.isCanMakeNewFigure()) {
-    getPiece(move.getStart().getPosition())->setType(
-        PieceType::tPONE);
-  }
-}
-
-int Board::getLastPassantX() const {
-  return last_passant_x_;
-}
-
-void Board::hardMove(std::shared_ptr<Piece> piece,
-                     std::shared_ptr<Piece> piece_1) {
-  std::swap(board_[piece_1->getPosition().getX()][piece_1->getPosition().getY()],
-            board_[piece->getPosition().getX()][piece->getPosition().getY()]);
-  auto tmp = piece->getPosition();
-  piece->setPosition(piece_1->getPosition());
-  piece_1->setPosition(tmp);
 }
 
 Board::Board(FEN fen) {
   for (int j = 0; j < 8; j++) {
     for (int i = 0; i < 8; i++) {
-      auto my_piece = fen.getPiece(7 - j, i);
-      board_[i][j] = (std::make_shared<Piece>(Position(i, j),
-                                              my_piece.getType(),
-                                              my_piece.getPieceColor()));
-      if (board_[i][j]->getType() == PieceType::tKING) {
-        if (board_[i][j]->getPieceColor() == PieceColor::WHITE) {
-          whiteCastle.king_position = {i, j};
-        } else {
-          blackCastle.king_position = {i, j};
-        }
-      }
-      if (board_[i][j]->getType() != PieceType::tNONE) {
-        active_pieces.emplace_back(board_[i][j]);
-      }
+      auto my_piece = fen.getPiece(i,j);
+      setPiece(my_piece);
     }
   }
   is_white_move_ = fen.getIsWhiteMowe();
@@ -188,6 +69,128 @@ Board::Board(FEN fen) {
   blackCastle.RC_ = fen.getBRC();
   last_passant_x_ = fen.getPassantX();
   move_count_ = fen.getMoveCount();
+}
+
+Position Board::getKingPosition(const std::shared_ptr<const Piece>& piece) const {
+  if (piece->getPieceColor() == PieceColor::WHITE) {
+    return whiteCastle.king_position;
+  }
+  return blackCastle.king_position;
+}
+
+void Board::apply(const Move& move) {
+  is_white_move_ = !is_white_move_;
+  move_count_++;
+  forceMove(getPiece(move.getStart()->getPosition()),
+            getPiece(move.getEnd()->getPosition()));
+  if (move.isBrakeLeftCastle()) {
+    setBrakeLc(move.getStart(), true);
+  }
+  if (move.isBrakeRightCastle()) {
+    setBrakeRc(move.getStart(), true);
+  }
+  if (move.isCastle()) {
+    if (move.getEnd()->getPosition().getX() < 3) {
+      // LEFT RUCK PLACE
+      forceMove(getPiece(Position(0, move.getEnd()->getPosition().getY())),
+                getPiece(Position(move.getEnd()->getPosition().getX() + 1,
+                                  move.getEnd()->getPosition().getY())));
+    } else {
+      // Right ruck
+      forceMove(getPiece(
+                    Position(7, move.getEnd()->getPosition().getY())),
+                getPiece(
+                    Position(move.getEnd()->getPosition().getX() - 1,
+                             move.getEnd()->getPosition().getY())));
+    }
+  }
+  if (move.isDoubleDistancePone()) {
+    last_passant_x_ = move.getStart()->getPosition().getX();
+  } else {
+    last_passant_x_ = -1;
+  }
+
+  if (move.isPassant()) {
+    int back = -1;
+    if (move.getStart()->getPieceColor() == PieceColor::BLACK) {
+      back = 1;
+    }
+    forceMove(getPiece(move.getStart()->getPosition()),
+              getPiece(move.getEnd()->getPosition() + Position(0, back)));
+  }
+  if (move.isCanMakeNewFigure()) {
+    setPiece(Piece(move.getEnd()->getPosition(),
+                   move.getNewPieceType(),
+                   move.getStart()->getPieceColor()));
+  }
+}
+
+void Board::unApply(const Move& move) {
+  is_white_move_ = !is_white_move_;
+  move_count_--;
+  // King get Pone
+  forceMove(getPiece(move.getEnd()->getPosition()),
+            getPiece(move.getStart()->getPosition()));
+
+  if (move.isBrakeLeftCastle()) {
+    setBrakeLc(move.getStart(), false);
+  }
+  if (move.isBrakeRightCastle()) {
+    setBrakeRc(move.getStart(), false);
+  }
+  if (move.isCastle()) {
+    if (move.getEnd()->getPosition().getX() < 3) {
+      // LEFT RUCK PLACE
+      forceMove(getPiece(
+                    Position(move.getEnd()->getPosition().getX() + 1,
+                             move.getEnd()->getPosition().getY())),
+                getPiece(
+                    Position(0, move.getEnd()->getPosition().getY())));
+    } else {
+      // Right ruck
+      forceMove(getPiece(
+                    Position(move.getEnd()->getPosition().getX() - 1,
+                             move.getEnd()->getPosition().getY())),
+                getPiece(Position(7, move.getEnd()->getPosition().getY())));
+    }
+  }
+  last_passant_x_ = move.PrevPassant();
+
+  if (move.isPassant()) {
+    int back = -1;
+    if (move.getStart()->getPieceColor() == PieceColor::BLACK) {
+      back = 1;
+    }
+    auto position_to_pone_be = move.getEnd()->getPosition() + Position(0, back);
+    auto pone_color_reversed_color =
+        board_[position_to_pone_be.getX()][position_to_pone_be.getY()]->getPieceColor();
+    if (pone_color_reversed_color == PieceColor::BLACK) {
+      pone_color_reversed_color = PieceColor::WHITE;
+    } else {
+      pone_color_reversed_color = PieceColor::BLACK;
+    }
+    setPiece(Piece(position_to_pone_be,
+                   PieceType::tPONE,
+                   pone_color_reversed_color));
+  }
+  if (move.isCanMakeNewFigure()) {
+    setPiece(Piece(move.getStart()->getPosition(),
+                   PieceType::tPONE,
+                   move.getStart()->getPieceColor()));
+  }
+}
+
+int Board::getLastPassantX() const {
+  return last_passant_x_;
+}
+void Board::forceMove(const std::shared_ptr<const Piece>& piece_from,
+                      const std::shared_ptr<const Piece>& piece_to) {
+  setPiece(Piece(piece_to->getPosition(),
+                 piece_from->getType(),
+                 piece_from->getPieceColor()));
+  setPiece(Piece(piece_from->getPosition(),
+                 PieceType::tNONE,
+                 piece_from->getPieceColor()));
 }
 std::string Board::toStr() const {
   std::string answer;
@@ -261,5 +264,38 @@ std::string Board::getFen() {
   fen += std::to_string(move_count_ * 2 + is_white_move_);
   return fen;
 
+}
+
+bool Board::operator==(const Board& other) const {
+  return other.is_white_move_ == is_white_move_ &&
+      other.last_passant_x_ == last_passant_x_ &&
+      other.whiteCastle.RC_ == whiteCastle.RC_ &&
+      other.whiteCastle.king_position == whiteCastle.king_position &&
+      other.whiteCastle.LC_ == whiteCastle.LC_ &&
+      other.blackCastle.RC_ == blackCastle.RC_ &&
+      other.blackCastle.king_position == blackCastle.king_position &&
+      other.blackCastle.LC_ == blackCastle.LC_ &&
+      other.move_count_ == move_count_ && [this, &other]() {
+    for (int i = 0; i <= 7; i++) {
+      for (int j = 0; j <= 7; j++) {
+        if (*(board_[i][j]) != *(other.getPiece(Position(i, j))))
+          return false;
+      }
+    }
+    return true;
+  }();
+}
+bool Board::operator!=(const Board& other) const {
+  return !(*this == other);
+}
+
+Board::Board(const Board& board) {
+  *this = board;
+  for (int j = 0; j < 8; j++) {
+    for (int i = 0; i < 8; i++) {
+      auto my_piece = *board.getPiece(Position(i, j));
+      setPiece(my_piece);
+    }
+  }
 }
 

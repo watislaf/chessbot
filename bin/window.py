@@ -21,17 +21,19 @@ class Window:
     __pieces_img = {}
     __fen = None
 
-    __position_dragging = (0, 0)
+    pos_piece_dragging = (0, 0)
     __is_dragging = False
 
     __mouse_x = 0
     __mouse_y = 0
+    last_move = [(-1, -1)]
 
     def start_board_from_fen_str(self, str_fen):
         self.__fen = FEN(str_fen)
         self.__chessAi.start_new_game(self.__fen.fen_str)
 
-    def __init__(self):
+    def __init__(self, window_event_obj):
+        self.__window_event_obj = window_event_obj
         pygame.display.set_caption("CHESS")
         pygame.init()
         self.__py_window = pygame.display.set_mode(
@@ -61,26 +63,44 @@ class Window:
     def start_dragging(self, event):
         if not self.__fen:
             return
-        if event.button == 1:
-            position_x, position_y = event.pos
-            self.__position_dragging = ( position_x // self.__cell_size,
-                7 - position_y // self.__cell_size)
+        if event.button != 1:
+            return
+        position_x, position_y = event.pos
+        self.pos_piece_dragging = (position_x // self.__cell_size,
+                                   7 - position_y // self.__cell_size)
+        piece = self.__fen[self.pos_piece_dragging[0]][
+            self.pos_piece_dragging[1]]
 
-            if self.__fen[self.__position_dragging[0]][
-                self.__position_dragging[1]] != '_':
-                self.__is_dragging = True
-                self.__possible_moves = \
-                    self.__chessAi.get_possible_moves_for_position(
-                        self.__position_dragging[0],
-                        self.__position_dragging[1])
+        ## CHECK PIECE OF OTHER COLOR
+        if piece != '_':
+            self.__is_dragging = True
+            self.__possible_moves = \
+                self.__chessAi.get_possible_moves_for_position(
+                    self.pos_piece_dragging[0],
+                    self.pos_piece_dragging[1])
 
-    def end_dragging(self):
+    def apply_move(self, move):
+        self.__fen.apply_move(move)
+        self.__chessAi.apply_move(move)
+
+    def end_dragging(self, event):
         self.__is_dragging = False
+
+        if event.button != 1:
+            return
+        position_x, position_y = event.pos
+        self.pos_piece_dragging = (position_x // self.__cell_size,
+                                   7 - position_y // self.__cell_size)
+        for move in self.__possible_moves:
+            if move.position_to == self.pos_piece_dragging:
+                if self.__fen[move.position_from[0]][
+                    move.position_from[1]][0] == self.__fen.getWhoIsMove():
+                    self.last_move[0] = move
+                    self.__window_event_obj.set()
 
     def __draw_board(self):
         for x in range(0, 8):
             for y in range(0, 8):
-
                 self.__draw_rect(((x + y) % 2 == 1), x, y)
         if not self.__fen:
             return
@@ -90,7 +110,7 @@ class Window:
                 position_x = x * self.__cell_size
                 position_y = (7 - y) * self.__cell_size
 
-                if self.__is_dragging and (x, y) == self.__position_dragging:
+                if self.__is_dragging and (x, y) == self.pos_piece_dragging:
                     self.__draw_pieces(
                         self.__pieces_img.get(self.__fen[x][y], None),
                         self.__mouse_x - self.__cell_size // 2,

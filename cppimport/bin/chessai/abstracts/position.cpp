@@ -1,11 +1,5 @@
 #include "position.h"
 
-void Position::setX(int x) {
-  Position::x = x;
-}
-void Position::setY(int y) {
-  Position::y = y;
-}
 int Position::getX() const {
   return x;
 }
@@ -21,4 +15,7 @@ Position Position::operator+(const Position& other) const {
 std::string Position::toStr() const {
   return std::string("(") + std::to_string(getX()) + ","
       + std::to_string(getY()) + ")";
+}
+bool Position::operator==(const Position& other) const {
+  return x == other.x && y == other.y;
 }

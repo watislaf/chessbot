@@ -35,14 +35,27 @@ std::string Piece::toStr() const {
       break;
     case PieceType::tNONE:letter = '_';
   };
-  if (piece_color_ == PieceColor::WHITE && piece_type_ != PieceType::tNONE)
+  if (piece_color_ == PieceColor::WHITE && piece_type_ != PieceType::tNONE) {
     letter = std::toupper(letter);
+  }
   return std::string("") + letter;
 }
 void Piece::setPieceColor(PieceColor piece_color) {
   piece_color_ = piece_color;
 }
 
-void Piece::setPosition(const Position& pos) {
-  pos_ = pos;
+bool Piece::operator==(const Piece& other) const {
+  return piece_color_ == other.piece_color_ &&
+      piece_type_ == other.piece_type_ &&
+      pos_ == other.pos_;
+}
+
+bool Piece::operator!=(const Piece& other) const {
+  return !(*this == other);
+}
+bool Piece::isEnemyTo(const Piece& other) const {
+  if (other.getType() == PieceType::tNONE) {
+    return false;
+  }
+  return piece_color_ != other.piece_color_;
 }

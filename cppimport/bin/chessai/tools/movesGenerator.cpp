@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iostream>
 #include "abstracts/move.h"
 #include "movesGenerator.h"
 #include "pricer.h"
@@ -28,12 +29,15 @@ std::vector<Move> MovesGenerator::generateMoves(
     case PieceType::tNONE:return {};
   }
 
-  moves_.erase(
-      std::remove_if(moves_.begin(),
-                     moves_.end(),
-                     [this](Move move) { return isShahDanger(move); }),
-      moves_.end());
-  return moves_;
+  auto clear_moves = moves_;
+  auto begin_to_erase_ponter = std::remove_if(clear_moves.begin(),
+                                              clear_moves.end(),
+                                              [this](const Move& move) {
+                                                return isShahDanger(move);
+                                              });
+  if (begin_to_erase_ponter != clear_moves.end())
+    clear_moves.erase(begin_to_erase_ponter, clear_moves.end());
+  return clear_moves;
 }
 
 void MovesGenerator::horseMove(bool reduce_tNone) {
@@ -98,7 +102,10 @@ void MovesGenerator::poneMove(bool reduce_tNone) {
                                     1,
                                     false,
                                     reduce_tNone));
-  if (moves_.back().getEnd().getPosition().getY() % 7 == 0) {
+  if (moves_.empty()) {
+    return;
+  }
+  if (moves_.back().getEnd()->getPosition().getY() % 7 == 0) {
     moves_.back().setCanMakeNewFigure(true);
   }
 }
@@ -137,13 +144,13 @@ std::vector<Position> MovesGenerator::goByVector(Position vector,
 
 void MovesGenerator::castleMove() {
   // If king move he lost castle
-  if (board_->isLcAvailable(*current_piece_)) {
+  if (board_->isLcAvailable(current_piece_)) {
     auto positions_left = goByVector(Position(-1, 0));
     if (positions_left.size() == 4) {
       for (int i = -3; i >= -2; i++) {
         moves_.emplace_back(
-            *current_piece_,
-            *board_->getPiece(current_piece_->getPosition() + Position(i, 0)));
+            current_piece_,
+            board_->getPiece(current_piece_->getPosition() + Position(i, 0)));
         moves_.back().setIsCastle(true);
         moves_.back().setBrakeRightCastle(true);
       }
@@ -152,10 +159,10 @@ void MovesGenerator::castleMove() {
       move.setBrakeLeftCastle(true);
     }
   }
-  if (board_->isRcAvailable(*current_piece_)) {
+  if (board_->isRcAvailable(current_piece_)) {
     auto positions_right = goByVector(Position(1, 0));
     if (positions_right.size() == 3) {
-      moves_.emplace_back(*current_piece_, *board_->getPiece(
+      moves_.emplace_back(current_piece_, board_->getPiece(
           current_piece_->getPosition() + Position(2, 0)));
       moves_.back().setIsCastle(true);
       moves_.back().setBrakeLeftCastle(true);
@@ -178,10 +185,10 @@ void MovesGenerator::poneSpecialMove() {
                    true).
         size() == 2) {
       moves_.emplace_back(
-          *current_piece_,
-          *board_->getPiece(current_piece_->getPosition()
-                                + Position(0, piece_color == PieceColor::WHITE
-                                              ? 2 : -2)));
+          current_piece_,
+          board_->getPiece(current_piece_->getPosition()
+                               + Position(0, piece_color == PieceColor::WHITE
+                                             ? 2 : -2)));
       moves_.back().setIsDoubleDistancePone(true, board_->getLastPassantX());
     }
   }
@@ -190,14 +197,16 @@ void MovesGenerator::poneSpecialMove() {
   for (int i = -1; i <= 1; i += 2) {
     auto go_diagonal = goByVector(Position(i, 1), 1, false, true);
     if (go_diagonal.size() == 1
-        && board_->getPiece(go_diagonal[0])->getPieceColor() != piece_color) {
-      moves_.emplace_back(*current_piece_, *board_->getPiece(go_diagonal[0]));
+        && board_->getPiece(go_diagonal[0])->isEnemyTo(*current_piece_)) {
+      moves_.emplace_back(current_piece_, board_->getPiece(go_diagonal[0]));
     }
     auto go_diagonal2 = goByVector(Position(i, 1), 1, true);
+
     // Atack passant
+    go_diagonal = goByVector(Position(i, 1), 1, true, false);
     if (go_diagonal.size() == 1
         && board_->getLastPassantX() == go_diagonal[0].getX()) {
-      moves_.emplace_back(*current_piece_, *board_->getPiece(go_diagonal[0]));
+      moves_.emplace_back(current_piece_, board_->getPiece(go_diagonal[0]));
       moves_.back().setIsPassant(true);
       moves_.back().setAttackPrice(Pricer::getPrice(moves_.back().getStart()));
     }
@@ -206,34 +215,37 @@ void MovesGenerator::poneSpecialMove() {
 
 void MovesGenerator::insertPositionsToMoves(const std::vector<Position>& positions) {
   for (const auto& pos: positions) {
-    moves_.emplace_back(*current_piece_, *board_->getPiece(pos));
+    moves_.emplace_back(current_piece_, board_->getPiece(pos));
   }
 }
 
-bool MovesGenerator::isShahDanger(Move move) {
+bool MovesGenerator::isShahDanger(const Move& move) {
   if (move.getDefendPrice() != 0)
     return false;
+  Board board = *board_;
 
   board_->apply(move);
   bool is_under_shach = isShah();
   board_->unApply(move);
+
+  if (board != *board_) {
+    std::cout << "!!!!!!!!!!!!";
+  }
   if (is_under_shach) {
     return true;
   }
   if (move.isCastle()) {
     Move non_castle_move(move.getStart(),
-                         *board_->getPiece(Position(
-                             (move.getStart().getPosition().getX()
-                                 + move.getEnd().getPosition().getX()) / 2,
-                             move.getStart().getPosition().getY())));
+                         board_->getPiece(Position(
+                             (move.getStart()->getPosition().getX()
+                                 + move.getEnd()->getPosition().getX()) / 2,
+                             move.getStart()->getPosition().getY())));
     non_castle_move.setIsCastle(false);
-
-    board_->apply(move);
+    board_->apply(non_castle_move);
     is_under_shach = isShah(); // check castle somehow )))))
-    board_->unApply(move);
-    move.setIsCastle(true);
-
+    board_->unApply(non_castle_move);
   }
+
   if (is_under_shach) {
     return true;
   }
@@ -245,7 +257,7 @@ bool MovesGenerator::isShah() {
   auto pieceTMP = current_piece_;
 
   moves_.clear();
-  current_piece_ = board_->getPiece(board_->getKingPosition(*current_piece_));
+  current_piece_ = board_->getPiece(board_->getKingPosition(current_piece_));
 
   horseMove(true);
   if (isPieceOnMoves(PieceType::tHORSE)) {
@@ -274,6 +286,7 @@ bool MovesGenerator::isShah() {
   }
   moves_.clear();
   poneMove(true);
+  poneSpecialMove();
   if (isPieceOnMoves(PieceType::tPONE)) {
     return true;
   }
@@ -285,8 +298,8 @@ bool MovesGenerator::isShah() {
 bool MovesGenerator::isPieceOnMoves(PieceType type) {
   for (const auto& move: moves_) {
     auto piece_here = move.getEnd();
-    if (piece_here.getPieceColor() != current_piece_->getPieceColor()
-        && piece_here.getType() == type) {
+    if (piece_here->getPieceColor() != current_piece_->getPieceColor()
+        && piece_here->getType() == type) {
       return true;
     }
   }

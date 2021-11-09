@@ -1,4 +1,4 @@
-#!/usr/bin/sudo python
+import threading
 
 from bin.controller import Controller
 from bin.play_session_capture.OpenCvController import OpenCvController
@@ -12,10 +12,10 @@ controller = OpenCvController()
 if __name__ == "__main__2":
     controller = Controller()
     controller.start_window()
-
-    view_player = ViewPlayer()
+    view_player = ViewPlayer(controller.window.last_move,
+                             controller.window_event_obj)
     controller.set_white_player(view_player)
-    # controller.set_black_player(chesss_ai)
+    controller.set_black_player(view_player)
 
     controller.start_game(
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")

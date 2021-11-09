@@ -12,35 +12,36 @@ class Board {
 
  public:
   explicit Board(FEN fen);
+  Board(const Board& board);
   std::string getFen();
   void apply(const Move&);
   void unApply(const Move&);
 
-  std::shared_ptr<Piece> getPiece(const Position& position);
+  std::shared_ptr<const Piece> getPiece(const Position& position) const;
   // Castle
-  bool isLcAvailable(const Piece& piece) const;
-  bool isRcAvailable(const Piece& piece) const;
-  void setBrakeLc(const Piece& piece, bool brake);
-  void setBrakeRc(const Piece& piece, bool brake);
-  Position getKingPosition(const Piece& piece) const;
+  bool isLcAvailable(const std::shared_ptr<const Piece>& piece) const;
+  bool isRcAvailable(const std::shared_ptr<const Piece>& piece) const;
+  void setBrakeLc(const std::shared_ptr<const Piece>& piece, bool brake);
+  void setBrakeRc(const std::shared_ptr<const Piece>& piece, bool brake);
+  Position getKingPosition(const std::shared_ptr<const Piece>& piece) const;
   bool isWhiteMove() const;
 
-  void nextMove();
   bool isBlackMove() const;
-  int getPrevLongPonMove() const;
-  void setPrevLongPonMove(int prev_long_pon_move);
   int getLastPassantX() const;
   std::string toStr() const;
 
- private:
-  void hardMove(std::shared_ptr<Piece> piece,
-                std::shared_ptr<Piece> piece_1);
+  bool operator==(const Board& other) const;
+  bool operator!=(const Board& other) const;
 
-  std::vector<std::vector<std::shared_ptr<Piece>>> board_ =
-      std::vector<std::vector<std::shared_ptr<Piece>>>(8,
-                                                       std::vector<std::shared_ptr<
-                                                           Piece>>(8));
-  std::list<std::shared_ptr<Piece>> active_pieces;
+  void setPiece(const Piece& piece_template_object);
+
+ private:
+  void forceMove(const std::shared_ptr<const Piece>& piece_from,
+                 const std::shared_ptr<const Piece>& piece_to);
+
+  std::vector<std::vector<std::shared_ptr<const Piece>>> board_ =
+      std::vector<std::vector<std::shared_ptr<const Piece>>>
+          (8, std::vector<std::shared_ptr<const Piece>>(8));
   bool is_white_move_ = true;
   int last_passant_x_ = 0;
   struct Castle {

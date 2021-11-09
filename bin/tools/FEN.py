@@ -15,6 +15,7 @@ class FEN:
                     self.__rules[0][index + 1:]
 
         self.__lines = self.__rules[0].split('/')
+
         self.__array = [
             *map(lambda x: [
                 *map(lambda y:
@@ -37,3 +38,15 @@ class FEN:
 
     def __getitem__(self, item: int):
         return self.__array[item]
+
+    def apply_move(self, move):
+        self.__array[move.position_from[0]][move.position_from[1]], \
+        self.__array[move.position_to[0]][move.position_to[1]] = \
+            self.__array[move.position_to[0]][move.position_to[1]], \
+            self.__array[move.position_from[0]][move.position_from[1]]
+        self.__array[move.position_from[0]][move.position_from[1]] = "_"
+        if self.__rules[1] == 'w':
+            self.__rules[1] = 'b'
+        else:
+            self.__rules[1] = 'w'
+        self.__rules[5] = str(int(self.__rules[5]) + 1)

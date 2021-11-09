@@ -1,7 +1,7 @@
 #include "pricer.h"
 
-int Pricer::getPrice(const Piece& piece) {
-  switch (piece.getType()) {
+int Pricer::getPrice(const std::shared_ptr<const Piece>& piece) {
+  switch (piece->getType()) {
     case PieceType::tKING:return 999;
     case PieceType::tQUEEN:return 7;
     case PieceType::tRUCK:return 4;

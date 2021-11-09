@@ -11,6 +11,9 @@ class ChessAi {
   // START GENERATING TREE
   // GIVE BEST MOVE
   // MOVE MADE
+
+  void applyMove(int fx, int fy, int tx, int ty);
+
   std::string getPossibleMovesForPosition(int x, int y);
 
   std::string getBoardStr() const;

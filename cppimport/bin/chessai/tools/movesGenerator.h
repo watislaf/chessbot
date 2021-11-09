@@ -4,7 +4,6 @@
 #include "board/board.h"
 
 class MovesGenerator {
-
  public:
   std::vector<Move> generateMoves(std::shared_ptr<Board> board,
                                   const std::shared_ptr<const Piece>& piece);
@@ -23,14 +22,14 @@ class MovesGenerator {
   void poneSpecialMove();
   void castleMove();
 
-  bool isShahDanger(Move move);
+  bool isShahDanger(const Move& move);
   bool isShah();
 
   bool isPieceOnMoves(PieceType type);
   void insertPositionsToMoves(const std::vector<Position>& positions);
 
-  std::shared_ptr<Board> board_;
   std::shared_ptr<const Piece> current_piece_;
+  std::shared_ptr<Board> board_;
   std::vector<Move> moves_;
 };
 #endif //CHESS_MOVEGENERATOR_H

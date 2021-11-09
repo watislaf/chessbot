@@ -26,7 +26,7 @@ FEN::FEN(std::string fen_str) {
 }
 
 Piece FEN::getPiece(int i, int j) {
-  auto my_piece = Piece(Position(i, j));
+  auto my_piece = Piece(Position(j, 7-i));
   if (islower(fen_matrix_[i][j])) {
     my_piece.setPieceColor(PieceColor::BLACK);
   } else {

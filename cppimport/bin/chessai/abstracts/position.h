@@ -8,12 +8,12 @@ class Position {
   Position(int px, int py);
 
   std::string toStr() const;
-  void setX(int x);
-  void setY(int y);
+
   int getX() const;
   int getY() const;
 
   Position operator+(const Position& other) const;
+  bool operator==(const Position& other) const;
 
  private:
   int x;

@@ -17,11 +17,12 @@ class Piece {
   const Position& getPosition() const;
   void setType(PieceType type);
   void setPieceColor(PieceColor piece_color);
-  void setPosition(const Position& pos);
+  bool isEnemyTo(const Piece& other) const;
+  bool operator==(const Piece& other) const;
+  bool operator!=(const Piece& other) const;
 
  private:
   PieceColor piece_color_;
- private:
   PieceType piece_type_;
 
   Position pos_;
