@@ -1,13 +1,13 @@
 #!/usr/bin/sudo python
 
 from bin.controller import Controller
-from bin.play_session_capture.CaptureController import CaptureController
+from bin.play_session_capture.OpenCvController import OpenCvController
 from bin.play_session_capture.MouseController import MouseController
 from bin.player.chesscom_player import ChesscomPlayer
 from bin.player.view_player import ViewPlayer
 
-mouse_move = MouseController()
-#mouse_move.drag()
+
+controller = OpenCvController()
 
 if __name__ == "__main__2":
     controller = Controller()

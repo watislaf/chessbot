@@ -1,8 +1,8 @@
 import sys
 from bin.tools.move import PieceMove
 
-OUTPUT_PATH = '/'.join(__file__.split("/")[:-1])
-sys.path.append(OUTPUT_PATH)
+AI_PATH = '/'.join(__file__.split("/")[:-1])
+sys.path.append(AI_PATH)
 
 import CPPChessLib as lib
 

@@ -20,7 +20,9 @@ if [[ -f "venv/venv.cfg" ]]; then
 
   sudo apt-get install python3-pip
   sudo pip3 install pygame
-  pip3 install mouse
-
+  pip3 install pyautogui
+  pip3 install opencv-python
+  pip3 install mss
 fi
+
 

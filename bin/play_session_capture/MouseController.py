@@ -1,10 +1,8 @@
-import time
-
-import mouse
+import pyautogui
 
 
 class MouseController:
-    def __init__(self):
-        while True:
-            time.sleep(1)
-            mouse.click('left')
+    @staticmethod
+    def drag(start_x, start_y, end_x, end_y, fast=0.5):
+        pyautogui.moveTo(start_x, start_y, fast, pyautogui.easeInOutBack)
+        pyautogui.drag(end_x - start_x, end_y - start_y, fast, pyautogui.easeInOutBack)

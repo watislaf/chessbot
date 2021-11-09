@@ -1,4 +1,4 @@
-from bin.play_session_capture.CaptureController import CaptureController
+from bin.play_session_capture.OpenCvController import OpenCvController
 from bin.player.player import Player
 
 
