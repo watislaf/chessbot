@@ -27,36 +27,47 @@ void Move::setIsDoubleDistancePone(bool double_distance_pone,
     this->prev_passant_ = prev_passant;
   }
 }
+
 bool Move::isCanMakeNewFigure() const {
   return can_make_new_figure_;
 }
+
 void Move::setCanMakeNewFigure(bool can_make_new_figure) {
   this->can_make_new_figure_ = can_make_new_figure;
 }
+
 bool Move::isBrakeLeftCastle() const {
   return brake_left_castle_;
 }
+
 void Move::setBrakeLeftCastle(bool brake_left_castle) {
   Move::brake_left_castle_ = brake_left_castle;
 }
+
 bool Move::isBrakeFeltCastle() const {
   return brake_right_castle_;
 }
+
 void Move::setBrakeRightCastle(bool brake_felt_castle) {
   this->brake_right_castle_ = brake_felt_castle;
 }
+
 bool Move::isCastle() const {
   return is_castle_;
 }
+
 bool Move::isDoubleDistancePone() const {
   return is_double_distance_pone_;
 }
+
 bool Move::isPassant() const {
   return is_passant_;
 }
+
 void Move::setIsPassant(bool is_passant) {
   this->is_passant_ = is_passant;
 }
+
 std::shared_ptr<const Piece> Move::getStart() const {
   return start_;
 }
@@ -72,27 +83,31 @@ int Move::getAttackPrice() const {
 void Move::setAttackPrice(int attack_price) {
   attack_price_ = attack_price;
 }
+
 int Move::getDefendPrice() const {
   return defend_price_;
 }
+
 void Move::setDefendPrice(int defend_price) {
   defend_price_ = defend_price;
 }
+
 bool Move::isBrakeRightCastle() const {
   return brake_right_castle_;
 }
+
 PieceType Move::getNewPieceType() const {
   return new_piece_type;
 }
-void Move::setNewPieceType(PieceType new_piece_type) {
-  Move::new_piece_type = new_piece_type;
-}
-int Move::PrevPassant() const {
-  return prev_passant_;
-}
+
 
 std::string Move::toStr() const {
   return std::string("(") + getStart()->getPosition().toStr() + ","
       + getEnd()->getPosition().toStr() + ")";
 }
-
+int Move::getPrevPassant() const {
+  return prev_passant_;
+}
+void Move::setPrevPassant(int prev_passant) {
+  prev_passant_ = prev_passant;
+}

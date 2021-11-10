@@ -2,18 +2,17 @@ import threading
 
 from bin.controller import Controller
 from bin.play_session_capture.OpenCvController import OpenCvController
-from bin.play_session_capture.MouseController import MouseController
-from bin.player.chesscom_player import ChesscomPlayer
 from bin.player.view_player import ViewPlayer
 
 
-controller = OpenCvController()
+#controller = OpenCvController()
 
-if __name__ == "__main__2":
+if __name__ == "__main__":
     controller = Controller()
     controller.start_window()
     view_player = ViewPlayer(controller.window.last_move,
-                             controller.window_event_obj)
+                             controller.window_event_obj,
+                             controller.window.get_window_board_str)
     controller.set_white_player(view_player)
     controller.set_black_player(view_player)
 

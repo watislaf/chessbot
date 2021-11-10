@@ -19,7 +19,7 @@ void Piece::setType(PieceType type) {
 }
 
 std::string Piece::toStr() const {
-  char letter;
+  std::string letter;
   switch (piece_type_) {
     case PieceType::tKING:letter = 'k';
       break;
@@ -27,7 +27,7 @@ std::string Piece::toStr() const {
       break;
     case PieceType::tPONE:letter = 'p';
       break;
-    case PieceType::tHORSE:letter = 'h';
+    case PieceType::tHORSE:letter = 'n';
       break;
     case PieceType::tRUCK:letter = 'r';
       break;
@@ -36,7 +36,10 @@ std::string Piece::toStr() const {
     case PieceType::tNONE:letter = '_';
   };
   if (piece_color_ == PieceColor::WHITE && piece_type_ != PieceType::tNONE) {
-    letter = std::toupper(letter);
+    letter = std::string("w") + std::string(letter);
+  }
+  if (piece_color_ == PieceColor::BLACK && piece_type_ != PieceType::tNONE) {
+    letter = std::string("b") + std::string(letter);
   }
   return std::string("") + letter;
 }

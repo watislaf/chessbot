@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 import cv2
 from mss import mss
@@ -23,7 +22,8 @@ class OpenCvController:
             threshold = .8
             loc = np.where(res >= threshold)
             for pt in zip(*loc[::-1]):  # Switch collumns and rows
-                cv2.rectangle(sct_img, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 2)
+                cv2.rectangle(sct_img, pt, (pt[0] + w, pt[1] + h), (0, 0, 255),
+                              2)
 
             cv2.imshow('screen', sct_img)
             if (cv2.waitKey(1) & 0xFF) == ord('q'):

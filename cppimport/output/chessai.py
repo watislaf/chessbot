@@ -23,3 +23,6 @@ class ChessAi:
 
     def apply_move(self, move):
         self.__CPPChessLib.applyMove(*move.position_from, *move.position_to)
+
+    def get_board_str(self):
+        return self.__CPPChessLib.getBoardStr()

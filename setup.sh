@@ -25,4 +25,3 @@ if [[ -f "venv/venv.cfg" ]]; then
   pip3 install mss
 fi
 
-

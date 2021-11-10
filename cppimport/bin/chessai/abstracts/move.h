@@ -7,13 +7,13 @@
 #include "memory"
 class Move {
  public:
-  Move(const std::shared_ptr<const Piece>& from, const std::shared_ptr<const Piece>& to);
+  Move(const std::shared_ptr<const Piece>& from,
+       const std::shared_ptr<const Piece>& to);
 
   void setIsDoubleDistancePone(bool double_distance_pone, int prev_passant);
   void setCanMakeNewFigure(bool can_make_new_figure);
   void setBrakeRightCastle(bool brake_felt_castle);
   void setBrakeLeftCastle(bool brake_left_castle);
-  void setNewPieceType(PieceType new_piece_type);
   void setAttackPrice(int attack_price);
   void setDefendPrice(int defend_price);
   void setIsPassant(bool is_passant);
@@ -30,8 +30,8 @@ class Move {
   void setIsCastle(bool b);
   bool isPassant() const;
   bool isCastle() const;
-
-  int PrevPassant() const;
+  int getPrevPassant() const;
+  void setPrevPassant(int prev_passant);
   std::string toStr() const;
  private:
   std::shared_ptr<const Piece> start_;

@@ -12,14 +12,14 @@ bool Board::isLcAvailable(const std::shared_ptr<const Piece>& piece) const {
   return blackCastle.LC_;
 }
 
-void Board::setBrakeLc(const std::shared_ptr<const Piece>& piece, bool brake) {
+void Board::setLC(const std::shared_ptr<const Piece>& piece, bool brake) {
   if (piece->getPieceColor() == PieceColor::WHITE) {
     whiteCastle.LC_ = brake;
   }
   blackCastle.LC_ = brake;
 
 }
-void Board::setBrakeRc(const std::shared_ptr<const Piece>& piece, bool brake) {
+void Board::setRc(const std::shared_ptr<const Piece>& piece, bool brake) {
   if (piece->getPieceColor() == PieceColor::WHITE) {
     whiteCastle.RC_ = brake;
   }
@@ -58,7 +58,7 @@ void Board::setPiece(const Piece& piece_template_object) {
 Board::Board(FEN fen) {
   for (int j = 0; j < 8; j++) {
     for (int i = 0; i < 8; i++) {
-      auto my_piece = fen.getPiece(i,j);
+      auto my_piece = fen.getPiece(i, j);
       setPiece(my_piece);
     }
   }
@@ -84,10 +84,10 @@ void Board::apply(const Move& move) {
   forceMove(getPiece(move.getStart()->getPosition()),
             getPiece(move.getEnd()->getPosition()));
   if (move.isBrakeLeftCastle()) {
-    setBrakeLc(move.getStart(), true);
+    setLC(move.getStart(), false);
   }
   if (move.isBrakeRightCastle()) {
-    setBrakeRc(move.getStart(), true);
+    setRc(move.getStart(), false);
   }
   if (move.isCastle()) {
     if (move.getEnd()->getPosition().getX() < 3) {
@@ -131,12 +131,12 @@ void Board::unApply(const Move& move) {
   // King get Pone
   forceMove(getPiece(move.getEnd()->getPosition()),
             getPiece(move.getStart()->getPosition()));
-
+  setPiece(*move.getEnd());
   if (move.isBrakeLeftCastle()) {
-    setBrakeLc(move.getStart(), false);
+    setLC(move.getStart(), true);
   }
   if (move.isBrakeRightCastle()) {
-    setBrakeRc(move.getStart(), false);
+    setRc(move.getStart(), true);
   }
   if (move.isCastle()) {
     if (move.getEnd()->getPosition().getX() < 3) {
@@ -154,7 +154,7 @@ void Board::unApply(const Move& move) {
                 getPiece(Position(7, move.getEnd()->getPosition().getY())));
     }
   }
-  last_passant_x_ = move.PrevPassant();
+  last_passant_x_ = move.getPrevPassant();
 
   if (move.isPassant()) {
     int back = -1;
@@ -190,21 +190,17 @@ void Board::forceMove(const std::shared_ptr<const Piece>& piece_from,
                  piece_from->getPieceColor()));
   setPiece(Piece(piece_from->getPosition(),
                  PieceType::tNONE,
-                 piece_from->getPieceColor()));
+                 PieceColor::WHITE));
 }
 std::string Board::toStr() const {
   std::string answer;
-  // y
-  // 4
-  // 3
-  // 2
-  // 1
-  // 0 1 2 3 4 : x
-  for (int y = 7; y >= 0; y--) {
+  for (int y = 0; y <= 7; y++) {
     for (int x = 0; x <= 7; x++) {
-      answer += board_[x][y]->toStr() + " ";
+      answer += board_[y][x]->toStr() + " ";
     }
-    answer += "\n";
+    if (y != 7) {
+      answer += "\n";
+    }
   }
   return answer;
 }

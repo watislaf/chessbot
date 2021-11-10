@@ -10,7 +10,8 @@ PYBIND11_MODULE(MY_WRAPPER, module) {
   py::class_<ChessAi>(module, "ChessAi", py::dynamic_attr())
       .def(py::init<>())
       .def("startNewGame", &ChessAi::startNewGame)
-      .def("applyMove",&ChessAi::applyMove)
+      .def("applyMove", &ChessAi::applyMove)
       .def("getPossibleMovesForPosition", &ChessAi::getPossibleMovesForPosition)
-      .def("getFenStr", &ChessAi::getFenStr);
+      .def("getFenStr", &ChessAi::getFenStr)
+      .def("getBoardStr", &ChessAi::getBoardStr);
 }

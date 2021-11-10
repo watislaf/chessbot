@@ -24,8 +24,8 @@ class Board {
   // Castle
   bool isLcAvailable(const std::shared_ptr<const Piece>& piece) const;
   bool isRcAvailable(const std::shared_ptr<const Piece>& piece) const;
-  void setBrakeLc(const std::shared_ptr<const Piece>& piece, bool brake);
-  void setBrakeRc(const std::shared_ptr<const Piece>& piece, bool brake);
+  void setLC(const std::shared_ptr<const Piece>& piece, bool brake);
+  void setRc(const std::shared_ptr<const Piece>& piece, bool brake);
   Position getKingPosition(const std::shared_ptr<const Piece>& piece) const;
   bool isWhiteMove() const;
 

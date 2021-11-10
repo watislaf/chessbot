@@ -17,3 +17,7 @@ class Player:
     @abstractmethod
     def get_move(self):
         pass
+
+    @abstractmethod
+    def get_board_str(self):
+        pass

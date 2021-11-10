@@ -17,9 +17,9 @@ class MovesGenerator {
   void horseMove(bool reduce_tNone = false);
   void queenMove(bool reduce_tNone = false);
   void kingMove(bool reduce_tNone = false);
-  void poneMove(bool reduce_tNone = false);
+  void ponePacificMove(bool reduce_tNone = false);
   void ruckMove(bool reduce_tNone = false);
-  void poneSpecialMove();
+  void poneAttackMove();
   void castleMove();
 
   bool isShahDanger(const Move& move);

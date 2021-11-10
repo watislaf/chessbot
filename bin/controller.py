@@ -39,6 +39,11 @@ class Controller:
             self.__black_player.apply_move(move)
             if self.__window_is_inicialized:
                 self.window.apply_move(move)
+                if self.__white_player.get_board_str().replace(" ", "") != \
+                        self.__black_player.get_board_str().replace(" ", ""):
+                    print("DIFFERENT BOARDS BETWEEN PLAYERS")
+                    print(self.__white_player.get_board_str())
+                    print(self.__black_player.get_board_str())
 
     def set_white_player(self, player: Player):
         self.__white_player = player

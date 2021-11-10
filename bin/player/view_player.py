@@ -8,9 +8,13 @@ class ViewPlayer(Player):
     __pointer_to_last_move = None
     whos_move = None
 
-    def __init__(self, pointer_to_last_move, event_obj):
+    def __init__(self, pointer_to_last_move, event_obj,get_window_board_str):
         self.__pointer_to_last_move = pointer_to_last_move
         self.__event_obj = event_obj
+        self.__get_window_board_str = get_window_board_str
+
+    def get_board_str(self):
+        return self.__get_window_board_str()
 
     def start_game(self, str_fen: str):
         fen = FEN(str_fen)

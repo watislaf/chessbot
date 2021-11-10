@@ -28,6 +28,9 @@ class Window:
     __mouse_y = 0
     last_move = [(-1, -1)]
 
+    def get_window_board_str(self):
+        return self.__fen.getBoardStr()
+
     def start_board_from_fen_str(self, str_fen):
         self.__fen = FEN(str_fen)
         self.__chessAi.start_new_game(self.__fen.fen_str)
@@ -82,6 +85,13 @@ class Window:
     def apply_move(self, move):
         self.__fen.apply_move(move)
         self.__chessAi.apply_move(move)
+
+        if self.get_window_board_str().replace(" ", "") != \
+                self.__chessAi.get_board_str().replace(" ", ""):
+            print("DIFFERENT BOARDS BETWEEN PLAYERS")
+            print(self.get_window_board_str().replace(" ", ""))
+            print(self.__chessAi.get_board_str().replace(" ", ""))
+        print(move)
 
     def end_dragging(self, event):
         self.__is_dragging = False

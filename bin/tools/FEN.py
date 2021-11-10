@@ -50,3 +50,6 @@ class FEN:
         else:
             self.__rules[1] = 'w'
         self.__rules[5] = str(int(self.__rules[5]) + 1)
+
+    def getBoardStr(self):
+        return " \n".join( list(map(lambda list: " ".join(list), self.__array)))
