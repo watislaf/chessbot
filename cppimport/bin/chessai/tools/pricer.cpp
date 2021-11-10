@@ -13,3 +13,11 @@ int Pricer::getPrice(const std::shared_ptr<const Piece>& piece) {
 
   return 0;
 }
+
+int Pricer::count(const Board &board, const Move &move) {
+    int answer =  move.getAttackPrice();
+    if(board.isBlackMove()){
+        answer*=-1;
+    }
+    return answer;
+}

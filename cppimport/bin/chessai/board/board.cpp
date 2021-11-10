@@ -299,3 +299,11 @@ Board::Board(const Board& board) {
   }
 }
 
+int Board::getMoveCount() const {
+    return move_count_;
+}
+
+void Board::setMoveCount(int moveCount) {
+    move_count_ = moveCount;
+}
+

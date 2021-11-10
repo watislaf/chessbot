@@ -4,6 +4,7 @@
 #include <memory>
 #include "board/board.h"
 #include "tools/movesGenerator.h"
+#include "tools/movesTree.h"
 
 class ChessAi {
  public:
@@ -19,10 +20,19 @@ class ChessAi {
   std::string getBoardStr() const;
   std::string getFenStr() const;
 
- private:
+    void startGameAnalize();
+
+private:
   std::shared_ptr<Board> board_;
+    std::shared_ptr<MovesTree> tree_moves_;
+
   MovesGenerator moves_generator;
 
+    void loopStart(int tree_grow_rate);
+
+    void makeTreeDeeper(std::shared_ptr<MovesTree::Node>);
+
+    void generateMovesForNode(std::shared_ptr<MovesTree::Node> sharedPtr);
 };
 
 #endif //CHESS_CHESSAI_H

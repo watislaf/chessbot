@@ -17,6 +17,9 @@ class Board {
   void apply(const Move&);
   void unApply(const Move&);
 
+    int getMoveCount() const;
+
+    void setMoveCount(int moveCount);
   std::shared_ptr<const Piece> getPiece(const Position& position) const;
   // Castle
   bool isLcAvailable(const std::shared_ptr<const Piece>& piece) const;
@@ -49,7 +52,8 @@ class Board {
     bool LC_ = true;
     bool RC_ = true;
   } whiteCastle, blackCastle;
-  int move_count_ = 0;
+
+    int move_count_ = 0;
 };
 
 #endif // CHESS_BOARD_H
