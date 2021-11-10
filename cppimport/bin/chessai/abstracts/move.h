@@ -40,14 +40,14 @@ class Move {
   int attack_price_{};// 1 3 3 4 7 1000
   int defend_price_{};// 1 3 3 4 7 1000
 
-  bool brake_left_castle_ = false; // -1 LC_ 1 RC_
+  bool brake_left_castle_ = false; // -1 LC_is_possible_ 1 RC_is_possible_
   bool brake_right_castle_ = false;
   bool is_castle_ = false;
 
   bool is_double_distance_pone_ = false;
   bool is_passant_ = false;
   int prev_passant_ = -1;
-  // -1 LC_ 1 RC_
+  // -1 LC_is_possible_ 1 RC_is_possible_
   bool can_make_new_figure_ = false; // new_figure
   PieceType new_piece_type = PieceType::tNONE;
   // new_figure

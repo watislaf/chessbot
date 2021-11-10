@@ -5,33 +5,35 @@ std::shared_ptr<const Piece> Board::getPiece(const Position& position) const {
   return board_[position.getX()][position.getY()];
 }
 
-bool Board::isLcAvailable(const std::shared_ptr<const Piece>& piece) const {
+bool Board::LcIsPossible(const std::shared_ptr<const Piece>& piece) const {
   if (piece->getPieceColor() == PieceColor::WHITE) {
-    return whiteCastle.LC_;
+    return whiteCastle.LC_is_possible_;
   }
-  return blackCastle.LC_;
+  return blackCastle.LC_is_possible_;
 }
 
-void Board::setLC(const std::shared_ptr<const Piece>& piece, bool brake) {
+void Board::setLCIsPossible(const std::shared_ptr<const Piece>& piece,
+                            bool brake) {
   if (piece->getPieceColor() == PieceColor::WHITE) {
-    whiteCastle.LC_ = brake;
+    whiteCastle.LC_is_possible_ = brake;
+  } else {
+    blackCastle.LC_is_possible_ = brake;
   }
-  blackCastle.LC_ = brake;
-
 }
-void Board::setRc(const std::shared_ptr<const Piece>& piece, bool brake) {
+void Board::setRCIsPossible(const std::shared_ptr<const Piece>& piece,
+                            bool brake) {
   if (piece->getPieceColor() == PieceColor::WHITE) {
-    whiteCastle.RC_ = brake;
+    whiteCastle.RC_is_possible_ = brake;
+  } else {
+    blackCastle.RC_is_possible_ = brake;
   }
-  blackCastle.RC_ = brake;
-
 }
 
-bool Board::isRcAvailable(const std::shared_ptr<const Piece>& piece) const {
+bool Board::RcIsPossible(const std::shared_ptr<const Piece>& piece) const {
   if (piece->getPieceColor() == PieceColor::WHITE) {
-    return whiteCastle.RC_;
+    return whiteCastle.RC_is_possible_;
   }
-  return blackCastle.RC_;
+  return blackCastle.RC_is_possible_;
 }
 
 bool Board::isWhiteMove() const {
@@ -44,8 +46,23 @@ bool Board::isBlackMove() const {
 void Board::setPiece(const Piece& piece_template_object) {
   int x = piece_template_object.getPosition().getX();
   int y = piece_template_object.getPosition().getY();
+  if (board_[x][y] != NULL && board_[x][y]->getType() != PieceType::tNONE) {
+    if (board_[x][y]->getPieceColor() == PieceColor::WHITE) {
+      active_white_pieces_.remove(board_[x][y]);
+    } else {
+      active_black_pieces_.remove(board_[x][y]);
+    }
 
+  }
   board_[x][y] = (std::make_shared<Piece>(piece_template_object));
+  if (piece_template_object.getType() == PieceType::tNONE) {
+    return;
+  }
+  if (board_[x][y]->getPieceColor() == PieceColor::WHITE) {
+    active_white_pieces_.push_back(board_[x][y]);
+  } else {
+    active_black_pieces_.push_back(board_[x][y]);
+  }
   if (board_[x][y]->getType() == PieceType::tKING) {
     if (board_[x][y]->getPieceColor() == PieceColor::WHITE) {
       whiteCastle.king_position = {x, y};
@@ -63,10 +80,10 @@ Board::Board(FEN fen) {
     }
   }
   is_white_move_ = fen.getIsWhiteMowe();
-  whiteCastle.LC_ = fen.getWLC();
-  whiteCastle.RC_ = fen.getWRC();
-  blackCastle.LC_ = fen.getBLC();
-  blackCastle.RC_ = fen.getBRC();
+  whiteCastle.LC_is_possible_ = fen.getWLC();
+  whiteCastle.RC_is_possible_ = fen.getWRC();
+  blackCastle.LC_is_possible_ = fen.getBLC();
+  blackCastle.RC_is_possible_ = fen.getBRC();
   last_passant_x_ = fen.getPassantX();
   move_count_ = fen.getMoveCount();
 }
@@ -84,10 +101,10 @@ void Board::apply(const Move& move) {
   forceMove(getPiece(move.getStart()->getPosition()),
             getPiece(move.getEnd()->getPosition()));
   if (move.isBrakeLeftCastle()) {
-    setLC(move.getStart(), false);
+    setLCIsPossible(move.getStart(), false);
   }
   if (move.isBrakeRightCastle()) {
-    setRc(move.getStart(), false);
+    setRCIsPossible(move.getStart(), false);
   }
   if (move.isCastle()) {
     if (move.getEnd()->getPosition().getX() < 3) {
@@ -133,10 +150,10 @@ void Board::unApply(const Move& move) {
             getPiece(move.getStart()->getPosition()));
   setPiece(*move.getEnd());
   if (move.isBrakeLeftCastle()) {
-    setLC(move.getStart(), true);
+    setLCIsPossible(move.getStart(), true);
   }
   if (move.isBrakeRightCastle()) {
-    setRc(move.getStart(), true);
+    setRCIsPossible(move.getStart(), true);
   }
   if (move.isCastle()) {
     if (move.getEnd()->getPosition().getX() < 3) {
@@ -234,13 +251,13 @@ std::string Board::getFen() {
     fen += " b";
   }
   fen += " ";
-  if (whiteCastle.RC_)
+  if (whiteCastle.RC_is_possible_)
     fen += "K";
-  if (whiteCastle.LC_)
+  if (whiteCastle.LC_is_possible_)
     fen += "Q";
-  if (blackCastle.RC_)
+  if (blackCastle.RC_is_possible_)
     fen += "k";
-  if (blackCastle.LC_)
+  if (blackCastle.LC_is_possible_)
     fen += "q";
   fen += " ";
   if (last_passant_x_ != -1) {
@@ -265,12 +282,12 @@ std::string Board::getFen() {
 bool Board::operator==(const Board& other) const {
   return other.is_white_move_ == is_white_move_ &&
       other.last_passant_x_ == last_passant_x_ &&
-      other.whiteCastle.RC_ == whiteCastle.RC_ &&
+      other.whiteCastle.RC_is_possible_ == whiteCastle.RC_is_possible_ &&
       other.whiteCastle.king_position == whiteCastle.king_position &&
-      other.whiteCastle.LC_ == whiteCastle.LC_ &&
-      other.blackCastle.RC_ == blackCastle.RC_ &&
+      other.whiteCastle.LC_is_possible_ == whiteCastle.LC_is_possible_ &&
+      other.blackCastle.RC_is_possible_ == blackCastle.RC_is_possible_ &&
       other.blackCastle.king_position == blackCastle.king_position &&
-      other.blackCastle.LC_ == blackCastle.LC_ &&
+      other.blackCastle.LC_is_possible_ == blackCastle.LC_is_possible_ &&
       other.move_count_ == move_count_ && [this, &other]() {
     for (int i = 0; i <= 7; i++) {
       for (int j = 0; j <= 7; j++) {
@@ -296,10 +313,18 @@ Board::Board(const Board& board) {
 }
 
 int Board::getMoveCount() const {
-    return move_count_;
+  return move_count_;
 }
 
 void Board::setMoveCount(int moveCount) {
-    move_count_ = moveCount;
+  move_count_ = moveCount;
+}
+
+const std::list<std::shared_ptr<const Piece>>& Board::getActivePieceList(bool is_white) const {
+  if (is_white) {
+    return active_white_pieces_;
+  } else {
+    return active_black_pieces_;
+  }
 }
 

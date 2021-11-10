@@ -17,15 +17,16 @@ class Board {
   void apply(const Move&);
   void unApply(const Move&);
 
-    int getMoveCount() const;
+  int getMoveCount() const;
 
-    void setMoveCount(int moveCount);
+  void setMoveCount(int moveCount);
   std::shared_ptr<const Piece> getPiece(const Position& position) const;
-  // Castle
-  bool isLcAvailable(const std::shared_ptr<const Piece>& piece) const;
-  bool isRcAvailable(const std::shared_ptr<const Piece>& piece) const;
-  void setLC(const std::shared_ptr<const Piece>& piece, bool brake);
-  void setRc(const std::shared_ptr<const Piece>& piece, bool brake);
+  const std::list<std::shared_ptr<const Piece>>& getActivePieceList(bool is_white) const;
+  bool LcIsPossible(const std::shared_ptr<const Piece>& piece) const;
+  bool RcIsPossible(const std::shared_ptr<const Piece>& piece) const;
+  void setLCIsPossible(const std::shared_ptr<const Piece>& piece, bool brake);
+  void setRCIsPossible(const std::shared_ptr<const Piece>& piece, bool brake);
+
   Position getKingPosition(const std::shared_ptr<const Piece>& piece) const;
   bool isWhiteMove() const;
 
@@ -49,11 +50,12 @@ class Board {
   int last_passant_x_ = 0;
   struct Castle {
     Position king_position = {0, 0};
-    bool LC_ = true;
-    bool RC_ = true;
+    bool LC_is_possible_ = true;
+    bool RC_is_possible_ = true;
   } whiteCastle, blackCastle;
-
-    int move_count_ = 0;
+  std::list<std::shared_ptr<const Piece>> active_white_pieces_;
+  std::list<std::shared_ptr<const Piece>> active_black_pieces_;
+  int move_count_ = 0;
 };
 
 #endif // CHESS_BOARD_H

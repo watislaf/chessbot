@@ -1,5 +1,6 @@
 #include <string>
 #include <algorithm>
+#include <tools/pricer.h>
 #include "chessAi.h"
 
 void ChessAi::startNewGame(const std::string& fen_str) {
@@ -50,58 +51,60 @@ void ChessAi::applyMove(int fx, int fy, int tx, int ty) {
 }
 
 void ChessAi::startGameAnalize() {
-    tree_moves_ = std::make_shared<MovesTree>(*board_);
-    int tree_grow_rate = 2;
-    loopStart(tree_grow_rate);
+  tree_moves_ = std::make_shared<MovesTree>(*board_);
+  int tree_grow_rate = 2;
+  loopStart(tree_grow_rate);
 }
 
 void ChessAi::loopStart(int tree_grow_rate) {
-    while (true) {
-        tree_moves_->main_node->max_height += tree_grow_rate;
-        makeTreeDeeper(tree_moves_->main_node);
-        if (tree_moves_->main_node->edges.empty()) {
-            break;
-        }
+  while (true) {
+    tree_moves_->main_node->max_height += tree_grow_rate;
+    makeTreeDeeper(tree_moves_->main_node);
+    if (tree_moves_->main_node->edges.empty()) {
+      break;
     }
+  }
 }
 
 void ChessAi::makeTreeDeeper(std::shared_ptr<MovesTree::Node> current_node) {
-    board_->apply(current_node->move_to_get_here);
-    if (current_node->edges.empty()) {
-        generateMovesForNode(current_node);
+  board_->apply(current_node->move_to_get_here);
+  if (current_node->edges.empty()) {
+    generateMovesForNode(current_node);
+  }
+  if (current_node->max_height != tree_moves_->main_node->max_height) {
+    if (board_->isWhiteMove()) {
+      current_node->current_price = -10000;
+    } else {
+      current_node->current_price = 10000;
     }
-    if(current_node->max_height!=tree_moves_->main_node->max_height){
-        if (board_->isWhiteMove()) {
-            current_node->current_price = -10000;
-        }else{
-            current_node->current_price = 10000;
-        }
+  }
+  for (auto& child_node: current_node->edges) {
+    if (child_node->height == current_node->max_height) {
+      child_node->current_price =
+          Pricer::count(tree_moves_->board_, child_node->move_to_get_here);
+    } else {
+      makeTreeDeeper(child_node);
     }
-    for (auto &child_node: current_node->edges) {
-        if (child_node->height == current_node->max_height) {
-            child_node->current_price = Pricer::count(tree_moves_->board_, child_node->move_to_get_here);
-        } else {
-            makeTreeDeeper(child_node);
-        }
-        if (board_->isWhiteMove()) {
-            current_node->current_price = std::max(child_node->current_price, current_node->current_price);
-        } else {
-            current_node->current_price = std::min(child_node->current_price, current_node->current_price);
-        }
+    if (board_->isWhiteMove()) {
+      current_node->current_price =
+          std::max(child_node->current_price, current_node->current_price);
+    } else {
+      current_node->current_price =
+          std::min(child_node->current_price, current_node->current_price);
     }
-    board_->unApply(current_node->move_to_get_here);
+  }
+  board_->unApply(current_node->move_to_get_here);
 }
 
 void ChessAi::generateMovesForNode(std::shared_ptr<MovesTree::Node> node) {
-    for (const auto &active_piece: board_->getActivePieceList()) {
-        if (active_piece->getPieceColor() == PieceColor::BLACK && board_->isWhiteMove() ||
-            active_piece->getPieceColor() == PieceColor::WHITE && board_->isBlackMove()) {
-            continue;
-        }
-        const auto moves = moves_generator.generateMoves(board_, active_piece));
-        for (const auto &move: moves) {
-            node->edges.push_back(std::make_shared<MovesTree::Node>(move, node->height + 1, node->max_height));
-        }
+  const auto active = board_->getActivePieceList(board_->isWhiteMove());
+  for (const auto& active_piece: active) {
+    const auto moves = moves_generator.generateMoves(board_, active_piece);
+    for (const auto& move: moves) {
+      node->edges.push_back(std::make_shared<MovesTree::Node>(move,
+                                                              node->height + 1,
+                                                              node->max_height));
     }
+  }
 }
 

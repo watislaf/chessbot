@@ -40,11 +40,27 @@ class FEN:
         return self.__array[item]
 
     def apply_move(self, move):
-        self.__array[move.position_from[0]][move.position_from[1]], \
-        self.__array[move.position_to[0]][move.position_to[1]] = \
-            self.__array[move.position_to[0]][move.position_to[1]], \
-            self.__array[move.position_from[0]][move.position_from[1]]
-        self.__array[move.position_from[0]][move.position_from[1]] = "_"
+        piece_from = self.__array[move.position_from[0]][move.position_from[1]]
+        piece_to = self.__array[move.position_to[0]][move.position_to[1]]
+        # check for passant
+        if move.position_from[0] != move.position_to[0] and \
+                piece_from[1] == "p" and piece_to == "_":
+            self.__array[move.position_to[0]][move.position_from[1]] = "_"
+        # check for castle
+        if abs(move.position_from[0] - move.position_to[0]) == 2 and \
+                piece_from[1] == "k":
+            # RUCK MOVE
+            if move.position_to[0] < 4:
+                # LEFT
+                self.movePiece((0, move.position_from[1]),
+                               (move.position_to[0] + 1, move.position_to[1]))
+            else:
+                self.movePiece((7, move.position_from[1]),
+                               (move.position_to[0] - 1, move.position_to[1]))
+
+        # SWAP AND PLACE _
+        self.movePiece(move.position_from, move.position_to)
+
         if self.__rules[1] == 'w':
             self.__rules[1] = 'b'
         else:
@@ -52,4 +68,11 @@ class FEN:
         self.__rules[5] = str(int(self.__rules[5]) + 1)
 
     def getBoardStr(self):
-        return " \n".join( list(map(lambda list: " ".join(list), self.__array)))
+        return " \n".join(list(map(lambda list: " ".join(list), self.__array)))
+
+    def movePiece(self, position_from, position_to):
+        self.__array[position_from[0]][position_from[1]], \
+        self.__array[position_to[0]][position_to[1]] = \
+            self.__array[position_to[0]][position_to[1]], \
+            self.__array[position_from[0]][position_from[1]]
+        self.__array[position_from[0]][position_from[1]] = "_"

@@ -83,8 +83,8 @@ class Window:
                     self.pos_piece_dragging[1])
 
     def apply_move(self, move):
-        self.__fen.apply_move(move)
         self.__chessAi.apply_move(move)
+        self.__fen.apply_move(move)
 
         if self.get_window_board_str().replace(" ", "") != \
                 self.__chessAi.get_board_str().replace(" ", ""):

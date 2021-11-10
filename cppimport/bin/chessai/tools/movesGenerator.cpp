@@ -74,13 +74,27 @@ void MovesGenerator::ruckMove(bool reduce_tNone) {
                                       false,
                                       reduce_tNone));
   }
+  if (board_->LcIsPossible(current_piece_)) {
+    if (current_piece_->getPosition().getX() == 0) {
+      for (auto& move: moves_) {
+        move.setBrakeLeftCastle(true);
+      }
+    }
+  }
+  if (board_->RcIsPossible(current_piece_)) {
+    if (current_piece_->getPosition().getX() == 7) {
+      for (auto& move: moves_) {
+        move.setBrakeRightCastle(true);
+      }
+    }
+  }
 }
 
 void MovesGenerator::queenMove(bool reduce_tNone) {
   for (int left = -1; left <= 1; left += 1) {
     for (int top = -1; top <= 1; top += 1) {
       insertPositionsToMoves(goByVector(Position(left, top),
-                                        1,
+                                        8,
                                         false,
                                         reduce_tNone));
     }
@@ -91,7 +105,7 @@ void MovesGenerator::bishopMove(bool reduce_tNone) {
   for (int left = -1; left <= 1; left += 2) {
     for (int top = -1; top <= 1; top += 2) {
       insertPositionsToMoves(goByVector(Position(left, top),
-                                        1,
+                                        8,
                                         false,
                                         reduce_tNone));
     }
@@ -164,31 +178,32 @@ std::vector<Position> MovesGenerator::goByVector(Position vector,
 
 void MovesGenerator::castleMove() {
   // If king move he lost castle
-  if (board_->isLcAvailable(current_piece_)) {
+  if (board_->LcIsPossible(current_piece_)) {
     auto positions_left = goByVector(Position(-1, 0));
     if (positions_left.size() == 4) {
-      for (int i = -3; i >= -2; i++) {
-        moves_.emplace_back(
-            current_piece_,
-            board_->getPiece(current_piece_->getPosition() + Position(i, 0)));
-        moves_.back().setIsCastle(true);
-        moves_.back().setBrakeRightCastle(true);
-      }
-    }
-    for (auto& move: moves_) {
-      move.setBrakeLeftCastle(true);
+      moves_.emplace_back(
+          current_piece_,
+          board_->getPiece(current_piece_->getPosition() + Position(-2, 0)));
+      moves_.back().setIsCastle(true);
     }
   }
-  if (board_->isRcAvailable(current_piece_)) {
+  if (board_->RcIsPossible(current_piece_)) {
     auto positions_right = goByVector(Position(1, 0));
     if (positions_right.size() == 3) {
       moves_.emplace_back(current_piece_, board_->getPiece(
           current_piece_->getPosition() + Position(2, 0)));
       moves_.back().setIsCastle(true);
-      moves_.back().setBrakeLeftCastle(true);
     }
+
+  }
+  if (board_->RcIsPossible(current_piece_)) {
     for (auto& move: moves_) {
       move.setBrakeRightCastle(true);
+    }
+  }
+  if (board_->LcIsPossible(current_piece_)) {
+    for (auto& move: moves_) {
+      move.setBrakeLeftCastle(true);
     }
   }
 }

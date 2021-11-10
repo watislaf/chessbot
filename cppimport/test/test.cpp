@@ -3,7 +3,19 @@
 
 TEST(ChessAi, Basic) {
   ChessAi chess_ai;
-/*  chess_ai.startNewGame(
+  chess_ai.startNewGame(
+      "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1");
+
+  chess_ai.applyMove(4, 0, 6, 0);
+  EXPECT_STREQ(chess_ai.getPossibleMovesForPosition(6,0).c_str(),
+               std::string("((6,0),(7,0)) ")
+                   .c_str());
+  return;
+  EXPECT_STREQ(chess_ai.getPossibleMovesForPosition(4, 7).c_str(),
+               std::string("((4,7),(3,7)) ((4,7),(5,7)) ")
+                   .c_str());
+
+  chess_ai.startNewGame(
       "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   EXPECT_STREQ(chess_ai.getPossibleMovesForPosition(0, 6).c_str(),
                std::string("((0,6),(0,5)) ((0,6),(0,4)) ").c_str());
@@ -31,5 +43,5 @@ TEST(ChessAi, Basic) {
   chess_ai.applyMove(3, 6, 3, 4);
   EXPECT_STREQ(chess_ai.getPossibleMovesForPosition(4, 4).c_str(),
                std::string("((4,4),(4,5)) ((4,4),(3,5)) ")
-                   .c_str());*/
+                   .c_str());
 }
