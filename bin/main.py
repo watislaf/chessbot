@@ -2,10 +2,12 @@ import threading
 
 from bin.controller import Controller
 from bin.play_session_capture.OpenCvController import OpenCvController
+from bin.player.ai_player import AiPlayer
 from bin.player.view_player import ViewPlayer
 
 
 #controller = OpenCvController()
+from cppimport.output.chessai import ChessAi
 
 if __name__ == "__main__":
     controller = Controller()
@@ -13,10 +15,9 @@ if __name__ == "__main__":
     view_player = ViewPlayer(controller.window.last_move,
                              controller.window_event_obj,
                              controller.window.get_window_board_str)
-    controller.set_white_player(view_player)
+    ai_player = AiPlayer(ChessAi())
+    controller.set_white_player(ai_player)
     controller.set_black_player(view_player)
 
     winner = controller.start_game("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
     print(winner)
-    # MoveValidator()
-    # bots play

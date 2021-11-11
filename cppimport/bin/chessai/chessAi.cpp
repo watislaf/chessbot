@@ -46,7 +46,7 @@ void ChessAi::applyMove(int fx, int fy, int tx, int ty, char niew_piece) {
       break;
     case 'q':new_piece_type = PieceType::tQUEEN;
       break;
-    case 'h': new_piece_type = PieceType::tHORSE;
+    case 'n': new_piece_type = PieceType::tHORSE;
       break;
     case 'b': new_piece_type = PieceType::tBISHOP;
       break;
@@ -57,6 +57,15 @@ void ChessAi::applyMove(int fx, int fy, int tx, int ty, char niew_piece) {
       board_->apply(move);
       return;
     }
+  }
+  throw 42;
+}
+
+char ChessAi::whosMove() const {
+  if (board_->isWhiteMove()) {
+    return 'w';
+  } else {
+    return 'b';
   }
 }
 
@@ -138,7 +147,7 @@ bool ChessAi::isMoveExists() {
   return false;
 }
 
-Move ChessAi::getBestMove() {
+std::string ChessAi::getBestMove() {
   const auto active = board_->getActivePieceList(board_->isWhiteMove());
   std::vector<Move> moveees;
   for (const auto& active_piece: active) {
@@ -155,6 +164,12 @@ Move ChessAi::getBestMove() {
     );
     moveees.insert(moveees.begin(), moves.begin(), moves.end());
   }
-  return moveees[random() % moveees.size()];
+  if (moveees.size() == 0) {
+    if (moves_generator.isShah())
+      return "((9,9),(9,9),k)";
+    else
+      return "((9,9),(9,9))";
+  }
+  return moveees[random() % moveees.size()].toStr();
 }
 

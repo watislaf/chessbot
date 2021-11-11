@@ -2,7 +2,7 @@ import time
 
 from bin.player.player import Player
 from bin.tools.FEN import FEN
-from bin.tools.move import PieceMove
+from bin.tools.pieceMove import PieceMove
 
 
 class ViewPlayer(Player):
@@ -27,11 +27,17 @@ class ViewPlayer(Player):
     def get_move(self):
         if self.__pointer_to_last_move[0] == (-1, -1):
             self.__event_obj.wait(timeout=None)
-        move = self.__pointer_to_last_move[0]
+        if self.__pointer_to_last_move[0] == (-1, -1):
+            move = PieceMove((-1, -1), (-1, -1))
+        else:
+            move = self.__pointer_to_last_move[0]
         self.__pointer_to_last_move[0] = (-1, -1)
         self.__event_obj.clear()
 
         return move
 
     def apply_move(self, move):
-        pass
+        if self.whos_move == "w":
+            self.whos_move = "b"
+        else:
+            self.whos_move = "w"

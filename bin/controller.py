@@ -31,6 +31,8 @@ class Controller:
             else:
                 move = self.__black_player.get_move()
             if move.isNotValid():
+                if move.new_piece != "k":
+                    return "DRAW"
                 return self.__white_player.whosMowe()
 
             self.__white_player.apply_move(move)

@@ -7,14 +7,14 @@ class PieceAsk():
     __pieces_img = {}
     __rect_size = (200, 50)
 
-    def __init__(self):
+
+    def Ask(self, wondow_size, py_window):
+        self.__rect_size  = (wondow_size/2, wondow_size/8)
         for symbol in 'rnbq':
             self.__pieces_img[str(symbol)] = pygame.transform.scale(
                 pygame.image.load(
                     '{}/{}{}.png'.format(PICTURES_PATH, "w", symbol)),
                 (self.__rect_size[0] / 4, self.__rect_size[0] / 4))
-
-    def Ask(self, wondow_size, py_window):
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONUP:

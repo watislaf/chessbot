@@ -23,8 +23,9 @@ std::list<Move> MovesGenerator::generateMoves(
       break;
     case PieceType::tBISHOP: bishopMove();
       break;
-    case PieceType::tPONE: ponePacificMove();
-      poneAttackMove();
+    case PieceType::tPONE: poneAttackMove();
+    ponePacificMove();
+
       break;
     case PieceType::tNONE:return {};
   }

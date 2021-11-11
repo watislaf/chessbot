@@ -21,11 +21,13 @@ class ChessAi {
   std::string getFenStr() const;
 
   void startGameAnalize();
-  Move getBestMove();
+  std::string getBestMove();
   bool isMoveExists();
+  char whosMove() const;
 
  private:
   std::shared_ptr<Board> board_;
+
   std::shared_ptr<MovesTree> tree_moves_;
 
   MovesGenerator moves_generator;
@@ -33,7 +35,6 @@ class ChessAi {
   void loopStart(int tree_grow_rate);
 
   void makeTreeDeeper(std::shared_ptr<MovesTree::Node>);
-
   void generateMovesForNode(std::shared_ptr<MovesTree::Node> sharedPtr);
 };
 

@@ -179,8 +179,7 @@ void Board::unApply(const Move& move) {
       back = 1;
     }
     auto position_to_pone_be = move.getEnd()->getPosition() + Position(0, back);
-    auto pone_color_reversed_color =
-        board_[position_to_pone_be.getX()][position_to_pone_be.getY()]->getPieceColor();
+    auto pone_color_reversed_color =move.getStart()->getPieceColor();
     if (pone_color_reversed_color == PieceColor::BLACK) {
       pone_color_reversed_color = PieceColor::WHITE;
     } else {

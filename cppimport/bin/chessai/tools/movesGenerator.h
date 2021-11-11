@@ -8,6 +8,7 @@ class MovesGenerator {
   std::list<Move> generateMoves(std::shared_ptr<Board> board,
                                   const std::shared_ptr<const Piece>& piece);
 
+  bool isShah();
  private:
   std::list<Position> goByVector(
       Position move_vector, int max_length = 8,
@@ -23,7 +24,6 @@ class MovesGenerator {
   void castleMove();
 
   bool isShahDanger(const Move& move);
-  bool isShah();
 
   bool isPieceOnMoves(PieceType type);
   void insertPositionsToMoves(const std::list<Position>& positions);

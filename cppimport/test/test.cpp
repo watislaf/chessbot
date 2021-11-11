@@ -5,6 +5,20 @@ TEST(ChessAi, Basic) {
   ChessAi chess_ai;
 
   chess_ai.startNewGame(
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
+  chess_ai.applyMove(6, 0, 7, 2);
+  chess_ai.applyMove(1, 6, 1, 4);
+  chess_ai.applyMove(5, 1, 5, 3);
+  chess_ai.applyMove(1, 4, 1, 3);
+  chess_ai.applyMove(7, 2, 6, 4);
+  chess_ai.applyMove(2, 6, 2, 4);
+  chess_ai.applyMove(0, 1, 0, 3);
+  EXPECT_STREQ(chess_ai.getPossibleMovesForPosition(1, 3).c_str(),
+               std::string(
+                   "((1,3),(1,2)) ((1,3),(0,2)) ")
+                   .c_str());
+  chess_ai.startNewGame(
       "k6K/4P3/8/8/8/8/4p3/8 w - - 0 1");
 
   EXPECT_STREQ(chess_ai.getPossibleMovesForPosition(4, 6).c_str(),

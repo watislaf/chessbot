@@ -14,5 +14,7 @@ PYBIND11_MODULE(MY_WRAPPER, module) {
       .def("getPossibleMovesForPosition", &ChessAi::getPossibleMovesForPosition)
       .def("getFenStr", &ChessAi::getFenStr)
       .def("getBoardStr", &ChessAi::getBoardStr)
-      .def("isMoveExists", &ChessAi::isMoveExists);
+      .def("isMoveExists", &ChessAi::isMoveExists)
+      .def("whosMove", &ChessAi::whosMove)
+      .def("getBestMove", &ChessAi::getBestMove);
 }

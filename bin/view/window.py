@@ -89,10 +89,10 @@ class Window:
 
         if self.get_window_board_str().replace(" ", "") != \
                 self.__chessAi.get_board_str().replace(" ", ""):
-            print("DIFFERENT BOARDS BETWEEN PLAYERS")
-            print(self.get_window_board_str())
-            print("\n")
+            print("DIFFERENT BOARDS BETWEEN CHEKKERS")
             print(self.__chessAi.get_board_str())
+            print("\n")
+            print(self.get_window_board_str())
 
         print(move)
         if not self.__chessAi.is_move_exists():
@@ -121,6 +121,7 @@ class Window:
                         move.new_piece = pieceType
                     self.last_move[0] = move
                     self.__window_event_obj.set()
+                    pygame.time.delay(50)
                     return
 
     def __draw_board(self):
