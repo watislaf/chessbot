@@ -22,7 +22,11 @@ class ChessAi:
         return tuple(map(lambda move_str: PieceMove(move_str), mowes_strings))
 
     def apply_move(self, move):
-        self.__CPPChessLib.applyMove(*move.position_from, *move.position_to)
+        self.__CPPChessLib.applyMove(*move.position_from, *move.position_to,
+                                     move.new_piece)
 
     def get_board_str(self):
         return self.__CPPChessLib.getBoardStr()
+
+    def is_move_exists(self):
+        return self.__CPPChessLib.isMoveExists()

@@ -135,7 +135,7 @@ void Board::apply(const Move& move) {
     forceMove(getPiece(move.getStart()->getPosition()),
               getPiece(move.getEnd()->getPosition() + Position(0, back)));
   }
-  if (move.isCanMakeNewFigure()) {
+  if (move.getNewPieceType()!=PieceType::tPONE) {
     setPiece(Piece(move.getEnd()->getPosition(),
                    move.getNewPieceType(),
                    move.getStart()->getPieceColor()));
@@ -190,7 +190,7 @@ void Board::unApply(const Move& move) {
                    PieceType::tPONE,
                    pone_color_reversed_color));
   }
-  if (move.isCanMakeNewFigure()) {
+  if (move.getNewPieceType()!=PieceType::tPONE) {
     setPiece(Piece(move.getStart()->getPosition(),
                    PieceType::tPONE,
                    move.getStart()->getPieceColor()));

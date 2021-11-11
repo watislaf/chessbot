@@ -13,26 +13,28 @@ class ChessAi {
   // GIVE BEST MOVE
   // MOVE MADE
 
-  void applyMove(int fx, int fy, int tx, int ty);
+  void applyMove(int fx, int fy, int tx, int ty, char new_piece = '_');
 
   std::string getPossibleMovesForPosition(int x, int y);
 
   std::string getBoardStr() const;
   std::string getFenStr() const;
 
-    void startGameAnalize();
+  void startGameAnalize();
+  Move getBestMove();
+  bool isMoveExists();
 
-private:
+ private:
   std::shared_ptr<Board> board_;
-    std::shared_ptr<MovesTree> tree_moves_;
+  std::shared_ptr<MovesTree> tree_moves_;
 
   MovesGenerator moves_generator;
 
-    void loopStart(int tree_grow_rate);
+  void loopStart(int tree_grow_rate);
 
-    void makeTreeDeeper(std::shared_ptr<MovesTree::Node>);
+  void makeTreeDeeper(std::shared_ptr<MovesTree::Node>);
 
-    void generateMovesForNode(std::shared_ptr<MovesTree::Node> sharedPtr);
+  void generateMovesForNode(std::shared_ptr<MovesTree::Node> sharedPtr);
 };
 
 #endif //CHESS_CHESSAI_H

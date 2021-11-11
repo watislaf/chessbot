@@ -3,6 +3,7 @@ import operator
 import pygame
 from pygame.surface import Surface
 from bin.tools.FEN import FEN
+from bin.view.piece_ask import PieceAsk
 from cppimport.output.chessai import ChessAi
 from graphics.pictures import PICTURES_PATH
 
@@ -14,7 +15,7 @@ class Window:
     __white_board_color = (238, 238, 210)
     __active_color = (10, 10, -80)
 
-    __window_size = 400
+    __window_size = 800
     __cell_size = __window_size // 8
     __application_is_done = True
     __py_window = None
@@ -89,9 +90,13 @@ class Window:
         if self.get_window_board_str().replace(" ", "") != \
                 self.__chessAi.get_board_str().replace(" ", ""):
             print("DIFFERENT BOARDS BETWEEN PLAYERS")
-            print(self.get_window_board_str().replace(" ", ""))
-            print(self.__chessAi.get_board_str().replace(" ", ""))
+            print(self.get_window_board_str())
+            print("\n")
+            print(self.__chessAi.get_board_str())
+
         print(move)
+        if not self.__chessAi.is_move_exists():
+            self.__window_event_obj.set()
 
     def end_dragging(self, event):
         self.__is_dragging = False
@@ -105,8 +110,18 @@ class Window:
             if move.position_to == self.pos_piece_dragging:
                 if self.__fen[move.position_from[0]][
                     move.position_from[1]][0] == self.__fen.getWhoIsMove():
+                    if self.__fen[move.position_from[0]][move.position_from[1]][
+                        1] == "p" and (move.position_to[1] % 7 == 0):
+                        pieceType = PieceAsk().Ask(self.__window_size,
+                                                   self.__py_window)
+                        if pieceType == "exit":
+                            self.__application_is_done = False
+                        if pieceType == "_":
+                            return
+                        move.new_piece = pieceType
                     self.last_move[0] = move
                     self.__window_event_obj.set()
+                    return
 
     def __draw_board(self):
         for x in range(0, 8):
@@ -141,6 +156,7 @@ class Window:
             for move in self.__possible_moves:
                 if move.position_to == (x, 7 - y):
                     color = tuple(map(operator.add, color, self.__active_color))
+                    break
 
         pygame.draw.rect(self.__py_window, color, (
             position_x, position_y, self.__cell_size, self.__cell_size))

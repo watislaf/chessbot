@@ -14,16 +14,16 @@ class FEN:
                     self.__rules[0][0:index] + '_' * int(char) + \
                     self.__rules[0][index + 1:]
 
-        self.__lines = self.__rules[0].split('/')
+        self.__lines = list(reversed(self.__rules[0].split('/')))
 
         self.__array = [
             *map(lambda x: [
                 *map(lambda y:
                      '_' if self.__lines[y][x] == '_' else (
-                         'w' + self.__lines[y][x] if self.__lines[y][
+                         'b' + self.__lines[y][x] if self.__lines[y][
                              x].islower()
                          else
-                         'b' + self.__lines[y][x].lower()),
+                         'w' + self.__lines[y][x].lower()),
                      range(0, 8))],
                  range(0, 8))]
 
@@ -53,13 +53,15 @@ class FEN:
             if move.position_to[0] < 4:
                 # LEFT
                 self.movePiece((0, move.position_from[1]),
-                               (move.position_to[0] + 1, move.position_to[1]))
+                               (move.position_to[0] + 1, move.position_to[1]),
+                               move.new_piece)
             else:
                 self.movePiece((7, move.position_from[1]),
-                               (move.position_to[0] - 1, move.position_to[1]))
+                               (move.position_to[0] - 1, move.position_to[1]),
+                               move.new_piece)
 
         # SWAP AND PLACE _
-        self.movePiece(move.position_from, move.position_to)
+        self.movePiece(move.position_from, move.position_to, move.new_piece)
 
         if self.__rules[1] == 'w':
             self.__rules[1] = 'b'
@@ -70,9 +72,12 @@ class FEN:
     def getBoardStr(self):
         return " \n".join(list(map(lambda list: " ".join(list), self.__array)))
 
-    def movePiece(self, position_from, position_to):
+    def movePiece(self, position_from, position_to, new_piece):
         self.__array[position_from[0]][position_from[1]], \
         self.__array[position_to[0]][position_to[1]] = \
             self.__array[position_to[0]][position_to[1]], \
             self.__array[position_from[0]][position_from[1]]
         self.__array[position_from[0]][position_from[1]] = "_"
+        if new_piece != "_":
+            self.__array[position_to[0]][
+                position_to[1]] = self.getWhoIsMove() + new_piece

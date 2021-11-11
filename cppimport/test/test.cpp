@@ -3,12 +3,20 @@
 
 TEST(ChessAi, Basic) {
   ChessAi chess_ai;
-  chess_ai.startNewGame(
-      "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1");
 
+  chess_ai.startNewGame(
+      "k6K/4P3/8/8/8/8/4p3/8 w - - 0 1");
+
+  EXPECT_STREQ(chess_ai.getPossibleMovesForPosition(4, 6).c_str(),
+               std::string(
+                   "((4,6),(4,7),h) ((4,6),(4,7),r) ((4,6),(4,7),b) ((4,6),(4,7),q) ")
+                   .c_str());
+
+  chess_ai.startNewGame(
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   chess_ai.applyMove(4, 0, 6, 0);
-  EXPECT_STREQ(chess_ai.getPossibleMovesForPosition(6,0).c_str(),
-               std::string("((6,0),(7,0)) ")
+  EXPECT_STREQ(chess_ai.getPossibleMovesForPosition(6, 0).c_str(),
+               std::string("((6,0),(5,2)) ((6,0),(7,2)) ")
                    .c_str());
   return;
   EXPECT_STREQ(chess_ai.getPossibleMovesForPosition(4, 7).c_str(),

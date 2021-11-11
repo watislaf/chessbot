@@ -4,7 +4,7 @@
 #include "movesGenerator.h"
 #include "pricer.h"
 
-std::vector<Move> MovesGenerator::generateMoves(
+std::list<Move> MovesGenerator::generateMoves(
     std::shared_ptr<Board> board, const std::shared_ptr<const Piece>& piece) {
   board_ = board;
   current_piece_ = piece;
@@ -42,12 +42,66 @@ std::vector<Move> MovesGenerator::generateMoves(
   return clear_moves;
 }
 
+std::list<Position> MovesGenerator::goByVector(Position move_vector,
+                                               int max_length,
+                                               bool only_tNone,
+                                               bool reduce_tNone) {
+  if (move_vector.getX() == 0 && move_vector.getY() == 0) {
+    return {};
+  }
+
+  std::list<Position> position_to_move;
+  for (int length = 1; length <= max_length; length++) {
+    auto new_position = Position(
+        length * move_vector.getX(), length * move_vector.getY()
+    ) + current_piece_->getPosition();
+    auto posY = new_position.getY();
+    auto posX = new_position.getX();
+    if (posY < 0 || posY > 7 || posX < 0 || posX > 7) {
+      break;
+    }
+    if (board_->getPiece(new_position)->getType() == PieceType::tNONE) {
+      if (!reduce_tNone) {
+        position_to_move.emplace_back(new_position);
+      }
+      continue;
+    }
+    if (!only_tNone) {
+      position_to_move.emplace_back(new_position);
+    }
+    break;
+  }
+  return position_to_move;
+}
+
+void MovesGenerator::bishopMove(bool reduce_tNone) {
+  for (int left = -1; left <= 1; left += 2) {
+    for (int top = -1; top <= 1; top += 2) {
+      insertPositionsToMoves(goByVector(Position(left, top),
+                                        8,
+                                        false,
+                                        reduce_tNone));
+    }
+  }
+}
+
 void MovesGenerator::horseMove(bool reduce_tNone) {
   for (int left = -1; left <= 1; left += 2) {
     for (int top = -1; top <= 2; top += 2) {
       insertPositionsToMoves(goByVector(Position(1 * left, 2 * top),
                                         1));
       insertPositionsToMoves(goByVector(Position(2 * left, 1 * top), 1));
+    }
+  }
+}
+
+void MovesGenerator::queenMove(bool reduce_tNone) {
+  for (int left = -1; left <= 1; left += 1) {
+    for (int top = -1; top <= 1; top += 1) {
+      insertPositionsToMoves(goByVector(Position(left, top),
+                                        8,
+                                        false,
+                                        reduce_tNone));
     }
   }
 }
@@ -61,6 +115,42 @@ void MovesGenerator::kingMove(bool reduce_tNone) {
                                         reduce_tNone));
     }
   }
+}
+
+void MovesGenerator::ponePacificMove(bool reduce_tNone) {
+  int length = current_piece_->getPieceColor() == PieceColor::WHITE ? 1 : -1;
+  insertPositionsToMoves(goByVector(Position(0, length),
+                                    1, true, reduce_tNone));
+  auto piece_color = current_piece_->getPieceColor();
+  for (auto iter = moves_.begin(); iter != moves_.end(); ++iter) {
+    if (iter->getEnd()->getPosition().getY() % 7 == 0) {
+      iter->setNewPieceType(PieceType::tQUEEN);
+      moves_.emplace_front(iter->getStart(), iter->getEnd());
+      moves_.front().setNewPieceType(PieceType::tBISHOP);
+      moves_.emplace_front(iter->getStart(), iter->getEnd());
+      moves_.front().setNewPieceType(PieceType::tRUCK);
+      moves_.emplace_front(iter->getStart(), iter->getEnd());
+      moves_.front().setNewPieceType(PieceType::tHORSE);
+    }
+  }
+  // DOUBLE MOVE
+  if (piece_color == PieceColor::WHITE
+      && current_piece_->getPosition().getY() == 1 ||
+      piece_color == PieceColor::BLACK
+          && current_piece_->getPosition().getY() == 6) {
+    if (goByVector(Position(0, piece_color == PieceColor::WHITE ? 1 : -1),
+                   2,
+                   true).
+        size() == 2) {
+      moves_.emplace_back(
+          current_piece_,
+          board_->getPiece(current_piece_->getPosition()
+                               + Position(0, piece_color == PieceColor::WHITE
+                                             ? 2 : -2)));
+      moves_.back().setIsDoubleDistancePone(true, board_->getLastPassantX());
+    }
+  }
+
 }
 
 void MovesGenerator::ruckMove(bool reduce_tNone) {
@@ -90,90 +180,28 @@ void MovesGenerator::ruckMove(bool reduce_tNone) {
   }
 }
 
-void MovesGenerator::queenMove(bool reduce_tNone) {
-  for (int left = -1; left <= 1; left += 1) {
-    for (int top = -1; top <= 1; top += 1) {
-      insertPositionsToMoves(goByVector(Position(left, top),
-                                        8,
-                                        false,
-                                        reduce_tNone));
+void MovesGenerator::poneAttackMove() {
+  // Atack by diagonal
+  int direction = current_piece_->getPieceColor() == PieceColor::WHITE ? 1 : -1;
+  for (int i = -1; i <= 1; i += 2) {
+    auto go_diagonal = goByVector(Position(i, direction), 1, false, true);
+    if (go_diagonal.size() == 1
+        && board_->getPiece(go_diagonal.back())->isEnemyTo(*current_piece_)) {
+      moves_.emplace_back(current_piece_, board_->getPiece(go_diagonal.back()));
+    }
+    auto go_diagonal2 = goByVector(Position(i, 1), 1, true);
+
+    int good_row = current_piece_->getPieceColor() == PieceColor::WHITE ? 4 : 3;
+    // Atack passant
+    go_diagonal = goByVector(Position(i, direction), 1, true, false);
+    if (go_diagonal.size() == 1
+        && board_->getLastPassantX() == go_diagonal.back().getX()
+        && current_piece_->getPosition().getY() == good_row) {
+      moves_.emplace_back(current_piece_, board_->getPiece(go_diagonal.back()));
+      moves_.back().setIsPassant(true);
+      moves_.back().setAttackPrice(Pricer::getPrice(moves_.back().getStart()));
     }
   }
-}
-
-void MovesGenerator::bishopMove(bool reduce_tNone) {
-  for (int left = -1; left <= 1; left += 2) {
-    for (int top = -1; top <= 1; top += 2) {
-      insertPositionsToMoves(goByVector(Position(left, top),
-                                        8,
-                                        false,
-                                        reduce_tNone));
-    }
-  }
-}
-
-void MovesGenerator::ponePacificMove(bool reduce_tNone) {
-  int length = current_piece_->getPieceColor() == PieceColor::WHITE ? 1 : -1;
-  insertPositionsToMoves(goByVector(Position(0, length),
-                                    1,
-                                    true,
-                                    reduce_tNone));
-  if (!moves_.empty()
-      && moves_.back().getEnd()->getPosition().getY() % 7 == 0) {
-    moves_.back().setCanMakeNewFigure(true);
-  }
-
-  auto piece_color = current_piece_->getPieceColor();
-  // DOUBLE MOVE
-  if (piece_color == PieceColor::WHITE
-      && current_piece_->getPosition().getY() == 1 ||
-      piece_color == PieceColor::BLACK
-          && current_piece_->getPosition().getY() == 6) {
-    if (goByVector(Position(0, piece_color == PieceColor::WHITE ? 1 : -1),
-                   2,
-                   true).
-        size() == 2) {
-      moves_.emplace_back(
-          current_piece_,
-          board_->getPiece(current_piece_->getPosition()
-                               + Position(0, piece_color == PieceColor::WHITE
-                                             ? 2 : -2)));
-      moves_.back().setIsDoubleDistancePone(true, board_->getLastPassantX());
-    }
-  }
-
-}
-
-std::vector<Position> MovesGenerator::goByVector(Position vector,
-                                                 int max_length,
-                                                 bool only_tNone,
-                                                 bool reduce_tNone) {
-  if (vector.getX() == 0 && vector.getY() == 0) {
-    return {};
-  }
-
-  std::vector<Position> position_to_move;
-  for (int length = 1; length <= max_length; length++) {
-    auto new_position = Position(
-        length * vector.getX(), length * vector.getY()
-    ) + current_piece_->getPosition();
-    auto posY = new_position.getY();
-    auto posX = new_position.getX();
-    if (posY < 0 || posY > 7 || posX < 0 || posX > 7) {
-      break;
-    }
-    if (board_->getPiece(new_position)->getType() == PieceType::tNONE) {
-      if (!reduce_tNone) {
-        position_to_move.emplace_back(new_position);
-      }
-      continue;
-    }
-    if (!only_tNone) {
-      position_to_move.emplace_back(new_position);
-    }
-    break;
-  }
-  return position_to_move;
 }
 
 void MovesGenerator::castleMove() {
@@ -205,36 +233,6 @@ void MovesGenerator::castleMove() {
     for (auto& move: moves_) {
       move.setBrakeLeftCastle(true);
     }
-  }
-}
-
-void MovesGenerator::poneAttackMove() {
-  // Atack by diagonal
-  int direction = current_piece_->getPieceColor() == PieceColor::WHITE ? 1 : -1;
-  for (int i = -1; i <= 1; i += 2) {
-    auto go_diagonal = goByVector(Position(i, direction), 1, false, true);
-    if (go_diagonal.size() == 1
-        && board_->getPiece(go_diagonal[0])->isEnemyTo(*current_piece_)) {
-      moves_.emplace_back(current_piece_, board_->getPiece(go_diagonal[0]));
-    }
-    auto go_diagonal2 = goByVector(Position(i, 1), 1, true);
-
-    int good_row = current_piece_->getPieceColor() == PieceColor::WHITE ? 4 : 3;
-    // Atack passant
-    go_diagonal = goByVector(Position(i, direction), 1, true, false);
-    if (go_diagonal.size() == 1
-        && board_->getLastPassantX() == go_diagonal[0].getX()
-        && current_piece_->getPosition().getY() == good_row) {
-      moves_.emplace_back(current_piece_, board_->getPiece(go_diagonal[0]));
-      moves_.back().setIsPassant(true);
-      moves_.back().setAttackPrice(Pricer::getPrice(moves_.back().getStart()));
-    }
-  }
-}
-
-void MovesGenerator::insertPositionsToMoves(const std::vector<Position>& positions) {
-  for (const auto& pos: positions) {
-    moves_.emplace_back(current_piece_, board_->getPiece(pos));
   }
 }
 
@@ -322,5 +320,11 @@ bool MovesGenerator::isPieceOnMoves(PieceType type) {
     }
   }
   return false;
+}
+
+void MovesGenerator::insertPositionsToMoves(const std::list<Position>& positions) {
+  for (const auto& pos: positions) {
+    moves_.emplace_back(current_piece_, board_->getPiece(pos));
+  }
 }
 

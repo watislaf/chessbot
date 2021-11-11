@@ -5,12 +5,12 @@
 
 class MovesGenerator {
  public:
-  std::vector<Move> generateMoves(std::shared_ptr<Board> board,
+  std::list<Move> generateMoves(std::shared_ptr<Board> board,
                                   const std::shared_ptr<const Piece>& piece);
 
  private:
-  std::vector<Position> goByVector(
-      Position vector, int max_length = 8,
+  std::list<Position> goByVector(
+      Position move_vector, int max_length = 8,
       bool only_tNone = false, bool reduce_tNone = false);
 
   void bishopMove(bool reduce_tNone = false);
@@ -26,10 +26,10 @@ class MovesGenerator {
   bool isShah();
 
   bool isPieceOnMoves(PieceType type);
-  void insertPositionsToMoves(const std::vector<Position>& positions);
+  void insertPositionsToMoves(const std::list<Position>& positions);
 
   std::shared_ptr<const Piece> current_piece_;
   std::shared_ptr<Board> board_;
-  std::vector<Move> moves_;
+  std::list<Move> moves_;
 };
 #endif //CHESS_MOVEGENERATOR_H

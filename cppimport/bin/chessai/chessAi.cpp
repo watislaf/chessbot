@@ -37,17 +37,27 @@ std::string ChessAi::getFenStr() const {
   return board_->getFen();
 }
 
-void ChessAi::applyMove(int fx, int fy, int tx, int ty) {
-
+void ChessAi::applyMove(int fx, int fy, int tx, int ty, char niew_piece) {
   auto moves = moves_generator.generateMoves(
       board_, board_->getPiece(Position(fx, fy)));
+  PieceType new_piece_type = PieceType::tPONE;
+  switch (niew_piece) {
+    case 'r':new_piece_type = PieceType::tRUCK;
+      break;
+    case 'q':new_piece_type = PieceType::tQUEEN;
+      break;
+    case 'h': new_piece_type = PieceType::tHORSE;
+      break;
+    case 'b': new_piece_type = PieceType::tBISHOP;
+      break;
+  }
   for (const auto& move: moves) {
-    if (move.getEnd()->getPosition() == Position(tx, ty)) {
+    if (move.getEnd()->getPosition() == Position(tx, ty)
+        && move.getNewPieceType() == new_piece_type) {
       board_->apply(move);
       return;
     }
   }
-//*move.position_from, *move.position_to
 }
 
 void ChessAi::startGameAnalize() {
@@ -106,5 +116,45 @@ void ChessAi::generateMovesForNode(std::shared_ptr<MovesTree::Node> node) {
                                                               node->max_height));
     }
   }
+}
+
+bool ChessAi::isMoveExists() {
+  const auto active = board_->getActivePieceList(board_->isWhiteMove());
+  for (const auto& active_piece: active) {
+    auto moves = moves_generator.generateMoves(board_, active_piece);
+
+    moves.erase(
+        std::remove_if(
+            moves.begin(), moves.end(),
+            [](const Move& move) {
+              return move.getEnd()->getType() != PieceType::tNONE
+                  && move.getStart()->getPieceColor()
+                      == move.getEnd()->getPieceColor();
+            }), moves.end()
+    );
+    if (!moves.empty())
+      return true;
+  }
+  return false;
+}
+
+Move ChessAi::getBestMove() {
+  const auto active = board_->getActivePieceList(board_->isWhiteMove());
+  std::vector<Move> moveees;
+  for (const auto& active_piece: active) {
+    auto moves = moves_generator.generateMoves(board_, active_piece);
+
+    moves.erase(
+        std::remove_if(
+            moves.begin(), moves.end(),
+            [](const Move& move) {
+              return move.getEnd()->getType() != PieceType::tNONE
+                  && move.getStart()->getPieceColor()
+                      == move.getEnd()->getPieceColor();
+            }), moves.end()
+    );
+    moveees.insert(moveees.begin(), moves.begin(), moves.end());
+  }
+  return moveees[random() % moveees.size()];
 }
 

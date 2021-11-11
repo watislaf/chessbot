@@ -16,6 +16,7 @@ if __name__ == "__main__":
     controller.set_white_player(view_player)
     controller.set_black_player(view_player)
 
-    controller.start_game("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1")
+    winner = controller.start_game("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+    print(winner)
     # MoveValidator()
     # bots play

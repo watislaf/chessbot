@@ -13,10 +13,6 @@ Move::Move(const std::shared_ptr<const Piece>& from,
 }
 
 void Move::setIsCastle(bool is_castle) {
-  if (is_castle) {
-    setBrakeRightCastle(true);
-    setBrakeLeftCastle(true);
-  }
   this->is_castle_ = is_castle;
 }
 
@@ -26,14 +22,6 @@ void Move::setIsDoubleDistancePone(bool double_distance_pone,
   if (double_distance_pone) {
     this->prev_passant_ = prev_passant;
   }
-}
-
-bool Move::isCanMakeNewFigure() const {
-  return can_make_new_figure_;
-}
-
-void Move::setCanMakeNewFigure(bool can_make_new_figure) {
-  this->can_make_new_figure_ = can_make_new_figure;
 }
 
 bool Move::isBrakeLeftCastle() const {
@@ -96,18 +84,36 @@ bool Move::isBrakeRightCastle() const {
   return brake_right_castle_;
 }
 
-PieceType Move::getNewPieceType() const {
-  return new_piece_type;
-}
-
-
 std::string Move::toStr() const {
-  return std::string("(") + getStart()->getPosition().toStr() + ","
-      + getEnd()->getPosition().toStr() + ")";
+  std::string answer = std::string("(") +
+      getStart()->getPosition().toStr() + ","
+      + getEnd()->getPosition().toStr();
+  if (new_piece_type != PieceType::tPONE) {
+    answer += ",";
+    switch (new_piece_type) {
+      case PieceType::tQUEEN:answer += "q";
+        break;
+      case PieceType::tHORSE:answer += "h";
+        break;
+      case PieceType::tRUCK:answer += "r";
+        break;
+      case PieceType::tBISHOP:answer += "b";
+        break;
+      default: answer += "x";
+    }
+  }
+  answer += ")";
+  return answer;
 }
 int Move::getPrevPassant() const {
   return prev_passant_;
 }
 void Move::setPrevPassant(int prev_passant) {
   prev_passant_ = prev_passant;
+}
+PieceType Move::getNewPieceType() const {
+  return new_piece_type;
+}
+void Move::setNewPieceType(PieceType new_piece_type) {
+  Move::new_piece_type = new_piece_type;
 }

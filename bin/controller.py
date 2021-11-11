@@ -1,8 +1,7 @@
 import threading
-import time
 
 from bin.player.player import Player
-from bin.window import Window
+from bin.view.window import Window
 
 
 class Controller:
@@ -17,8 +16,7 @@ class Controller:
 
     def start_window(self):
         self.window = Window(self.window_event_obj)
-        threading.Thread(target=self.window.start_loop,
-                         daemon=True).start()
+        threading.Thread(target=self.window.start_loop).start()
         self.__window_is_inicialized = True
 
     def start_game(self, str_fen: str):
@@ -32,9 +30,9 @@ class Controller:
                 move = self.__white_player.get_move()
             else:
                 move = self.__black_player.get_move()
-            #            if move.isNotValid():
-            #                print(self.__white_player.whosMowe(), " Lose")
-            #                break
+            if move.isNotValid():
+                return self.__white_player.whosMowe()
+
             self.__white_player.apply_move(move)
             self.__black_player.apply_move(move)
             if self.__window_is_inicialized:
