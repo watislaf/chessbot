@@ -249,19 +249,19 @@ bool MovesGenerator::isShahDanger(const Move& move) {
     defende_score += Pricer::defendScore(move);
     return true;
   }
-  Board board = *board_;
+//  Board board = *board_;
 
   board_->apply(move);
   bool is_under_shach = isShah(board_, !board_->isWhiteMove());
   board_->unApply(move);
 
-  if (board != *board_) {
-    std::cout << move.toStr() << "\n";
-    std::cout << move.getStart()->toStr() << "\n";
-    std::cout << move.getEnd()->toStr() << "\n";
-
-    std::cout << "!!!!!!!!!!!!";
-  }
+//  if (board != *board_) {
+//    std::cout << move.toStr() << "\n";
+//    std::cout << move.getStart()->toStr() << "\n";
+//    std::cout << move.getEnd()->toStr() << "\n";
+//
+//    std::cout << "!!!!!!!!!!!!";
+//  }
   if (is_under_shach) {
     return true;
   }

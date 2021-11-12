@@ -1,4 +1,5 @@
 import operator
+import threading
 
 import pygame
 from pygame.surface import Surface
@@ -25,7 +26,6 @@ class Window:
 
     pos_piece_dragging = (0, 0)
     __is_dragging = False
-
     __mouse_x = 0
     __mouse_y = 0
     last_move = [PieceMove().getInvalid()]
@@ -37,6 +37,7 @@ class Window:
         self.__fen = FEN(str_fen)
         self.__chessAi.start_new_game(self.__fen.fen_str)
         self.__is_dragging = False
+        self.last_move[0] = PieceMove().getInvalid()
 
     def __init__(self, window_event_obj):
         self.__window_event_obj = window_event_obj
@@ -89,6 +90,7 @@ class Window:
         self.__chessAi.apply_move(move)
         self.__fen.apply_move(move)
         if not self.__chessAi.is_move_exists():
+            print("EXIST")
             self.__window_event_obj.set()
 
     def end_dragging(self, event):

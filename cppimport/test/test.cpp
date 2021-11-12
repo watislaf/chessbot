@@ -11,6 +11,7 @@ TEST(ChessAi, treeGenerator) {
           "r1bqkbnr/pppppppp/n7/8/1P6/8/P1PPPPPP/RNBQKBNR w KQkq - 0 1");
       move = chess_ai.getBestMove();
     }
+    chess_ai.isMoveExists();
     chess_ai.applyMove(move);
   }
 }
@@ -40,10 +41,9 @@ TEST(ChessAi, MoveGenerator) {
 
   chess_ai.applyMoveParams(3, 0, 5, 2);
   move = chess_ai.getBestMove();
-  chess_ai.applyMoveParams( 1, 7,0, 5);
+  chess_ai.applyMoveParams(1, 7, 0, 5);
   chess_ai.applyMoveParams(5, 2, 5, 6);
-  move = chess_ai.getBestMove();
-
+  move = chess_ai.getBestMove(); 
   chess_ai.startNewGame(
       "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 

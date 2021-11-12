@@ -62,14 +62,10 @@ char ChessAi::whosMove() const {
 }
 
 bool ChessAi::isMoveExists() {
-  const auto& active = main_board_->getActivePieceList(
-      main_board_->isWhiteMove());
-  for (const auto& active_piece: active) {
-    auto moves = moves_generator.generateMoves(main_board_, active_piece);
-    if (!moves.empty())
-      return true;
-  }
-  return false;
+  bool answ = getBestMove().getStart()->getPosition().getX() != 9;
+  if (!answ)
+    std::cout << "NO MORE MOVES";
+  return answ;
 }
 
 std::string ChessAi::getBestMoveStr() {
@@ -87,7 +83,8 @@ Move ChessAi::getBestMove() {
   if (best_move.getStart()->getPosition()
       == empty_move.getStart()->getPosition()
       && moves_generator.isShah(main_board_, main_board_->isWhiteMove())) {
-    empty_move.setNewPieceType(PieceType::tKING);
+    best_move.setNewPieceType(PieceType::tKING);
+
   }
 
   return best_move;

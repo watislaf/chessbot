@@ -33,14 +33,12 @@ class Controller:
             if move.isInvalid():
                 if move.new_piece != "k":
                     return "DRAW"
-                return self.__white_player.whosMowe()
+                return self.__white_player.whosMowe()+ " <- LOST"
 
             self.__white_player.apply_move(move)
             self.__black_player.apply_move(move)
             if self.__window_is_inicialized:
-                print("A1")
                 self.window.apply_move(move)
-                print("A2")
                 if self.__white_player.get_board_str().replace(" ", "") != \
                         self.__black_player.get_board_str().replace(" ", ""):
                     print("DIFFERENT BOARDS BETWEEN PLAYERS")
