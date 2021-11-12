@@ -14,7 +14,7 @@ class Move {
   void setBrakeRightCastle(bool brake_felt_castle);
   void setBrakeLeftCastle(bool brake_left_castle);
   void setAttackPrice(int attack_price);
-  void setDefendPrice(int defend_price);
+  void setDefendScore(int defend_price);
   void setIsPassant(bool is_passant);
   bool isDoubleDistancePone() const;
   PieceType getNewPieceType() const;
@@ -23,8 +23,8 @@ class Move {
   bool isBrakeFeltCastle() const;
   std::shared_ptr<const Piece> getStart() const;
   std::shared_ptr<const Piece> getEnd() const;
-  int getAttackPrice() const;
-  int getDefendPrice() const;
+  int getAttackScore() const;
+  int getDefendScore() const;
   void setIsCastle(bool b);
   bool isPassant() const;
   bool isCastle() const;
@@ -48,7 +48,7 @@ class Move {
   bool is_passant_ = false;
   int prev_passant_ = -1;
   // -1 LC_is_possible_ 1 RC_is_possible_
-  PieceType new_piece_type = PieceType::tPONE;
+  PieceType new_piece_type = PieceType::tNONE;
   // new_figure
 
 };

@@ -22,12 +22,12 @@ class Board {
   void setMoveCount(int moveCount);
   std::shared_ptr<const Piece> getPiece(const Position& position) const;
   const std::list<std::shared_ptr<const Piece>>& getActivePieceList(bool is_white) const;
-  bool LcIsPossible(const std::shared_ptr<const Piece>& piece) const;
-  bool RcIsPossible(const std::shared_ptr<const Piece>& piece) const;
-  void setLCIsPossible(const std::shared_ptr<const Piece>& piece, bool brake);
-  void setRCIsPossible(const std::shared_ptr<const Piece>& piece, bool brake);
+  bool LcIsPossible(bool is_white) const;
+  bool RcIsPossible(bool is_white) const;
+  void setLCIsPossible(bool is_white, bool brake);
+  void setRCIsPossible(bool is_white, bool brake);
 
-  Position getKingPosition(const std::shared_ptr<const Piece>& piece) const;
+  Position getKingPosition(bool is_white) const;
   bool isWhiteMove() const;
 
   bool isBlackMove() const;

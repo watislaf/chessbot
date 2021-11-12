@@ -1,4 +1,5 @@
 import threading
+import time
 
 from bin.player.player import Player
 from bin.view.window import Window
@@ -11,10 +12,8 @@ class Controller:
     __black_player = None
     __window_is_inicialized = False
 
-    def __init__(self):
-        self.window_event_obj = threading.Event()
-
     def start_window(self):
+        self.window_event_obj = threading.Event()
         self.window = Window(self.window_event_obj)
         threading.Thread(target=self.window.start_loop).start()
         self.__window_is_inicialized = True
@@ -22,6 +21,7 @@ class Controller:
     def start_game(self, str_fen: str):
         if self.window is not None:
             self.window.start_board_from_fen_str(str_fen)
+
         self.__white_player.start_game(str_fen)
         self.__black_player.start_game(str_fen)
 
@@ -30,7 +30,7 @@ class Controller:
                 move = self.__white_player.get_move()
             else:
                 move = self.__black_player.get_move()
-            if move.isNotValid():
+            if move.isInvalid():
                 if move.new_piece != "k":
                     return "DRAW"
                 return self.__white_player.whosMowe()
@@ -38,7 +38,9 @@ class Controller:
             self.__white_player.apply_move(move)
             self.__black_player.apply_move(move)
             if self.__window_is_inicialized:
+                print("A1")
                 self.window.apply_move(move)
+                print("A2")
                 if self.__white_player.get_board_str().replace(" ", "") != \
                         self.__black_player.get_board_str().replace(" ", ""):
                     print("DIFFERENT BOARDS BETWEEN PLAYERS")

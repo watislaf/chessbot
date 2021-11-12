@@ -2,18 +2,21 @@
 #define CHESS_CHESSAI_H
 
 #include <memory>
+#include <abstracts/aiAdvanceLvl.h>
 #include "board/board.h"
 #include "tools/movesGenerator.h"
 #include "tools/movesTree.h"
 
 class ChessAi {
  public:
+  explicit ChessAi(std::string difficulty = "A1");
   void startNewGame(const std::string& fen_str);
   // START GENERATING TREE
   // GIVE BEST MOVE
   // MOVE MADE
 
-  void applyMove(int fx, int fy, int tx, int ty, char new_piece = '_');
+  void applyMoveParams(int fx, int fy, int tx, int ty, char new_piece = '_');
+  void applyMove(const Move&);
 
   std::string getPossibleMovesForPosition(int x, int y);
 
@@ -21,12 +24,14 @@ class ChessAi {
   std::string getFenStr() const;
 
   void startGameAnalize();
-  std::string getBestMove();
+  std::string getBestMoveStr();
   bool isMoveExists();
   char whosMove() const;
 
+  Move getBestMove();
+
  private:
-  std::shared_ptr<Board> board_;
+  std::shared_ptr<Board> main_board_;
 
   std::shared_ptr<MovesTree> tree_moves_;
 
@@ -34,8 +39,8 @@ class ChessAi {
 
   void loopStart(int tree_grow_rate);
 
-  void makeTreeDeeper(std::shared_ptr<MovesTree::Node>);
-  void generateMovesForNode(std::shared_ptr<MovesTree::Node> sharedPtr);
+  aiAdvanceLvl advance_ ;
+
 };
 
 #endif //CHESS_CHESSAI_H

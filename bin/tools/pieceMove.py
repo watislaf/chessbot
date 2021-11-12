@@ -21,7 +21,7 @@ class PieceMove:
             self.position_from = args[0]
             self.position_to = args[1]
 
-    def isNotValid(self):
+    def isInvalid(self):
         return self.position_from == (9, 9)
 
     def __str__(self):
@@ -30,3 +30,6 @@ class PieceMove:
             self.position_from[1],
             self.position_to[0],
             self.position_to[1])
+
+    def getInvalid(self):
+        return PieceMove("((9,9),(9,9),k)")

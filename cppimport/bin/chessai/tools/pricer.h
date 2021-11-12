@@ -9,7 +9,8 @@ class Pricer {
  public:
   static int getPrice(const std::shared_ptr<const Piece>& piece) ;
 
-    static int count(const Board& board, const Move& move);
+    static int count(const std::shared_ptr<Board>& board, const Move& move);
+  static int defendScore(const Move& move);
 };
 
 #endif //PRICER_H

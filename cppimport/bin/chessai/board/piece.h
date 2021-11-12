@@ -7,7 +7,7 @@
 
 class Piece {
  public:
-  explicit Piece(const Position& pos,
+  explicit Piece(const Position& pos = Position(9, 9),
                  PieceType piece_type_ = PieceType::tNONE,
                  PieceColor piece_color = PieceColor::WHITE);
   PieceColor getPieceColor() const;

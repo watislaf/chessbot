@@ -6,10 +6,10 @@
 
 std::list<Move> MovesGenerator::generateMoves(
     std::shared_ptr<Board> board, const std::shared_ptr<const Piece>& piece) {
+  moves_.clear();
+  defende_score = 0;
   board_ = board;
   current_piece_ = piece;
-  moves_.clear();
-
   // Create simple moves
   switch (piece->getType()) {
     case PieceType::tHORSE: horseMove();
@@ -24,7 +24,7 @@ std::list<Move> MovesGenerator::generateMoves(
     case PieceType::tBISHOP: bishopMove();
       break;
     case PieceType::tPONE: poneAttackMove();
-    ponePacificMove();
+      ponePacificMove();
 
       break;
     case PieceType::tNONE:return {};
@@ -38,8 +38,16 @@ std::list<Move> MovesGenerator::generateMoves(
                                               [this](const Move& move) {
                                                 return isShahDanger(move);
                                               });
+  for (auto& move: clear_moves) {
+    move.setDefendScore(defende_score);
+  }
   if (begin_to_erase_ponter != clear_moves.end())
     clear_moves.erase(begin_to_erase_ponter, clear_moves.end());
+
+  current_piece_ = nullptr;
+  board = nullptr;
+  moves_.clear();
+
   return clear_moves;
 }
 
@@ -165,14 +173,14 @@ void MovesGenerator::ruckMove(bool reduce_tNone) {
                                       false,
                                       reduce_tNone));
   }
-  if (board_->LcIsPossible(current_piece_)) {
+  if (board_->LcIsPossible(board_->isWhiteMove())) {
     if (current_piece_->getPosition().getX() == 0) {
       for (auto& move: moves_) {
         move.setBrakeLeftCastle(true);
       }
     }
   }
-  if (board_->RcIsPossible(current_piece_)) {
+  if (board_->RcIsPossible(board_->isWhiteMove())) {
     if (current_piece_->getPosition().getX() == 7) {
       for (auto& move: moves_) {
         move.setBrakeRightCastle(true);
@@ -190,10 +198,9 @@ void MovesGenerator::poneAttackMove() {
         && board_->getPiece(go_diagonal.back())->isEnemyTo(*current_piece_)) {
       moves_.emplace_back(current_piece_, board_->getPiece(go_diagonal.back()));
     }
-    auto go_diagonal2 = goByVector(Position(i, 1), 1, true);
 
-    int good_row = current_piece_->getPieceColor() == PieceColor::WHITE ? 4 : 3;
     // Atack passant
+    int good_row = current_piece_->getPieceColor() == PieceColor::WHITE ? 4 : 3;
     go_diagonal = goByVector(Position(i, direction), 1, true, false);
     if (go_diagonal.size() == 1
         && board_->getLastPassantX() == go_diagonal.back().getX()
@@ -207,7 +214,7 @@ void MovesGenerator::poneAttackMove() {
 
 void MovesGenerator::castleMove() {
   // If king move he lost castle
-  if (board_->LcIsPossible(current_piece_)) {
+  if (board_->LcIsPossible(board_->isWhiteMove())) {
     auto positions_left = goByVector(Position(-1, 0));
     if (positions_left.size() == 4) {
       moves_.emplace_back(
@@ -216,7 +223,7 @@ void MovesGenerator::castleMove() {
       moves_.back().setIsCastle(true);
     }
   }
-  if (board_->RcIsPossible(current_piece_)) {
+  if (board_->RcIsPossible(board_->isWhiteMove())) {
     auto positions_right = goByVector(Position(1, 0));
     if (positions_right.size() == 3) {
       moves_.emplace_back(current_piece_, board_->getPiece(
@@ -225,12 +232,12 @@ void MovesGenerator::castleMove() {
     }
 
   }
-  if (board_->RcIsPossible(current_piece_)) {
+  if (board_->RcIsPossible(board_->isWhiteMove())) {
     for (auto& move: moves_) {
       move.setBrakeRightCastle(true);
     }
   }
-  if (board_->LcIsPossible(current_piece_)) {
+  if (board_->LcIsPossible(board_->isWhiteMove())) {
     for (auto& move: moves_) {
       move.setBrakeLeftCastle(true);
     }
@@ -238,15 +245,21 @@ void MovesGenerator::castleMove() {
 }
 
 bool MovesGenerator::isShahDanger(const Move& move) {
-  if (move.getDefendPrice() != 0)
-    return false;
+  if (move.getDefendScore() != 0) {
+    defende_score += Pricer::defendScore(move);
+    return true;
+  }
   Board board = *board_;
 
   board_->apply(move);
-  bool is_under_shach = isShah();
+  bool is_under_shach = isShah(board_, !board_->isWhiteMove());
   board_->unApply(move);
 
   if (board != *board_) {
+    std::cout << move.toStr() << "\n";
+    std::cout << move.getStart()->toStr() << "\n";
+    std::cout << move.getEnd()->toStr() << "\n";
+
     std::cout << "!!!!!!!!!!!!";
   }
   if (is_under_shach) {
@@ -260,7 +273,8 @@ bool MovesGenerator::isShahDanger(const Move& move) {
                              move.getStart()->getPosition().getY())));
     non_castle_move.setIsCastle(false);
     board_->apply(non_castle_move);
-    is_under_shach = isShah(); // check castle somehow )))))
+    is_under_shach =
+        isShah(board_, !board_->isWhiteMove()); // check castle somehow )))))
     board_->unApply(non_castle_move);
   }
 
@@ -268,14 +282,18 @@ bool MovesGenerator::isShahDanger(const Move& move) {
     return true;
   }
   return false;
+
 }
 
-bool MovesGenerator::isShah() {
+bool MovesGenerator::isShah(const std::shared_ptr<Board>& board,
+                            bool is_white) {
   auto movesTMP = moves_;
   auto pieceTMP = current_piece_;
+  auto boardTMP = board_;
 
   moves_.clear();
-  current_piece_ = board_->getPiece(board_->getKingPosition(current_piece_));
+  board_ = board;
+  current_piece_ = board_->getPiece(board_->getKingPosition(is_white));
 
   horseMove(true);
   if (isPieceOnMoves(PieceType::tHORSE)) {
@@ -309,6 +327,7 @@ bool MovesGenerator::isShah() {
   }
   moves_ = movesTMP;
   current_piece_ = pieceTMP;
+  board_ = boardTMP;
   return false;
 }
 

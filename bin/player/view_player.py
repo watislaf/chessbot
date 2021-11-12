@@ -25,13 +25,10 @@ class ViewPlayer(Player):
         return self.whos_move
 
     def get_move(self):
-        if self.__pointer_to_last_move[0] == (-1, -1):
+        if self.__pointer_to_last_move[0].isInvalid():
             self.__event_obj.wait(timeout=None)
-        if self.__pointer_to_last_move[0] == (-1, -1):
-            move = PieceMove((-1, -1), (-1, -1))
-        else:
-            move = self.__pointer_to_last_move[0]
-        self.__pointer_to_last_move[0] = (-1, -1)
+        move = self.__pointer_to_last_move[0]
+        self.__pointer_to_last_move[0] = PieceMove().getInvalid()
         self.__event_obj.clear()
 
         return move

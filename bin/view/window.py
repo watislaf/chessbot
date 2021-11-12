@@ -3,13 +3,14 @@ import operator
 import pygame
 from pygame.surface import Surface
 from bin.tools.FEN import FEN
+from bin.tools.pieceMove import PieceMove
 from bin.view.piece_ask import PieceAsk
 from cppimport.output.chessai import ChessAi
 from graphics.pictures import PICTURES_PATH
 
 
 class Window:
-    __chessAi = ChessAi()
+    __chessAi = ChessAi("random")
 
     __black_board_color = (118, 150, 86)
     __white_board_color = (238, 238, 210)
@@ -27,7 +28,7 @@ class Window:
 
     __mouse_x = 0
     __mouse_y = 0
-    last_move = [(-1, -1)]
+    last_move = [PieceMove().getInvalid()]
 
     def get_window_board_str(self):
         return self.__fen.getBoardStr()
@@ -35,6 +36,7 @@ class Window:
     def start_board_from_fen_str(self, str_fen):
         self.__fen = FEN(str_fen)
         self.__chessAi.start_new_game(self.__fen.fen_str)
+        self.__is_dragging = False
 
     def __init__(self, window_event_obj):
         self.__window_event_obj = window_event_obj
@@ -86,15 +88,6 @@ class Window:
     def apply_move(self, move):
         self.__chessAi.apply_move(move)
         self.__fen.apply_move(move)
-
-        if self.get_window_board_str().replace(" ", "") != \
-                self.__chessAi.get_board_str().replace(" ", ""):
-            print("DIFFERENT BOARDS BETWEEN CHEKKERS")
-            print(self.__chessAi.get_board_str())
-            print("\n")
-            print(self.get_window_board_str())
-
-        print(move)
         if not self.__chessAi.is_move_exists():
             self.__window_event_obj.set()
 

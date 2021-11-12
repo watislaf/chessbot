@@ -6,9 +6,10 @@
 class MovesGenerator {
  public:
   std::list<Move> generateMoves(std::shared_ptr<Board> board,
-                                  const std::shared_ptr<const Piece>& piece);
+                                const std::shared_ptr<const Piece>& piece);
 
-  bool isShah();
+  bool isShah(const std::shared_ptr<Board>& board, bool is_white);
+
  private:
   std::list<Position> goByVector(
       Position move_vector, int max_length = 8,
@@ -31,5 +32,6 @@ class MovesGenerator {
   std::shared_ptr<const Piece> current_piece_;
   std::shared_ptr<Board> board_;
   std::list<Move> moves_;
+  int defende_score = 0;
 };
 #endif //CHESS_MOVEGENERATOR_H

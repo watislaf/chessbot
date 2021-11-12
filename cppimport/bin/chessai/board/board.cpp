@@ -5,32 +5,30 @@ std::shared_ptr<const Piece> Board::getPiece(const Position& position) const {
   return board_[position.getX()][position.getY()];
 }
 
-bool Board::LcIsPossible(const std::shared_ptr<const Piece>& piece) const {
-  if (piece->getPieceColor() == PieceColor::WHITE) {
+bool Board::LcIsPossible(bool is_white) const {
+  if (is_white) {
     return whiteCastle.LC_is_possible_;
   }
   return blackCastle.LC_is_possible_;
 }
 
-void Board::setLCIsPossible(const std::shared_ptr<const Piece>& piece,
-                            bool brake) {
-  if (piece->getPieceColor() == PieceColor::WHITE) {
+void Board::setLCIsPossible(bool is_white, bool brake) {
+  if (is_white) {
     whiteCastle.LC_is_possible_ = brake;
   } else {
     blackCastle.LC_is_possible_ = brake;
   }
 }
-void Board::setRCIsPossible(const std::shared_ptr<const Piece>& piece,
-                            bool brake) {
-  if (piece->getPieceColor() == PieceColor::WHITE) {
+void Board::setRCIsPossible(bool is_white, bool brake) {
+  if (is_white) {
     whiteCastle.RC_is_possible_ = brake;
   } else {
     blackCastle.RC_is_possible_ = brake;
   }
 }
 
-bool Board::RcIsPossible(const std::shared_ptr<const Piece>& piece) const {
-  if (piece->getPieceColor() == PieceColor::WHITE) {
+bool Board::RcIsPossible(bool is_white) const {
+  if (is_white) {
     return whiteCastle.RC_is_possible_;
   }
   return blackCastle.RC_is_possible_;
@@ -88,23 +86,21 @@ Board::Board(FEN fen) {
   move_count_ = fen.getMoveCount();
 }
 
-Position Board::getKingPosition(const std::shared_ptr<const Piece>& piece) const {
-  if (piece->getPieceColor() == PieceColor::WHITE) {
+Position Board::getKingPosition(bool is_white) const {
+  if (is_white) {
     return whiteCastle.king_position;
   }
   return blackCastle.king_position;
 }
 
 void Board::apply(const Move& move) {
-  is_white_move_ = !is_white_move_;
-  move_count_++;
   forceMove(getPiece(move.getStart()->getPosition()),
             getPiece(move.getEnd()->getPosition()));
   if (move.isBrakeLeftCastle()) {
-    setLCIsPossible(move.getStart(), false);
+    setLCIsPossible(isWhiteMove(), false);
   }
   if (move.isBrakeRightCastle()) {
-    setRCIsPossible(move.getStart(), false);
+    setRCIsPossible(isWhiteMove(), false);
   }
   if (move.isCastle()) {
     if (move.getEnd()->getPosition().getX() < 3) {
@@ -135,11 +131,13 @@ void Board::apply(const Move& move) {
     forceMove(getPiece(move.getStart()->getPosition()),
               getPiece(move.getEnd()->getPosition() + Position(0, back)));
   }
-  if (move.getNewPieceType()!=PieceType::tPONE) {
+  if (move.getNewPieceType() != PieceType::tNONE) {
     setPiece(Piece(move.getEnd()->getPosition(),
                    move.getNewPieceType(),
                    move.getStart()->getPieceColor()));
   }
+  is_white_move_ = !is_white_move_;
+  move_count_++;
 }
 
 void Board::unApply(const Move& move) {
@@ -150,10 +148,10 @@ void Board::unApply(const Move& move) {
             getPiece(move.getStart()->getPosition()));
   setPiece(*move.getEnd());
   if (move.isBrakeLeftCastle()) {
-    setLCIsPossible(move.getStart(), true);
+    setLCIsPossible(isWhiteMove(), true);
   }
   if (move.isBrakeRightCastle()) {
-    setRCIsPossible(move.getStart(), true);
+    setRCIsPossible(isWhiteMove(), true);
   }
   if (move.isCastle()) {
     if (move.getEnd()->getPosition().getX() < 3) {
@@ -179,7 +177,7 @@ void Board::unApply(const Move& move) {
       back = 1;
     }
     auto position_to_pone_be = move.getEnd()->getPosition() + Position(0, back);
-    auto pone_color_reversed_color =move.getStart()->getPieceColor();
+    auto pone_color_reversed_color = move.getStart()->getPieceColor();
     if (pone_color_reversed_color == PieceColor::BLACK) {
       pone_color_reversed_color = PieceColor::WHITE;
     } else {
@@ -189,7 +187,7 @@ void Board::unApply(const Move& move) {
                    PieceType::tPONE,
                    pone_color_reversed_color));
   }
-  if (move.getNewPieceType()!=PieceType::tPONE) {
+  if (move.getNewPieceType() != PieceType::tNONE) {
     setPiece(Piece(move.getStart()->getPosition(),
                    PieceType::tPONE,
                    move.getStart()->getPieceColor()));

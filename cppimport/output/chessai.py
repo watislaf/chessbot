@@ -10,8 +10,8 @@ import CPPChessLib as lib
 class ChessAi:
     __CPPChessLib = None
 
-    def __init__(self):
-        self.__CPPChessLib = lib.ChessAi()
+    def __init__(self, mode):
+        self.__CPPChessLib = lib.ChessAi(mode)  # random A1 A2 A3
 
     def start_new_game(self, str_fen: str):
         self.__CPPChessLib.startNewGame(str_fen)
@@ -22,11 +22,12 @@ class ChessAi:
         return tuple(map(lambda move_str: PieceMove(move_str), mowes_strings))
 
     def apply_move(self, move):
-        self.__CPPChessLib.applyMove(*move.position_from, *move.position_to,
-                                     move.new_piece)
+        self.__CPPChessLib.applyMoveParams(*move.position_from,
+                                           *move.position_to,
+                                           move.new_piece)
 
     def get_best_move(self):
-        return PieceMove(self.__CPPChessLib.getBestMove())
+        return PieceMove(self.__CPPChessLib.getBestMoveStr())
 
     def whos_move(self):
         return self.__CPPChessLib.whosMove()

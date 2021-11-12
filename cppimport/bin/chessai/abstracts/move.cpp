@@ -64,7 +64,7 @@ std::shared_ptr<const Piece> Move::getEnd() const {
   return end_;
 }
 
-int Move::getAttackPrice() const {
+int Move::getAttackScore() const {
   return attack_price_;
 }
 
@@ -72,11 +72,11 @@ void Move::setAttackPrice(int attack_price) {
   attack_price_ = attack_price;
 }
 
-int Move::getDefendPrice() const {
+int Move::getDefendScore() const {
   return defend_price_;
 }
 
-void Move::setDefendPrice(int defend_price) {
+void Move::setDefendScore(int defend_price) {
   defend_price_ = defend_price;
 }
 
@@ -88,12 +88,14 @@ std::string Move::toStr() const {
   std::string answer = std::string("(") +
       getStart()->getPosition().toStr() + ","
       + getEnd()->getPosition().toStr();
-  if (new_piece_type != PieceType::tPONE) {
+  if (new_piece_type != PieceType::tNONE) {
     answer += ",";
     switch (new_piece_type) {
+      case PieceType::tKING:answer += "k";
+        break;
       case PieceType::tQUEEN:answer += "q";
         break;
-      case PieceType::tHORSE:answer += "h";
+      case PieceType::tHORSE:answer += "n";
         break;
       case PieceType::tRUCK:answer += "r";
         break;
