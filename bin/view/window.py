@@ -90,7 +90,7 @@ class Window:
         self.__chessAi.apply_move(move)
         self.__fen.apply_move(move)
         if not self.__chessAi.is_move_exists():
-            print("EXIST")
+            print("NOT EXIST")
             self.__window_event_obj.set()
 
     def end_dragging(self, event):

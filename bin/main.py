@@ -14,7 +14,7 @@ if __name__ == "__main__":
                               controller.window_event_obj,
                               controller.window.get_window_board_str)
     controller.set_white_player(view_player)
-    controller.set_black_player(AiPlayer(ChessAi("A1")))
+    controller.set_black_player(AiPlayer(ChessAi("A2")))
     while True:
         winner = controller.start_game(
             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")

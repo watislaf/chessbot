@@ -4,6 +4,8 @@ Bot to play chess on chess.com for me ( cause i am to lazy to learn how to bee g
 
 - gtest 
 - pybind11
-- threadingPy, events
+- threadingPy, events, locks
+- threading C++
 - openCV
 - valgrind
+

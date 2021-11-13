@@ -1,38 +1,23 @@
-#include <string>
-#include <algorithm>
-#include <tools/pricer.h>
-#include <iostream>
+
 #include "chessAi.h"
 
 ChessAi::ChessAi(std::string advance) {
   if (advance == "random")
-    advance_ = aiAdvanceLvl::RANDOM;
+    mode_ = AiAdvanceLvl::RANDOM;
   if (advance == "A1")
-    advance_ = aiAdvanceLvl::A1;
+    mode_ = AiAdvanceLvl::A1;
+  if (advance == "A2")
+    mode_ = AiAdvanceLvl::A2;
 }
 
 void ChessAi::startNewGame(const std::string& fen_str) {
   main_board_ = std::make_shared<Board>(FEN(fen_str));
-  int tree_grow = 3;
-  if (advance_ == aiAdvanceLvl::RANDOM) {
+  int tree_grow = 1;
+  if (mode_ == AiAdvanceLvl::RANDOM) {
     tree_grow = 1;
   }
-  tree_moves_ = std::make_shared<MovesTree>(*main_board_, tree_grow);
-}
 
-void ChessAi::startGameAnalize() {
-  int tree_grow_rate = 2;
-//  loopStart(tree_grow_rate);
-}
-
-void ChessAi::loopStart(int tree_grow_rate) {
-  while (true) {
-//    tree_moves_->max_height += tree_grow_rate;
-//    makeTreeDeeper(tree_moves_->main_node_);
-//    if (tree_moves_->main_node_->edges.empty()) {
-//      break;
-    //   }
-  }
+  tree_moves_ = std::make_shared<MovesTree>(*main_board_, tree_grow, mode_);
 }
 
 std::string ChessAi::getPossibleMovesForPosition(int x, int y) {
@@ -62,7 +47,7 @@ char ChessAi::whosMove() const {
 }
 
 bool ChessAi::isMoveExists() {
-  bool answ = getBestMove().getStart()->getPosition().getX() != 9;
+  bool answ = tree_moves_->isMoveExists();
   if (!answ)
     std::cout << "NO MORE MOVES";
   return answ;
@@ -116,7 +101,6 @@ void ChessAi::applyMove(const Move& naked_move) {
     std::cout << "CNAT APPLY EMPTY MOVE";
     return;
   }
-  bool move_exists = false;
   const auto& full_move = tree_moves_->apply(naked_move);
   main_board_->apply(full_move);
 }

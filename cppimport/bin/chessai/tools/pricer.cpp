@@ -12,7 +12,7 @@ int Pricer::count(const std::shared_ptr<Board>& board, const Move& move) {
   if (move.getNewPieceType() != PieceType::tNONE) {
     answer += getPrice(move.getNewPieceType());
   }
-//answer -= move.getDefendScore()/2;
+//  answer += move.getDefendScore()/2;
   if (board->isBlackMove()) {
     answer *= -1;
   }
