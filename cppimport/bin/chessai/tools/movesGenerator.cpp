@@ -12,18 +12,18 @@ std::list<Move> MovesGenerator::generateMoves(
   current_piece_ = piece;
   // Create simple moves
   switch (piece->getType()) {
-    case PieceType::tHORSE: horseMove();
+    case PieceType::tHORSE:horseMove();
       break;
-    case PieceType::tKING: kingMove();
+    case PieceType::tKING:kingMove();
       castleMove();
       break;
-    case PieceType::tRUCK: ruckMove();
+    case PieceType::tRUCK:ruckMove();
       break;
-    case PieceType::tQUEEN: queenMove();
+    case PieceType::tQUEEN:queenMove();
       break;
-    case PieceType::tBISHOP: bishopMove();
+    case PieceType::tBISHOP:bishopMove();
       break;
-    case PieceType::tPONE: poneAttackMove();
+    case PieceType::tPONE:poneAttackMove();
       ponePacificMove();
 
       break;
@@ -52,8 +52,7 @@ std::list<Move> MovesGenerator::generateMoves(
 }
 
 std::list<Position> MovesGenerator::goByVector(Position move_vector,
-                                               int max_length,
-                                               bool only_tNone,
+                                               int max_length, bool only_tNone,
                                                bool reduce_tNone) {
   if (move_vector.getX() == 0 && move_vector.getY() == 0) {
     return {};

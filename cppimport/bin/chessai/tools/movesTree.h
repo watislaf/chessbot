@@ -22,17 +22,17 @@ class MovesTree {
   ~MovesTree();
 
   struct Node {
-    bool dead=false;
+    bool dead = false;
     explicit Node(Move move, int height, int board_sum) :
         move_to_get_here(std::move(move)),
         height(height),
         board_sum(board_sum) {
       if (height % 2) {
-        best_price_tmp = -1000000000;
+        best_price_tmp = -100000000;
       } else {
-        best_price_tmp = 1000000000;
+        best_price_tmp = 100000000;
       }
-      best_price_shure = best_price_tmp;
+      best_price_shure = board_sum;
     }
     int board_sum = 0;
     int best_price_shure;
@@ -45,7 +45,9 @@ class MovesTree {
   Move getBestMove();
   void makeTreeDeeper(std::shared_ptr<Node> current_node,
                       std::shared_ptr<Board> board_coppy,
-                      int max_height, bool unaply);
+                      int max_height,
+                      bool unaply,
+                      int prev_node_price = 10000001);
 
   bool isMoveExists();
 
@@ -62,10 +64,10 @@ class MovesTree {
   // A1
   std::shared_ptr<Node> main_node_;
   std::shared_ptr<Board> board_;
-  int max_height_ = 0;
+  std::atomic<int> max_height_;
 
   MovesGenerator moves_generator_;
-  void killNodes(std::shared_ptr<MovesTree::Node>& shared_ptr);
+  void killNodes(const std::shared_ptr<MovesTree::Node>& shared_ptr);
   void generateMovesForNode(std::shared_ptr<Node> node,
                             std::shared_ptr<Board> board_coppy);
 

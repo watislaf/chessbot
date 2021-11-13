@@ -1,28 +1,46 @@
 #include <gtest/gtest.h>
 #include "chessAi.h"
 
+TEST(ChessAi, AlphaBeta) {
+  ChessAi chess_ai("A1");
+  chess_ai.startNewGame(
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  chess_ai.getBestMove();
+
+}
+TEST(ChessAi, Algo) {
+  ChessAi chess_ai("A1");
+  chess_ai.startNewGame(
+      "8/8/1kp5/8/3P4/2K5/8/8 w KQkq - 0 1");
+  chess_ai.applyMoveParams(2,2,2,3);
+  auto move = chess_ai.getBestMove();
+  chess_ai.applyMove(move);
+  chess_ai.applyMoveParams(2,3,3,2);
+  move = chess_ai.getBestMove();
+  chess_ai.applyMove(move);
+  chess_ai.applyMoveParams(3,2,2,3);
+  move = chess_ai.getBestMove();
+  chess_ai.applyMove(move);
+
+}
+
 TEST(ChessAi, A2) {
   ChessAi chess_ai("A2");
   ChessAi chess_ai2("random");
-  for (int j = 0; j < 3; j++) {
+  for (int j = 0; j < 5; j++) {
     chess_ai.startNewGame(
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     chess_ai2.startNewGame(
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    std::cout<<"GO ";
     for (int i = 0; i < 40; i++) {
       auto move = chess_ai.getBestMove();
-      if (move.getStart()->getPosition() == Position(9, 9)) { std::cerr<<"GG"<<std::endl;break; };
-      chess_ai.applyMove(move);
-      chess_ai.isMoveExists();
-      chess_ai2.applyMove(move);
-      move = chess_ai2.getBestMove();
       if (move.getStart()->getPosition() == Position(9, 9)) {std::cerr<<"GG"; break; };
-      chess_ai.applyMove(move);
       chess_ai2.applyMove(move);
-      move = chess_ai.getBestMove();
       chess_ai2.isMoveExists();
+      chess_ai.applyMove(move);
+      move = chess_ai.getBestMove();
     }
+    std::cerr<<j<<" \n";
   }
 }
 
@@ -30,20 +48,14 @@ TEST(ChessAi, TreeGenerator) {
   ChessAi chess_ai("A1");
   chess_ai.startNewGame(
       "r1bqkbnr/pppppppp/n7/8/1P6/8/P1PPPPPP/RNBQKBNR w KQkq - 0 1");
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < 10; i++) {
     auto move = chess_ai.getBestMove();
-    if (move.getStart()->getPosition() == Position(9, 9)) {
-      chess_ai.startNewGame(
-          "r1bqkbnr/pppppppp/n7/8/1P6/8/P1PPPPPP/RNBQKBNR w KQkq - 0 1");
-      move = chess_ai.getBestMove();
-    }
     chess_ai.isMoveExists();
     chess_ai.applyMove(move);
   }
 }
 
 TEST(ChessAi, MoveGenerator) {
-
   ChessAi chess_ai("random");
   chess_ai.startNewGame(
       "r1bqkbnr/pppppppp/n7/8/1P6/8/P1PPPPPP/RNBQKBNR w KQkq - 0 1");

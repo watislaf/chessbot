@@ -10,10 +10,11 @@ MovesTree::MovesTree(const Board& original_board,
   auto zero_piece = original_board.getPiece(Position(0, 0));
   main_node_ = std::make_shared<Node>(Move(zero_piece, zero_piece),
                                       original_board.getMoveCount(), 0);
-
+  max_height_ = original_board.getMoveCount();
   max_height_ += tree_grow;
   tree_grow_ = tree_grow;
-  makeTreeDeeper(main_node_, board_, max_height_, false);
+
+  generateMovesForNode(main_node_, board_);
   if (mode == AiAdvanceLvl::A2) {
     terminate_build_loop = false;
     additional_thread =
@@ -21,9 +22,8 @@ MovesTree::MovesTree(const Board& original_board,
   }
 
 }
-
 void MovesTree::builLoop() {
-  while (!this->terminate_build_loop) {
+  while (!terminate_build_loop) {
     board_mainnode_mtx.lock();
     std::shared_ptr<Board> board_coppy = std::make_shared<Board>(*board_);
     std::shared_ptr<Node> node = main_node_;
@@ -35,7 +35,10 @@ void MovesTree::builLoop() {
 
 void MovesTree::makeTreeDeeper(std::shared_ptr<MovesTree::Node> current_node,
                                std::shared_ptr<Board> board_coppy,
-                               int max_height, bool unaply) {
+                               int max_height,
+                               bool unaply,
+                               int prev_node_price) {
+
   nodes_mtx.lock();
   if (current_node->edges.empty()) {
     generateMovesForNode(current_node, board_coppy);
@@ -43,10 +46,14 @@ void MovesTree::makeTreeDeeper(std::shared_ptr<MovesTree::Node> current_node,
   nodes_mtx.unlock();
 
   if (board_coppy->isWhiteMove()) {
-    current_node->best_price_tmp = -1000000000;
+    current_node->best_price_tmp = -100000000;
   } else {
-    current_node->best_price_tmp = 100000000;
+    current_node->best_price_tmp = 10000000;
   }
+  if (prev_node_price == 10000001) {
+    prev_node_price = -current_node->best_price_tmp;
+  }
+
   for (const auto& child_node_pair: current_node->edges) {
     const auto& child_node = child_node_pair.second;
     if (child_node->dead) { // THREADING
@@ -54,17 +61,24 @@ void MovesTree::makeTreeDeeper(std::shared_ptr<MovesTree::Node> current_node,
     }
     if (child_node->height == max_height) {
       child_node->best_price_tmp = child_node->board_sum;
-      child_node->best_price_shure = child_node->board_sum;
     } else {
       board_coppy->apply(child_node->move_to_get_here);
-      makeTreeDeeper(child_node, board_coppy, max_height, true);
+      makeTreeDeeper(child_node,
+                     board_coppy, max_height, true,
+                     current_node->best_price_tmp);
     }
     if (board_coppy->isWhiteMove()) {
       current_node->best_price_tmp =
           std::max(child_node->best_price_tmp, current_node->best_price_tmp);
+      if (current_node->best_price_tmp > prev_node_price) {
+        break;
+      }
     } else {
       current_node->best_price_tmp =
           std::min(child_node->best_price_tmp, current_node->best_price_tmp);
+      if (current_node->best_price_tmp < prev_node_price) {
+        break;
+      }
     }
   }
   if (unaply) {
@@ -96,11 +110,12 @@ void MovesTree::generateMovesForNode(std::shared_ptr<MovesTree::Node> node,
     for (const auto& move: moves) {
       int price = Pricer::count(board_coppy, move);
       int new_board_sum = node->board_sum + price;
-      if (board_coppy->isWhiteMove()) {
-        price *= -1;
+      int key = new_board_sum;
+      if (board_->isWhiteMove()) {
+        key *= -1;
       }
       node->edges.emplace_back(
-          price,
+          key,
           std::make_shared<MovesTree::Node>(move, node->height + 1,
                                             new_board_sum));
 
@@ -108,42 +123,47 @@ void MovesTree::generateMovesForNode(std::shared_ptr<MovesTree::Node> node,
   }
   std::sort(node->edges.begin(), node->edges.end());
 }
+
 Move MovesTree::getBestMove() {
-  // GET OUT MAKE TREE DEEPER AND SET TIMER
   if (mode_ != AiAdvanceLvl::A2) {
     makeTreeDeeper(main_node_, board_, max_height_, false);
   } else {
-    for (int times = 20; times > 0; times--) {
-      if (max_height_ - board_->getMoveCount() < tree_grow_) {
+    int times = 20;
+    for (; times > 0; times--) {
+      price_mtx.lock();
+      bool answ = abs(main_node_->best_price_shure) == 100000000;
+      price_mtx.unlock();
+      if (answ || max_height_ - board_->getMoveCount() < tree_grow_) {
         std::this_thread::sleep_for(wait_to_tree_grow);
+      } else {
+        break;
       }
     }
-    if (max_height_ - board_->getMoveCount() < tree_grow_) {
+    if (times == 0) {
       std::cout << "TO LONG " << max_height_ << " " << board_->getMoveCount()
                 << " " << tree_grow_;
       throw 42;
     }
   }
-  price_mtx.lock();
+  std::lock_guard<std::mutex> price_guard(price_mtx);
+  std::lock_guard<std::mutex> nodes_guard(nodes_mtx);
   for (const auto& node_pair: main_node_->edges) {
     const auto& node = node_pair.second;
     if (node->best_price_shure == main_node_->best_price_shure) {
-      price_mtx.unlock();
-      std::cout<<"deep - "<< max_height_ - board_->getMoveCount()<<std::endl;
+//      std::cout << max_height_ - board_->getMoveCount();
       return node->move_to_get_here;
     }
   }
-  price_mtx.unlock();
   if (main_node_->edges.size() != 0) {
-    std::cout << "DOUBLESUKA ";
+    std::cerr << "DOUBLESUKA ";
   }
-  // IF NOT FOUND RETURN EMPTY MOVE
   auto empty_piece = std::make_shared<Piece>();
   return Move(empty_piece, empty_piece);
 }
 
 Move MovesTree::apply(const Move& move) {
   std::shared_ptr<Node> node_by_this_move;
+
   for (auto& node_pair: main_node_->edges) {
     auto& node = node_pair.second;
     if (node->move_to_get_here.getEnd()->getPosition()
@@ -163,6 +183,7 @@ Move MovesTree::apply(const Move& move) {
 
     board_mainnode_mtx.lock();
     board_->apply(node_by_this_move->move_to_get_here);
+
     nodes_mtx.lock();
     if (node_by_this_move->edges.empty()) {
       generateMovesForNode(node_by_this_move, board_);
@@ -184,7 +205,7 @@ Move MovesTree::apply(const Move& move) {
   return main_node_->move_to_get_here;
 }
 
-void MovesTree::killNodes(std::shared_ptr<MovesTree::Node>& node) {
+void MovesTree::killNodes(const std::shared_ptr<MovesTree::Node>& node) {
   if (node->dead) {
     return;
   }
@@ -199,8 +220,18 @@ void MovesTree::ApplyRezult(const std::shared_ptr<Node>& node) {
     auto& node_c = node_c_p.second;
     if (!node_c->dead) {
       ApplyRezult(node_c);
+    } else {
+      node_c->best_price_shure = node_c->best_price_tmp;
+
+      int key = node_c->best_price_tmp;
+      if (node->move_to_get_here.getStart()->getPieceColor()
+          == PieceColor::WHITE) {
+        key *= -1;
+      }
+      node_c_p.first = key;
     }
   }
+  std::sort(node->edges.begin(), node->edges.end());
 }
 bool MovesTree::isMoveExists() {
   return !main_node_->edges.empty();
