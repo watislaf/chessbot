@@ -5,7 +5,11 @@
 #include "pricer.h"
 
 std::list<Move> MovesGenerator::generateMoves(
-    std::shared_ptr<Board> board, const std::shared_ptr<const Piece>& piece) {
+    std::shared_ptr<Board> board, const std::shared_ptr<const Piece>& piece,
+    bool capture_only, bool non_capture_only) {
+  capture_only_ = capture_only;
+  non_capture_only_ = non_capture_only;
+
   moves_.clear();
   defende_score = 0;
   board_ = board;
@@ -343,7 +347,14 @@ bool MovesGenerator::isPieceOnMoves(PieceType type) {
 
 void MovesGenerator::insertPositionsToMoves(const std::list<Position>& positions) {
   for (const auto& pos: positions) {
-    moves_.emplace_back(current_piece_, board_->getPiece(pos));
+    auto move = Move(current_piece_, board_->getPiece(pos));
+    if (capture_only_ && move.getAttackScore() == 0) {
+      continue;
+    }
+    if (non_capture_only_ && move.getAttackScore() != 0) {
+      continue;
+    }
+    moves_.emplace_back(move);
   }
 }
 

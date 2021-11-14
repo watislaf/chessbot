@@ -33,21 +33,23 @@ class MovesTree {
         best_price_tmp = 100000000;
       }
       best_price_shure = board_sum;
+      best_price_tmp = board_sum;
     }
     int board_sum = 0;
     int best_price_shure;
     int height;
     std::vector<std::pair<int, std::shared_ptr<Node>>> edges;
     Move move_to_get_here;
-
+    bool generated_capture_only = false;
     int best_price_tmp;
   };
   Move getBestMove();
-  void makeTreeDeeper(std::shared_ptr<Node> current_node,
-                      std::shared_ptr<Board> board_coppy,
+  void makeTreeDeeper(const std::shared_ptr<Node>& current_node,
+                      const std::shared_ptr<Board>& board_coppy,
                       int max_height,
                       bool unaply,
-                      int prev_node_price = 10000001);
+                      int prev_node_price = 10000001,
+                      bool capture_only = false);
 
   bool isMoveExists();
 
@@ -68,8 +70,9 @@ class MovesTree {
 
   MovesGenerator moves_generator_;
   void killNodes(const std::shared_ptr<MovesTree::Node>& shared_ptr);
-  void generateMovesForNode(std::shared_ptr<Node> node,
-                            std::shared_ptr<Board> board_coppy);
+  void generateMovesForNode(const std::shared_ptr<Node>& node,
+                            const std::shared_ptr<Board>& board_coppy,
+                            bool capture_only = false);
 
   AiAdvanceLvl mode_;
   bool undead_node = false;

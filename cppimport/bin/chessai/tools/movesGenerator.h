@@ -6,7 +6,9 @@
 class MovesGenerator {
  public:
   std::list<Move> generateMoves(std::shared_ptr<Board> board,
-                                const std::shared_ptr<const Piece>& piece);
+                                const std::shared_ptr<const Piece>& piece,
+                                bool capture_only = false,
+                                bool non_capture_only = false);
 
   bool isShah(const std::shared_ptr<Board>& board, bool is_white);
 
@@ -33,5 +35,7 @@ class MovesGenerator {
   std::shared_ptr<Board> board_;
   std::list<Move> moves_;
   int defende_score = 0;
+  bool capture_only_ = false;
+  bool non_capture_only_ = false;
 };
 #endif //CHESS_MOVEGENERATOR_H

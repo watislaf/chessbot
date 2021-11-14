@@ -4,44 +4,47 @@
 TEST(ChessAi, AlphaBeta) {
   ChessAi chess_ai("A1");
   chess_ai.startNewGame(
-      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-  chess_ai.getBestMove();
+      "k7/8/8/8/8/8/3p4/3K4 w - - 0 1");
+  chess_ai.applyMoveParams(3,0,3,1);
 
 }
 TEST(ChessAi, Algo) {
   ChessAi chess_ai("A1");
   chess_ai.startNewGame(
-      "8/8/1kp5/8/3P4/2K5/8/8 w KQkq - 0 1");
-  chess_ai.applyMoveParams(2,2,2,3);
+      "1n1k4/pp6/8/8/8/8/PPP5/3K4 w - - 0 1");
+  chess_ai.applyMoveParams(1,1,1,3);
   auto move = chess_ai.getBestMove();
   chess_ai.applyMove(move);
-  chess_ai.applyMoveParams(2,3,3,2);
+  chess_ai.applyMoveParams(2,1,2,3);
   move = chess_ai.getBestMove();
   chess_ai.applyMove(move);
-  chess_ai.applyMoveParams(3,2,2,3);
+  chess_ai.applyMoveParams(0,1,0,2);
   move = chess_ai.getBestMove();
   chess_ai.applyMove(move);
 
 }
 
 TEST(ChessAi, A2) {
-  ChessAi chess_ai("A2");
+  ChessAi chess_ai("A1");
   ChessAi chess_ai2("random");
   for (int j = 0; j < 5; j++) {
     chess_ai.startNewGame(
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     chess_ai2.startNewGame(
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    for (int i = 0; i < 40; i++) {
+    for (int i = 0; i < 20; i++) {
       auto move = chess_ai.getBestMove();
       if (move.getStart()->getPosition() == Position(9, 9)) {std::cerr<<"GG"; break; };
       chess_ai2.applyMove(move);
-      chess_ai2.isMoveExists();
       chess_ai.applyMove(move);
-      move = chess_ai.getBestMove();
+      std::cerr<<i<<"";
     }
     std::cerr<<j<<" \n";
   }
+  // default time 20.10 <=
+  // default time 18.36 <= , generate_no_sort
+  // default time 26.36 <= , generate_no_sort, apply release no sort
+  // default time 1.0.13 <= , generate_no_sort_!white
 }
 
 TEST(ChessAi, TreeGenerator) {
