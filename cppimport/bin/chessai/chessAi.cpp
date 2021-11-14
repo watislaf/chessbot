@@ -12,7 +12,7 @@ ChessAi::ChessAi(std::string advance) {
 
 void ChessAi::startNewGame(const std::string& fen_str) {
   main_board_ = std::make_shared<Board>(FEN(fen_str));
-  int tree_grow = 3;
+  short tree_grow = 3;
   if (mode_ == AiAdvanceLvl::RANDOM) {
     tree_grow = 1;
   }
@@ -23,7 +23,7 @@ void ChessAi::startNewGame(const std::string& fen_str) {
   tree_moves_ = std::make_shared<MovesTree>(*main_board_, tree_grow, mode_);
 }
 
-std::string ChessAi::getPossibleMovesForPosition(int x, int y) {
+std::string ChessAi::getPossibleMovesForPosition(short x, short y) {
   auto moves = moves_generator.generateMoves(
       main_board_, main_board_->getPiece(Position(x, y)));
   std::string answer;
@@ -78,7 +78,7 @@ Move ChessAi::getBestMove() {
   return best_move;
 }
 
-void ChessAi::applyMoveParams(int fx, int fy, int tx, int ty, char niew_piece) {
+void ChessAi::applyMoveParams(short fx, short fy, short tx, short ty, char niew_piece) {
   PieceType new_piece_type = PieceType::tPONE;
   switch (niew_piece) {
     case 'r':new_piece_type = PieceType::tRUCK;

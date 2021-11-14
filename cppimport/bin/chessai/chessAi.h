@@ -4,7 +4,7 @@
 #include <memory>
 #include "board/board.h"
 #include "tools/movesGenerator.h"
-#include "tools/movesTree.h"
+#include "algorithms/movesTree.h"
 #include <string>
 #include <algorithm>
 #include <tools/pricer.h>
@@ -14,10 +14,10 @@ class ChessAi {
  public:
   explicit ChessAi(std::string difficulty = "A1");
   void startNewGame(const std::string& fen_str);
-  void applyMoveParams(int fx, int fy, int tx, int ty, char new_piece = '_');
+  void applyMoveParams(short fx, short fy, short tx, short ty, char new_piece = '_');
   void applyMove(const Move&);
 
-  std::string getPossibleMovesForPosition(int x, int y);
+  std::string getPossibleMovesForPosition(short x, short y);
 
   std::string getBoardStr() const;
   std::string getFenStr() const;

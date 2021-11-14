@@ -5,10 +5,7 @@
 #include "pricer.h"
 
 std::list<Move> MovesGenerator::generateMoves(
-    std::shared_ptr<Board> board, const std::shared_ptr<const Piece>& piece,
-    bool capture_only, bool non_capture_only) {
-  capture_only_ = capture_only;
-  non_capture_only_ = non_capture_only;
+    std::shared_ptr<Board> board, const std::shared_ptr<const Piece>& piece ) {
 
   moves_.clear();
   defende_score = 0;
@@ -56,14 +53,14 @@ std::list<Move> MovesGenerator::generateMoves(
 }
 
 std::list<Position> MovesGenerator::goByVector(Position move_vector,
-                                               int max_length, bool only_tNone,
+                                               short max_length, bool only_tNone,
                                                bool reduce_tNone) {
   if (move_vector.getX() == 0 && move_vector.getY() == 0) {
     return {};
   }
 
   std::list<Position> position_to_move;
-  for (int length = 1; length <= max_length; length++) {
+  for (short length = 1; length <= max_length; length++) {
     auto new_position = Position(
         length * move_vector.getX(), length * move_vector.getY()
     ) + current_piece_->getPosition();
@@ -87,8 +84,8 @@ std::list<Position> MovesGenerator::goByVector(Position move_vector,
 }
 
 void MovesGenerator::bishopMove(bool reduce_tNone) {
-  for (int left = -1; left <= 1; left += 2) {
-    for (int top = -1; top <= 1; top += 2) {
+  for (short left = -1; left <= 1; left += 2) {
+    for (short top = -1; top <= 1; top += 2) {
       insertPositionsToMoves(goByVector(Position(left, top),
                                         8,
                                         false,
@@ -98,8 +95,8 @@ void MovesGenerator::bishopMove(bool reduce_tNone) {
 }
 
 void MovesGenerator::horseMove(bool reduce_tNone) {
-  for (int left = -1; left <= 1; left += 2) {
-    for (int top = -1; top <= 2; top += 2) {
+  for (short left = -1; left <= 1; left += 2) {
+    for (short top = -1; top <= 2; top += 2) {
       insertPositionsToMoves(goByVector(Position(1 * left, 2 * top),
                                         1));
       insertPositionsToMoves(goByVector(Position(2 * left, 1 * top), 1));
@@ -108,8 +105,8 @@ void MovesGenerator::horseMove(bool reduce_tNone) {
 }
 
 void MovesGenerator::queenMove(bool reduce_tNone) {
-  for (int left = -1; left <= 1; left += 1) {
-    for (int top = -1; top <= 1; top += 1) {
+  for (short left = -1; left <= 1; left += 1) {
+    for (short top = -1; top <= 1; top += 1) {
       insertPositionsToMoves(goByVector(Position(left, top),
                                         8,
                                         false,
@@ -119,8 +116,8 @@ void MovesGenerator::queenMove(bool reduce_tNone) {
 }
 
 void MovesGenerator::kingMove(bool reduce_tNone) {
-  for (int left = -1; left <= 1; left += 1) {
-    for (int top = -1; top <= 1; top += 1) {
+  for (short left = -1; left <= 1; left += 1) {
+    for (short top = -1; top <= 1; top += 1) {
       insertPositionsToMoves(goByVector(Position(left, top),
                                         1,
                                         false,
@@ -130,7 +127,7 @@ void MovesGenerator::kingMove(bool reduce_tNone) {
 }
 
 void MovesGenerator::ponePacificMove(bool reduce_tNone) {
-  int length = current_piece_->getPieceColor() == PieceColor::WHITE ? 1 : -1;
+  short length = current_piece_->getPieceColor() == PieceColor::WHITE ? 1 : -1;
   insertPositionsToMoves(goByVector(Position(0, length),
                                     1, true, reduce_tNone));
   auto piece_color = current_piece_->getPieceColor();
@@ -166,7 +163,7 @@ void MovesGenerator::ponePacificMove(bool reduce_tNone) {
 }
 
 void MovesGenerator::ruckMove(bool reduce_tNone) {
-  for (int top = -1; top <= 1; top += 2) {
+  for (short top = -1; top <= 1; top += 2) {
     insertPositionsToMoves(goByVector(Position(0, top),
                                       8,
                                       false,
@@ -194,8 +191,8 @@ void MovesGenerator::ruckMove(bool reduce_tNone) {
 
 void MovesGenerator::poneAttackMove() {
   // Atack by diagonal
-  int direction = current_piece_->getPieceColor() == PieceColor::WHITE ? 1 : -1;
-  for (int i = -1; i <= 1; i += 2) {
+  short direction = current_piece_->getPieceColor() == PieceColor::WHITE ? 1 : -1;
+  for (short i = -1; i <= 1; i += 2) {
     auto go_diagonal = goByVector(Position(i, direction), 1, false, true);
     if (go_diagonal.size() == 1
         && board_->getPiece(go_diagonal.back())->isEnemyTo(*current_piece_)) {
@@ -203,7 +200,7 @@ void MovesGenerator::poneAttackMove() {
     }
 
     // Atack passant
-    int good_row = current_piece_->getPieceColor() == PieceColor::WHITE ? 4 : 3;
+    short good_row = current_piece_->getPieceColor() == PieceColor::WHITE ? 4 : 3;
     go_diagonal = goByVector(Position(i, direction), 1, true, false);
     if (go_diagonal.size() == 1
         && board_->getLastPassantX() == go_diagonal.back().getX()
@@ -348,12 +345,6 @@ bool MovesGenerator::isPieceOnMoves(PieceType type) {
 void MovesGenerator::insertPositionsToMoves(const std::list<Position>& positions) {
   for (const auto& pos: positions) {
     auto move = Move(current_piece_, board_->getPiece(pos));
-    if (capture_only_ && move.getAttackScore() == 0) {
-      continue;
-    }
-    if (non_capture_only_ && move.getAttackScore() != 0) {
-      continue;
-    }
     moves_.emplace_back(move);
   }
 }

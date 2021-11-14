@@ -10,6 +10,6 @@ ADD_LIBRARY(${MY_AI_LIB} STATIC
         chessai/tools/fen.cpp
         chessai/abstracts/move.cpp
         chessai/abstracts/position.cpp
-        chessai/tools/movesTree.h chessai/abstracts/aiAdvanceLvl.h chessai/tools/movesTree.cpp)
+        chessai/algorithms/movesTree.h chessai/abstracts/aiAdvanceLvl.h chessai/algorithms/movesTree.cpp)
 target_include_directories(${MY_AI_LIB} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/chessai)
 target_compile_options(${MY_AI_LIB} PUBLIC -fPIC)

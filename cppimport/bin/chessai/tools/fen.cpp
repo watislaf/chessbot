@@ -13,7 +13,7 @@ FEN::FEN(std::string fen_str) {
     std::string temp = "";
     for (char c: segment) {
       if (isdigit(c)) {
-        for (int i = 0; i < std::stoi(std::string("") + c); i++) {
+        for (short i = 0; i < std::stoi(std::string("") + c); i++) {
           temp.push_back('_');
         }
       } else {
@@ -25,7 +25,7 @@ FEN::FEN(std::string fen_str) {
 
 }
 
-Piece FEN::getPiece(int i, int j) {
+Piece FEN::getPiece(short i, short j) {
   auto my_piece = Piece(Position(j, 7-i));
   if (islower(fen_matrix_[i][j])) {
     my_piece.setPieceColor(PieceColor::BLACK);
@@ -66,13 +66,13 @@ bool FEN::getBRC() {
 bool FEN::getBLC() {
   return rules[2].find('q') != std::string::npos;
 }
-int FEN::getPassantX() {
+short FEN::getPassantX() {
   if (rules[3] == "-") {
     return -1;
   }
   return rules[3][0] - 'a';
 }
 
-int FEN::getMoveCount() {
+short FEN::getMoveCount() {
   return std::stoi(rules[4]);
 }

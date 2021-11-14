@@ -17,9 +17,8 @@ class Board {
   void apply(const Move&);
   void unApply(const Move&);
 
-  int getMoveCount() const;
+  short getMoveCount() const;
 
-  void setMoveCount(int moveCount);
   std::shared_ptr<const Piece> getPiece(const Position& position) const;
   const std::list<std::shared_ptr<const Piece>>& getActivePieceList(bool is_white) const;
   bool LcIsPossible(bool is_white) const;
@@ -31,7 +30,7 @@ class Board {
   bool isWhiteMove() const;
 
   bool isBlackMove() const;
-  int getLastPassantX() const;
+  short getLastPassantX() const;
   std::string toStr() const;
 
   bool operator==(const Board& other) const;
@@ -47,7 +46,7 @@ class Board {
       std::vector<std::vector<std::shared_ptr<const Piece>>>
           (8, std::vector<std::shared_ptr<const Piece>>(8));
   bool is_white_move_ = true;
-  int last_passant_x_ = 0;
+  short last_passant_x_ = 0;
   struct Castle {
     Position king_position = {0, 0};
     bool LC_is_possible_ = true;
@@ -55,7 +54,7 @@ class Board {
   } whiteCastle, blackCastle;
   std::list<std::shared_ptr<const Piece>> active_white_pieces_;
   std::list<std::shared_ptr<const Piece>> active_black_pieces_;
-  int move_count_ = 0;
+  short move_count_ = 0;
 };
 
 #endif // CHESS_BOARD_H

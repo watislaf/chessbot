@@ -1,15 +1,15 @@
 #include "position.h"
 
-int Position::getX() const {
+short Position::getX() const {
   return x;
 }
-int Position::getY() const {
+short Position::getY() const {
   return y;
 }
-Position::Position(int px, int py) : x(px), y(py) {}
+Position::Position(short px, short py) : x(px), y(py) {}
 
 Position Position::operator+(const Position& other) const {
-  return {getX() + other.getX(), getY() + other.getY()};
+  return Position(getX() + other.getX(), getY() + other.getY());
 }
 
 std::string Position::toStr() const {

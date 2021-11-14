@@ -28,8 +28,8 @@ class Move {
   void setIsCastle(bool b);
   bool isPassant() const;
   bool isCastle() const;
-  int getPrevPassant() const;
-  void setPrevPassant(int prev_passant);
+  short getPrevPassant() const;
+  void setPrevPassant(short prev_passant);
   std::string toStr() const;
   void setNewPieceType(PieceType new_piece_type);
 
@@ -46,7 +46,7 @@ class Move {
 
   bool is_double_distance_pone_ = false;
   bool is_passant_ = false;
-  int prev_passant_ = -1;
+  short prev_passant_ = -1;
   // -1 LC_is_possible_ 1 RC_is_possible_
   PieceType new_piece_type = PieceType::tNONE;
   // new_figure

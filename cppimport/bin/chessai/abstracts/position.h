@@ -5,19 +5,19 @@
 class Position {
 
  public:
-  Position(int px, int py);
+  Position(short px, short py);
 
   std::string toStr() const;
 
-  int getX() const;
-  int getY() const;
+  short getX() const;
+  short  getY() const;
 
   Position operator+(const Position& other) const;
   bool operator==(const Position& other) const;
 
  private:
-  int x;
-  int y;
+  short x;
+  short y;
 };
 
 #endif //POSITION_H

@@ -10,15 +10,15 @@
 class FEN {
  public:
   explicit FEN(std::string fen_str);
-  Piece getPiece(int i, int i_1);
+  Piece getPiece(short i, short i_1);
   bool getIsWhiteMowe();
 
   bool getWLC();
   bool getWRC();
   bool getBRC();
   bool getBLC();
-  int getPassantX();
-  int getMoveCount();
+  short getPassantX();
+  short getMoveCount();
  private:
   std::vector<std::string> rules;
   std::vector<std::string> fen_matrix_;

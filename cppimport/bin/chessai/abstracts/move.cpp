@@ -107,10 +107,10 @@ std::string Move::toStr() const {
   answer += ")";
   return answer;
 }
-int Move::getPrevPassant() const {
+short Move::getPrevPassant() const {
   return prev_passant_;
 }
-void Move::setPrevPassant(int prev_passant) {
+void Move::setPrevPassant(short prev_passant) {
   prev_passant_ = prev_passant;
 }
 PieceType Move::getNewPieceType() const {

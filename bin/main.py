@@ -17,6 +17,6 @@ if __name__ == "__main__":
     controller.set_black_player(AiPlayer(ChessAi("A1")))
     while True:
         winner = controller.start_game(
-            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+            "r1b1k2r/ppppqppp/7n/2b1p3/2BnP1PP/2N5/PPPP1PQ1/R1B1K1NR b KQkq - 2 8")
         print(winner)
         time.sleep(5)

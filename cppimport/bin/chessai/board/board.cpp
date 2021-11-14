@@ -42,8 +42,8 @@ bool Board::isBlackMove() const {
 }
 
 void Board::setPiece(const Piece& piece_template_object) {
-  int x = piece_template_object.getPosition().getX();
-  int y = piece_template_object.getPosition().getY();
+  short x = piece_template_object.getPosition().getX();
+  short y = piece_template_object.getPosition().getY();
   if (board_[x][y] != NULL && board_[x][y]->getType() != PieceType::tNONE) {
     if (board_[x][y]->getPieceColor() == PieceColor::WHITE) {
       active_white_pieces_.remove(board_[x][y]);
@@ -71,8 +71,8 @@ void Board::setPiece(const Piece& piece_template_object) {
 }
 
 Board::Board(FEN fen) {
-  for (int j = 0; j < 8; j++) {
-    for (int i = 0; i < 8; i++) {
+  for (short j = 0; j < 8; j++) {
+    for (short i = 0; i < 8; i++) {
       auto my_piece = fen.getPiece(i, j);
       setPiece(my_piece);
     }
@@ -124,7 +124,7 @@ void Board::apply(const Move& move) {
   }
 
   if (move.isPassant()) {
-    int back = -1;
+    short back = -1;
     if (move.getStart()->getPieceColor() == PieceColor::BLACK) {
       back = 1;
     }
@@ -172,7 +172,7 @@ void Board::unApply(const Move& move) {
   last_passant_x_ = move.getPrevPassant();
 
   if (move.isPassant()) {
-    int back = -1;
+    short back = -1;
     if (move.getStart()->getPieceColor() == PieceColor::BLACK) {
       back = 1;
     }
@@ -194,7 +194,7 @@ void Board::unApply(const Move& move) {
   }
 }
 
-int Board::getLastPassantX() const {
+short Board::getLastPassantX() const {
   return last_passant_x_;
 }
 void Board::forceMove(const std::shared_ptr<const Piece>& piece_from,
@@ -208,8 +208,8 @@ void Board::forceMove(const std::shared_ptr<const Piece>& piece_from,
 }
 std::string Board::toStr() const {
   std::string answer;
-  for (int y = 0; y <= 7; y++) {
-    for (int x = 0; x <= 7; x++) {
+  for (short y = 0; y <= 7; y++) {
+    for (short x = 0; x <= 7; x++) {
       answer += board_[y][x]->toStr() + " ";
     }
     if (y != 7) {
@@ -221,9 +221,9 @@ std::string Board::toStr() const {
 std::string Board::getFen() {
   std::string fen;
 
-  for (int y = 7; y >= 0; y--) {
-    int k = 0;
-    for (int x = 0; x <= 7; x++) {
+  for (short y = 7; y >= 0; y--) {
+    short k = 0;
+    for (short x = 0; x <= 7; x++) {
       std::string piece_str = board_[x][y]->toStr();
       if (piece_str == "_") {
         k++;
@@ -286,8 +286,8 @@ bool Board::operator==(const Board& other) const {
       other.blackCastle.king_position == blackCastle.king_position &&
       other.blackCastle.LC_is_possible_ == blackCastle.LC_is_possible_ &&
       other.move_count_ == move_count_ && [this, &other]() {
-    for (int i = 0; i <= 7; i++) {
-      for (int j = 0; j <= 7; j++) {
+    for (short i = 0; i <= 7; i++) {
+      for (short j = 0; j <= 7; j++) {
         if (*(board_[i][j]) != *(other.getPiece(Position(i, j))))
           return false;
       }
@@ -301,21 +301,18 @@ bool Board::operator!=(const Board& other) const {
 
 Board::Board(const Board& board) {
   *this = board;
-  for (int j = 0; j < 8; j++) {
-    for (int i = 0; i < 8; i++) {
+  for (short j = 0; j < 8; j++) {
+    for (short i = 0; i < 8; i++) {
       auto my_piece = *board.getPiece(Position(i, j));
       setPiece(my_piece);
     }
   }
 }
 
-int Board::getMoveCount() const {
+short Board::getMoveCount() const {
   return move_count_;
 }
 
-void Board::setMoveCount(int moveCount) {
-  move_count_ = moveCount;
-}
 
 const std::list<std::shared_ptr<const Piece>>& Board::getActivePieceList(bool is_white) const {
   if (is_white) {
