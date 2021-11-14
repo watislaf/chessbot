@@ -56,7 +56,7 @@ class MovesTree {
 
  private:
   //A3
-  TranspositionController transpositionController ;
+//  TranspositionController transpositionController;
   // A2
   void builLoop();
   std::atomic<bool> terminate_build_loop;
@@ -70,6 +70,7 @@ class MovesTree {
   std::shared_ptr<Node> main_node_;
   std::shared_ptr<Board> board_;
   std::atomic<short> max_height_;
+  Pricer pricer;
 
   MovesGenerator moves_generator_;
   void killNodes(const std::shared_ptr<MovesTree::Node>& shared_ptr);
@@ -83,6 +84,7 @@ class MovesTree {
                       bool is_white);
   void ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree::Node>& current_node,
                                        const std::shared_ptr<Board>& board_coppy,
+                                       int max_height,
                                        int alpha);
 
   void ProcessUntilHightLimit(const std::shared_ptr<MovesTree::Node>& current_node,

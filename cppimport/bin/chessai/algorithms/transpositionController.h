@@ -6,7 +6,7 @@ class TranspositionController {
  public:
   TranspositionController(const Board& board);
  private:
-  std::vector<std::vector<std::map<std::string, int> >>;
+ // std::vector<std::vector<std::map<std::string, int> >>;
 };
 
 #endif //TRANSPOSITIONCONTROLLER_H

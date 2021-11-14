@@ -17,7 +17,7 @@ void ChessAi::startNewGame(const std::string& fen_str) {
     tree_grow = 1;
   }
   if (mode_ == AiAdvanceLvl::A1) {
-    tree_grow = 3;
+    tree_grow = 4;
   }
 
   tree_moves_ = std::make_shared<MovesTree>(*main_board_, tree_grow, mode_);

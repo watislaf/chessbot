@@ -6,8 +6,7 @@
 MovesTree::MovesTree(const Board& original_board,
                      short tree_grow,
                      AiAdvanceLvl mode)
-    : board_(std::make_shared<Board>(original_board)), mode_(mode),
-      transpositionController(original_board) {
+    : board_(std::make_shared<Board>(original_board)), mode_(mode) {
   auto zero_piece = original_board.getPiece(Position(0, 0));
   main_node_ = std::make_shared<Node>(Move(zero_piece, zero_piece),
                                       original_board.getMoveCount(), 0);
@@ -57,7 +56,7 @@ void MovesTree::generateMovesForNode(const std::shared_ptr<MovesTree::Node>& nod
         moves = moves_generator_.generateMoves(board_coppy, active_piece);
 
     for (const auto& move: moves) {
-      int price = Pricer::count(board_coppy, move);
+      int price = pricer.countOrder(board_coppy, move);
       int new_board_sum = node->board_sum + price;
       int key = new_board_sum;
       if (board_->isWhiteMove()) {
@@ -98,11 +97,18 @@ Move MovesTree::getBestMove() {
   std::lock_guard<std::mutex> nodes_guard(nodes_mtx);
   for (const auto& node_pair: main_node_->edges) {
     const auto& node = node_pair.second;
-    if (node->best_price_shure == main_node_->best_price_shure) {
+    if (mode_ == AiAdvanceLvl::A1) {
+      if (node->best_price_tmp == main_node_->best_price_tmp) {
+        return node->move_to_get_here;
+      }
+    } else {
+      if (node->best_price_shure == main_node_->best_price_shure) {
 //      std::cout << max_height_ - board_->getMoveCount();
-      return node->move_to_get_here;
+        return node->move_to_get_here;
+      }
     }
   }
+
   if (main_node_->edges.size() != 0) {
     std::cerr << "DOUBLESUKA ";
   }
@@ -133,7 +139,7 @@ Move MovesTree::apply(const Move& move) {
 
     board_mainnode_mtx.lock();
     board_->apply(node_by_this_move->move_to_get_here);
-    transpositionController.apply(board_);
+//    transpositionController.apply(board_);
     nodes_mtx.lock();
     generateMovesForNode(node_by_this_move, board_);
     nodes_mtx.unlock();
@@ -201,11 +207,11 @@ void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_n
   var++;
   current_node->is_cut = false;
 
-  int price_from_
-  if (transpositionController.get(board_coppy)
-      != transpositionController.empyVal())
-    // CREATE HASH AND GET move FROM MAP
-    nodes_mtx.lock();
+//  int price_from_
+//  if (transpositionController.get(board_coppy)
+//      != transpositionController.empyVal())
+  // CREATE HASH AND GET move FROM MAP
+  nodes_mtx.lock();
   generateMovesForNode(current_node, board_coppy);
   nodes_mtx.unlock();
 
@@ -215,16 +221,17 @@ void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_n
   }
 
   if (current_node->edges.size() != 0) {
-    // if (capture_only) {
-    //  ProcessUntilAttacksAndShachsEnd(current_node,
-    //                                  board_coppy,
-    //                                 prev_node_price);
-    // } else {
-    ProcessUntilHightLimit(current_node,
-                           board_coppy,
-                           max_height,
-                           prev_node_price);
-    //}
+    if (capture_only) {
+      ProcessUntilAttacksAndShachsEnd(current_node,
+                                      board_coppy,
+                                      max_height,
+                                      prev_node_price);
+    } else {
+      ProcessUntilHightLimit(current_node,
+                             board_coppy,
+                             max_height,
+                             prev_node_price);
+    }
   } else {
     if (!moves_generator_.isShah(board_coppy, board_coppy->isWhiteMove())) {
       current_node->best_price_tmp *= -1;
@@ -234,12 +241,14 @@ void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_n
   if (unaply) {
     board_coppy->unApply(current_node->move_to_get_here);
   } else {
-    std::cout << var;
-    price_mtx.lock();
-    nodes_mtx.lock();
-    ApplyRezult(current_node);
-    nodes_mtx.unlock();
-    price_mtx.unlock();
+    if (mode_ == AiAdvanceLvl::A2) {
+      std::cout << var;
+      price_mtx.lock();
+      nodes_mtx.lock();
+      ApplyRezult(current_node);
+      nodes_mtx.unlock();
+      price_mtx.unlock();
+    }
   }
 }
 void MovesTree::MakeZerroEdges(const std::shared_ptr<MovesTree::Node>& current_node,
@@ -255,6 +264,7 @@ void MovesTree::MakeZerroEdges(const std::shared_ptr<MovesTree::Node>& current_n
 }
 void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree::Node>& current_node,
                                                 const std::shared_ptr<Board>& board_coppy,
+                                                int max_height,
                                                 int alpha) {
   bool existed = false;
 
@@ -268,10 +278,13 @@ void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree:
     if (child_node->dead) {
       break;
     }
-    board_coppy->apply(child_node->move_to_get_here);
 
-    makeTreeDeeper(child_node, board_coppy, 0, true,
-                   current_node->best_price_tmp, true);
+    if (child_node->height <= max_height + 2) {
+      board_coppy->apply(child_node->move_to_get_here);
+
+      makeTreeDeeper(child_node, board_coppy, 0, true,
+                     current_node->best_price_tmp, true);
+    }
     bool continue_search = updateBest(current_node, child_node->best_price_tmp,
                                       alpha, board_coppy->isWhiteMove());
     if (!continue_search) {
