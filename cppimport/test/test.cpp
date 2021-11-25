@@ -58,6 +58,9 @@ TEST(ChessAi, TreeGenerator) {
     chess_ai.isMoveExists();
     chess_ai.applyMove(move);
   }
+  // 11sec 972mc  4 default 6 attack
+  // 3sec 666mc  4 default 6 attack
+  // 2sec 286mc  4 default 6 attack
 }
 
 TEST(ChessAi, MoveGenerator) {

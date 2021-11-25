@@ -20,7 +20,7 @@ void ChessAi::startNewGame(const std::string& fen_str) {
     tree_grow = 4;
   }
 
-  tree_moves_ = std::make_shared<MovesTree>(*main_board_, tree_grow, mode_);
+  tree_moves_ = std::make_shared<MovesTree>(*main_board_, tree_grow);
 }
 
 std::string ChessAi::getPossibleMovesForPosition(short x, short y) {
@@ -72,7 +72,6 @@ Move ChessAi::getBestMove() {
       == empty_move.getStart()->getPosition()
       && moves_generator.isShah(main_board_, main_board_->isWhiteMove())) {
     best_move.setNewPieceType(PieceType::tKING);
-
   }
 
   return best_move;

@@ -29,12 +29,12 @@ int Pricer::countOrder(const std::shared_ptr<Board>& board, const Move& move) {
 
   if (move.getStart()->getType() == PieceType::tQUEEN) {
     if (endGameCoef(board) < 0.3)
-      answer -= 4;
+      answer -= 3;
   }
 
   if (move.getStart()->getType() == PieceType::tPONE) {
     if (endGameCoef(board) < 0.2)
-      answer += 3;
+      answer += 2;
   }
 
   if (move.isCastle()) {

@@ -5,13 +5,13 @@
 
 class MovesGenerator {
  public:
-  std::list<Move> generateMoves(std::shared_ptr<Board> board,
+  const std::list<Move>& generateMoves(std::shared_ptr<Board> board,
                                 const std::shared_ptr<const Piece>& piece );
 
   bool isShah(const std::shared_ptr<Board>& board, bool is_white);
 
  private:
-  std::list<Position> goByVector(
+  std::list<Move> goByVector( Position start,
       Position move_vector, short max_length = 8,
       bool only_tNone = false, bool reduce_tNone = false);
 
@@ -26,8 +26,6 @@ class MovesGenerator {
 
   bool isShahDanger(const Move& move);
 
-  bool isPieceOnMoves(PieceType type);
-  void insertPositionsToMoves(const std::list<Position>& positions);
 
   std::shared_ptr<const Piece> current_piece_;
   std::shared_ptr<Board> board_;
