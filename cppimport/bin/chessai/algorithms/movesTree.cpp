@@ -192,6 +192,7 @@ void MovesTree::ApplyRezult(const std::shared_ptr<Node>& node) {
   }
 //   std::sort(node->edges.begin(), node->edges.end()); // new for threading
 }
+
 bool MovesTree::isMoveExists() {
   return !main_node_->edges.empty();
 }
@@ -215,27 +216,33 @@ void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_n
   generateMovesForNode(current_node, board_coppy);
   nodes_mtx.unlock();
 
-  MakeZerroEdges(current_node, board_coppy->isWhiteMove());
+  if (board_coppy->isWhiteMove()) {
+    current_node->best_price_tmp = -100000000;
+  } else {
+    current_node->best_price_tmp = 10000000;
+  }
+
   if (prev_node_price == 10000001) { // if value unset(default) - set
     prev_node_price = -current_node->best_price_tmp;
   }
 
-  if (current_node->edges.size() != 0) {
-    if (capture_only) {
-      ProcessUntilAttacksAndShachsEnd(current_node,
-                                      board_coppy,
-                                      max_height,
-                                      prev_node_price);
-    } else {
-      ProcessUntilHightLimit(current_node,
-                             board_coppy,
-                             max_height,
-                             prev_node_price);
-    }
+  if (capture_only) {
+    ProcessUntilAttacksAndShachsEnd(current_node,
+                                    board_coppy,
+                                    max_height,
+                                    prev_node_price);
   } else {
+    ProcessUntilHightLimit(current_node,
+                           board_coppy,
+                           max_height,
+                           prev_node_price);
+  }
+
+  if (current_node->edges.empty()) {
     if (!moves_generator_.isShah(board_coppy, board_coppy->isWhiteMove())) {
       current_node->best_price_tmp *= -1;
-    } // if no shach it is ok cause of draw,
+    }
+    current_node->best_price_tmp /= board_coppy->getMoveCount();
   }
 
   if (unaply) {
@@ -248,17 +255,6 @@ void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_n
       ApplyRezult(current_node);
       nodes_mtx.unlock();
       price_mtx.unlock();
-    }
-  }
-}
-void MovesTree::MakeZerroEdges(const std::shared_ptr<MovesTree::Node>& current_node,
-                               bool is_white) {
-  for (const auto& child_node_pair: current_node->edges) {
-    const auto& child_node = child_node_pair.second;
-    if (is_white) {
-      current_node->best_price_tmp = -100000000;
-    } else {
-      current_node->best_price_tmp = 10000000;
     }
   }
 }
@@ -311,6 +307,8 @@ void MovesTree::ProcessUntilHightLimit(const std::shared_ptr<MovesTree::Node>& c
       makeTreeDeeper(child_node,
                      board_coppy, max_height, true,
                      current_node->best_price_tmp, capture_only);
+    } else {
+      child_node->best_price_tmp = child_node->board_sum;
     }
 
     bool continue_search = updateBest(current_node, child_node->best_price_tmp,

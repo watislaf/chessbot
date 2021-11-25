@@ -2,6 +2,7 @@
 #define PRICER_H
 
 #include "memory"
+#include "movesGenerator.h"
 #include <board/piece.h>
 #include <board/board.h>
 
@@ -17,7 +18,7 @@ class Pricer {
                  const std::shared_ptr<const Board>& board, PieceType type);
 
   short PawnTable[64]{
-      0, 0, 0, 0, 0, 0, 0, 0,
+      90,90, 90, 90, 90, 90, 90, 90,
       50, 50, 50, 50, 50, 50, 50, 50,
       20, 20, 30, 40, 40, 30, 20, 20,
       5, 5, 10, 30, 30, 10, 5, 5,
@@ -70,6 +71,8 @@ class Pricer {
       -30, -30, 0, 0, 0, 0, -30, -30,
       -50, -30, -30, -30, -30, -30, -30, -50
   };
+ private:
+  MovesGenerator moves_generator;
 };
 
 #endif //PRICER_H

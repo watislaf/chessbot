@@ -4,13 +4,10 @@
 TEST(ChessAi, AlphaBeta) {
   ChessAi chess_ai("A1");
   chess_ai.startNewGame(
-      "r1b1k2r/ppppqppp/7n/2b1p3/2BnP1PP/2N5/PPPP1PQ1/R1B1K1NR b KQkq - 2 8");
+      "1n6/8/8/8/8/3kP3/3P4/4K3 w - - 0 1");
   auto move = chess_ai.getBestMove();
-  move = chess_ai.getBestMove();
-  //54k 54k- no alph bet
-  //1665 1665 - alph bet
-  //915 915- sort in gernerate
-  //915 915- sort in apply
+  chess_ai.applyMove(move);
+
 
 }
 TEST(ChessAi, Algo) {

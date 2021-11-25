@@ -80,8 +80,6 @@ class MovesTree {
   AiAdvanceLvl mode_;
   bool undead_node = false;
   void ApplyRezult(const std::shared_ptr<Node>& shared_ptr_1);
-  void MakeZerroEdges(const std::shared_ptr<MovesTree::Node>& shared_ptr,
-                      bool is_white);
   void ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree::Node>& current_node,
                                        const std::shared_ptr<Board>& board_coppy,
                                        int max_height,
