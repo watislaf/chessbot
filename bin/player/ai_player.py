@@ -1,8 +1,5 @@
-import time
 
 from bin.player.player import Player
-from cppimport.output.chessai import ChessAi
-
 
 class AiPlayer(Player):
     __chess_ai = None
