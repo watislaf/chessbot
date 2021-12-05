@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
-from graphics.pictures import PICTURES_PATH
+from graphics.pictures import PICTURES_PATH, GRAY_COLOR, WHITE_BOARD_COLOR, \
+    BLACK_BOARD_COLOR, WHITE_PIECE, BLACK_PIECE
 
 
 class ChessPiece():
@@ -31,8 +32,13 @@ class ChessPiece():
                                    interpolation=cv2.INTER_AREA)
         empty_color = prototype[1][1]
         self.image[0] = prototype.copy()
-        self.image[1] = prototype.copy()  # (238, 238, 210)
-        colors = np.array(((86, 150, 118), (210, 238, 238)), dtype=np.uint8)
+        colors = np.array(([GRAY_COLOR]), dtype=np.uint8)
+
+        if self.name == "":
+            colors = np.array((WHITE_BOARD_COLOR, BLACK_BOARD_COLOR),
+                              dtype=np.uint8)
+            self.image[1] = prototype.copy()  # (238, 238, 210)
+
         for num, new_color in enumerate(colors):
             for i, elements in enumerate(prototype):
                 for j, color in enumerate(elements):
@@ -46,11 +52,23 @@ class ChessPiece():
                     else:
                         if np.all(self.image[num][i][j] == empty_color):
                             self.image[num][i][j] = new_color
+                        else:
+                            if self.name[0]=="w":
+                                self.image[num][i][j] = WHITE_PIECE
+                            else:
+                                self.image[num][i][j] = BLACK_PIECE
+
+
 
         self.image[0] = cv2.cvtColor(np.uint8(self.image[0]),
                                      cv2.COLOR_BGR2GRAY)
-        self.image[1] = cv2.cvtColor(np.uint8(self.image[1]),
-                                     cv2.COLOR_BGR2GRAY)
+        if self.name == "":
+            self.image[1] = cv2.cvtColor(np.uint8(self.image[1]),
+                                         cv2.COLOR_BGR2GRAY)
+
+    def get_piece_color(self):
+        shape = self.image[0].shape
+        return self.image[0][shape[0] // 2, shape[1] // 2]
 
     def __init__(self, name):
         self.positions = []
@@ -67,6 +85,8 @@ class ChessPiece():
     def find(self, sct_img):
         self.positions.clear()
         for image in self.image:
+            if image is None:
+                break
             res = cv2.matchTemplate(sct_img, image, self.mode)
 
             loc = np.where(res >= self.threshold)  ## FOUND TAble

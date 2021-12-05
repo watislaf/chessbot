@@ -1,9 +1,12 @@
 import random
 
 import cv2
+import numpy as np
 
 from bin.play_session_capture.chess_peace import ChessPiece
 from collections import deque
+
+from graphics.pictures import GRAY_COLOR
 
 
 class ChessBoard:
@@ -11,21 +14,31 @@ class ChessBoard:
     position_left_top = [0, 0]
     position_right_bottom = [None, None]
     piece_size = 0
-    pieces = []
+    pieces_white = []
+    pieces_black = []
     empty_spaces = None
 
     def __init__(self):
         self.empty_spaces = ChessPiece("")
-#        for color in {"w", "b"}:
-        for color in {"b"}: #TODO Upgrade see algorythm
-#            for piece in {"b", "k", "p", "q", "r", "n"}:
+        #        for color in {"w", "b"}:
+        for color in {"b"}:  # TODO Upgrade see algorythm
+            #            for piece in {"b", "k", "p", "q", "r", "n"}:
             for piece in {"p"}:
-                self.pieces.append(ChessPiece(color + piece)),
+                self.pieces_black.append(ChessPiece(color + piece)),
 
         # self.pieces = ChessPiece("")
 
     def update(self, screen):
         self.empty_spaces.find(screen)
+        if self.all_pieces_found:
+            screen_only_pieces = self.preprocess_board_screen(screen)
+            cv2.imshow('search_for_chess_board42', screen_only_pieces)
+            cv2.waitKey(0)
+            screeen_only_black = self.get_screen_only_from(
+                screen, self.pieces_black[0].get_piece_color())
+
+            for piece in self.pieces_black:
+                piece.find(screen)
 
         if self.find_board_pattern():
             if self.all_pieces_found is False:
@@ -33,19 +46,26 @@ class ChessBoard:
                 self.apply_board_from_positions()
             else:
                 self.update_board_from_positions()
-            for piece in self.pieces:
+            for piece in self.pieces_black:
+                piece.size = self.piece_size
+            for piece in self.pieces_white:
                 piece.size = self.piece_size
         else:
             self.all_pieces_found = False
 
-        if self.all_pieces_found:
-            for piece in self.pieces:
-                piece.find(screen)
+    def get_screen_only_from(self, screen, color_to_save):
+        for i, elements in enumerate(screen):
+            for j, color in enumerate(elements):
+                if screen[i][j] != color_to_save:
+                    screen[i][j] = GRAY_COLOR[0]
+        return screen
 
     def write(self, screen):
         if self.all_pieces_found:
             self.empty_spaces.write(screen, (244, 99, 0))
-            for piece in self.pieces:
+            for piece in self.pieces_black:
+                piece.write(screen)
+            for piece in self.pieces_white:
                 piece.write(screen)
         else:
             self.empty_spaces.write(screen, (0, 0, 255))
@@ -126,3 +146,6 @@ class ChessBoard:
             max_pos[0] + 24 + self.piece_size,
             self.position_left_top[1] +
             max_pos[1] + 24 + self.piece_size)
+
+    def preprocess_board_screen(self, screen):
+        pass
