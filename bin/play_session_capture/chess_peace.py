@@ -9,7 +9,7 @@ class ChessPiece():
     name = "str"
     size = 52
     __size = 0
-    threshold = 0.57
+    threshold = 0.81
     positions = None
     mode = cv2.TM_CCOEFF_NORMED
 
@@ -26,18 +26,17 @@ class ChessPiece():
             prototype = np.zeros((self.size, self.size, 3), dtype=np.uint8)
         else:
             prototype = cv2.imread(PICTURES_PATH + "/{}.png".format(self.name))
-            # prototype = prototype[20:-10, 15:-15]
-            # prototype = prototype[5:-5, 5:-5]
             prototype = cv2.resize(prototype, (self.size, self.size),
                                    interpolation=cv2.INTER_AREA)
         empty_color = prototype[1][1]
         self.image[0] = prototype.copy()
-        colors = np.array(([GRAY_COLOR]), dtype=np.uint8)
 
         if self.name == "":
             colors = np.array((WHITE_BOARD_COLOR, BLACK_BOARD_COLOR),
                               dtype=np.uint8)
             self.image[1] = prototype.copy()  # (238, 238, 210)
+        else:
+            colors = np.array(([self.image[0][1][1]]), dtype=np.uint8)
 
         for num, new_color in enumerate(colors):
             for i, elements in enumerate(prototype):
@@ -50,21 +49,31 @@ class ChessPiece():
                         else:
                             self.image[num][i][j] = colors[(num) % 2]
                     else:
-                        if np.all(self.image[num][i][j] == empty_color):
-                            self.image[num][i][j] = new_color
-                        else:
-                            if self.name[0]=="w":
-                                self.image[num][i][j] = WHITE_PIECE
+                        if (np.all(self.image[num][i][j] == new_color)):
+                            if self.name[0] == "b":
+                                self.image[num][i][j] = BLACK_BOARD_COLOR
                             else:
-                                self.image[num][i][j] = BLACK_PIECE
-
-
+                                self.image[num][i][j] = WHITE_BOARD_COLOR
 
         self.image[0] = cv2.cvtColor(np.uint8(self.image[0]),
                                      cv2.COLOR_BGR2GRAY)
         if self.name == "":
             self.image[1] = cv2.cvtColor(np.uint8(self.image[1]),
                                          cv2.COLOR_BGR2GRAY)
+        else:
+
+            for i, elements in enumerate(self.image[0]):
+                for j, pas in enumerate(elements):
+                    if self.name[0] == "b":
+                        if self.image[0][i][j] < 120:
+                            self.image[0][i][j] = BLACK_PIECE[0]
+                        else:
+                            self.image[0][i][j] = WHITE_PIECE[0]
+                    else:
+                        if self.image[0][i][j] > 235:
+                            self.image[0][i][j] = WHITE_PIECE[0]
+                        else:
+                            self.image[0][i][j] = BLACK_PIECE[0]
 
     def get_piece_color(self):
         shape = self.image[0].shape
@@ -75,7 +84,6 @@ class ChessPiece():
         self.image = [None, None]
         self.name = name
         if (name == ""):
-            #            self.mode = cv2.TM_CCOEFF_NORMED
             self.threshold = 0.75
             self.mode = cv2.TM_CCOEFF_NORMED
             self.size = 10

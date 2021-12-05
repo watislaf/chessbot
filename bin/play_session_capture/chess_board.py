@@ -6,7 +6,7 @@ import numpy as np
 from bin.play_session_capture.chess_peace import ChessPiece
 from collections import deque
 
-from graphics.pictures import GRAY_COLOR
+from graphics.pictures import GRAY_COLOR, BLACK_PIECE, WHITE_PIECE
 
 
 class ChessBoard:
@@ -20,25 +20,23 @@ class ChessBoard:
 
     def __init__(self):
         self.empty_spaces = ChessPiece("")
-        #        for color in {"w", "b"}:
-        for color in {"b"}:  # TODO Upgrade see algorythm
-            #            for piece in {"b", "k", "p", "q", "r", "n"}:
-            for piece in {"p"}:
-                self.pieces_black.append(ChessPiece(color + piece)),
+        for piece in {"b", "k", "p", "q", "r", "n"}:
+            self.pieces_black.append(ChessPiece("b" + piece)),
+        for piece in {"b", "k", "p", "q", "r", "n"}:
+            self.pieces_white.append(ChessPiece("w" + piece)),
 
         # self.pieces = ChessPiece("")
 
     def update(self, screen):
         self.empty_spaces.find(screen)
         if self.all_pieces_found:
-            screen_only_pieces = self.preprocess_board_screen(screen)
-            cv2.imshow('search_for_chess_board42', screen_only_pieces)
-            cv2.waitKey(0)
-            screeen_only_black = self.get_screen_only_from(
-                screen, self.pieces_black[0].get_piece_color())
 
+            screeen_only_black = self.preprocess_board_screen(screen, True)
+            screeen_only_white = self.preprocess_board_screen(screen, False)
             for piece in self.pieces_black:
-                piece.find(screen)
+                piece.find(screeen_only_black)
+            for piece in self.pieces_white:
+                piece.find(screeen_only_white)
 
         if self.find_board_pattern():
             if self.all_pieces_found is False:
@@ -143,9 +141,23 @@ class ChessBoard:
 
         self.position_right_bottom = (
             self.position_left_top[0] +
-            max_pos[0] + 24 + self.piece_size,
+            max_pos[0] + 14 + self.piece_size,
             self.position_left_top[1] +
-            max_pos[1] + 24 + self.piece_size)
+            max_pos[1] + 14 + self.piece_size)
 
-    def preprocess_board_screen(self, screen):
-        pass
+    def preprocess_board_screen(self, screen, isBlack):
+        new_screen = screen.copy()
+        for i, elements in enumerate(screen):
+            for j, pas in enumerate(elements):
+                if isBlack:
+                    if new_screen[i][j] < 120:
+                        new_screen[i][j] = BLACK_PIECE[0]
+                    else:
+                        new_screen[i][j] = WHITE_PIECE[0]
+                else:
+                    if new_screen[i][j] > 235:
+                        new_screen[i][j] = WHITE_PIECE[0]
+                    else:
+                        new_screen[i][j] = BLACK_PIECE[0]
+
+        return new_screen
