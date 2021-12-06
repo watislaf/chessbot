@@ -308,8 +308,9 @@ bool MovesGenerator::isShahDanger(const Move& move) {
 
 bool MovesGenerator::isShah(const std::shared_ptr<Board>& board,
                             bool is_white) {
+  board_ = board;
   Position king_pos =
-      board_->getPiece(board_->getKingPosition(is_white))->getPosition();
+      board->getPiece(board->getKingPosition(is_white))->getPosition();
   const auto& list_of_pieces = board->getActivePieceList(!is_white);
   for (auto piece: list_of_pieces) {
     auto piece_pos = piece->getPosition();
@@ -336,9 +337,9 @@ bool MovesGenerator::isShah(const std::shared_ptr<Board>& board,
         if (king_pos.getX() == piece_pos.getX() &&
             goByVector(king_pos,
                        Position(0,
-                                -(king_pos.getY() - piece_pos.getY())
+                                -(king_pos.getY() - piece_pos.getY()+10)
                                     / abs(king_pos.getY()
-                                              - piece_pos.getY())),
+                                              - piece_pos.getY())+10),
                        8, true).size() + 1
                 == abs(king_pos.getY() - piece_pos.getY())) {
           return true;
@@ -346,9 +347,9 @@ bool MovesGenerator::isShah(const std::shared_ptr<Board>& board,
         if (king_pos.getY() == piece_pos.getY() &&
             goByVector(king_pos,
                        Position(
-                           -(king_pos.getX() - piece_pos.getX())
+                           -(king_pos.getX() - piece_pos.getX()+10)
                                / abs(king_pos.getX()
-                                         - piece_pos.getX()), 0),
+                                         - piece_pos.getX()+10), 0),
                        8, true).size() + 1
                 == abs(king_pos.getX() - piece_pos.getX())) {
           return true;
@@ -360,10 +361,10 @@ bool MovesGenerator::isShah(const std::shared_ptr<Board>& board,
             == abs(king_pos.getY() - piece_pos.getY())) &&
             goByVector(king_pos,
                        Position(
-                           -(abs(king_pos.getX() - piece_pos.getX()))
-                               / ((king_pos.getX() - piece_pos.getX())),
-                           -(abs(king_pos.getY() - piece_pos.getY()))
-                               / (king_pos.getY() - piece_pos.getY())
+                           -(abs(king_pos.getX() - piece_pos.getX())+10)
+                               / ((king_pos.getX() - piece_pos.getX())+10),
+                           -(abs(king_pos.getY() - piece_pos.getY())+10)
+                               / (king_pos.getY() - piece_pos.getY()+10)
                        ),
                        8, true).size() + 1
                 == abs(king_pos.getX() - piece_pos.getX())) {

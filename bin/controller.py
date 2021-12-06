@@ -8,8 +8,8 @@ from bin.view.window import Window
 class Controller:
     window = None
     window_event_obj = None
-    __white_player = None
-    __black_player = None
+    __first_player = None
+    __second_player = None
     __window_is_inicialized = False
 
     def start_window(self):
@@ -22,31 +22,45 @@ class Controller:
         if self.window is not None:
             self.window.start_board_from_fen_str(str_fen)
 
-        self.__white_player.start_game(str_fen)
-        self.__black_player.start_game(str_fen)
+        self.__first_player.start_game(str_fen)
+        self.__second_player.start_game(str_fen)
+        if self.__first_player.is_my_move is None and self.__second_player.is_my_move is None:
+            self.__first_player.is_my_move = True
+            self.__second_player.is_my_move = False
+        else:
+            if self.__first_player.is_my_move is None:
+                self.__first_player.is_my_move = not self.__second_player.is_my_move
+            else:
+                self.__second_player.is_my_move = not self.__first_player.is_my_move
 
         while True:
-            if self.__white_player.whosMowe() == "w":
-                move = self.__white_player.get_move()
+            if self.__first_player.is_my_move:
+                move = self.__first_player.get_move()
             else:
-                move = self.__black_player.get_move()
+                move = self.__second_player.get_move()
             if move.isInvalid():
+                self.__first_player.is_my_move = None
+                self.__second_player.is_my_move = None
                 if move.new_piece != "k":
                     return "DRAW"
-                return self.__white_player.whosMowe()+ " <- LOST"
+                else:
+                    if self.__first_player.is_my_move:
+                        return "FIRST PLAYER LOSE"
+                    else:
+                        return "FIRST PLAYER WIN"
 
-            self.__white_player.apply_move(move)
-            self.__black_player.apply_move(move)
+            self.__first_player.apply_move(move)
+            self.__second_player.apply_move(move)
+            time.sleep(0.05)
+
             if self.__window_is_inicialized:
                 self.window.apply_move(move)
-                if self.__white_player.get_board_str().replace(" ", "") != \
-                        self.__black_player.get_board_str().replace(" ", ""):
+                if self.__first_player.get_board_str().replace(" ", "") != \
+                        self.__second_player.get_board_str().replace(" ", ""):
                     print("DIFFERENT BOARDS BETWEEN PLAYERS")
-                    print(self.__white_player.get_board_str())
-                    print(self.__black_player.get_board_str())
+                    print(self.__first_player.get_board_str())
+                    print(self.__second_player.get_board_str())
 
-    def set_white_player(self, player: Player):
-        self.__white_player = player
-
-    def set_black_player(self, player: Player):
-        self.__black_player = player
+    def set_players(self, first_player, second_player):
+        self.__first_player = first_player
+        self.__second_player = second_player

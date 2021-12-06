@@ -2,6 +2,8 @@ from abc import abstractmethod
 
 
 class Player:
+    is_my_move = None
+
     @abstractmethod
     def start_game(self, str_fen: str):
         pass

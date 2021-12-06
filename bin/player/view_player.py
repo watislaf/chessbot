@@ -7,7 +7,6 @@ from bin.tools.pieceMove import PieceMove
 
 class ViewPlayer(Player):
     __pointer_to_last_move = None
-    whos_move = None
 
     def __init__(self, pointer_to_last_move, event_obj, get_window_board_str):
         self.__pointer_to_last_move = pointer_to_last_move
@@ -19,10 +18,6 @@ class ViewPlayer(Player):
 
     def start_game(self, str_fen: str):
         fen = FEN(str_fen)
-        self.whos_move = fen.getWhoIsMove()
-
-    def whosMowe(self):
-        return self.whos_move
 
     def get_move(self):
         if self.__pointer_to_last_move[0].isInvalid():
@@ -30,11 +25,7 @@ class ViewPlayer(Player):
         move = self.__pointer_to_last_move[0]
         self.__pointer_to_last_move[0] = PieceMove().getInvalid()
         self.__event_obj.clear()
-
         return move
 
     def apply_move(self, move):
-        if self.whos_move == "w":
-            self.whos_move = "b"
-        else:
-            self.whos_move = "w"
+        self.is_my_move = not self.is_my_move

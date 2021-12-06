@@ -129,7 +129,7 @@ void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_n
     if (!moves_generator_.isShah(board_coppy, board_coppy->isWhiteMove())) {
       current_node->best_price_ *= -1;
     }
-    current_node->best_price_ /= board_coppy->getMoveCount();
+    current_node->best_price_ /=( board_coppy->getMoveCount()+1);
   }
 
   if (unaply) {

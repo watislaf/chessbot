@@ -2,28 +2,47 @@
 #include "chessAi.h"
 
 TEST(ChessAi, AlphaBeta) {
-  ChessAi chess_ai("A1");
-  chess_ai.startNewGame(
-      "1n6/8/8/8/8/3kP3/3P4/4K3 w - - 0 1");
-  auto move = chess_ai.getBestMove();
-  chess_ai.applyMove(move);
 
-
+  ChessAi chess_ai("random");
+  ChessAi chess_ai2("random");
+  while (true) {
+    chess_ai.startNewGame(
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    chess_ai2.startNewGame(
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    int move_p = 0;
+    while (true) {
+      Move move = chess_ai.getBestMove();;
+      if (move_p == 0) {
+        move = chess_ai.getBestMove();
+        move_p = 1;
+      } else {
+        move_p = 0;
+        move = chess_ai2.getBestMove();
+      }
+      if (move.getStart()->getPosition() == Position(9, 9)) {
+        break;
+      }
+      std::cerr << move.toStr()<<"\n";
+      chess_ai.applyMove(move);
+      chess_ai2.applyMove(move);
+    }
+    break;
+  }
 }
 TEST(ChessAi, Algo) {
   ChessAi chess_ai("A1");
   chess_ai.startNewGame(
       "1n1k4/pp6/8/8/8/8/PPP5/3K4 w - - 0 1");
-  chess_ai.applyMoveParams(1,1,1,3);
+  chess_ai.applyMoveParams(1, 1, 1, 3);
   auto move = chess_ai.getBestMove();
   chess_ai.applyMove(move);
-  chess_ai.applyMoveParams(2,1,2,3);
+  chess_ai.applyMoveParams(2, 1, 2, 3);
   move = chess_ai.getBestMove();
   chess_ai.applyMove(move);
-  chess_ai.applyMoveParams(0,1,0,2);
+  chess_ai.applyMoveParams(0, 1, 0, 2);
   move = chess_ai.getBestMove();
   chess_ai.applyMove(move);
-
 }
 
 TEST(ChessAi, A2) {
@@ -36,12 +55,15 @@ TEST(ChessAi, A2) {
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     for (int i = 0; i < 20; i++) {
       auto move = chess_ai.getBestMove();
-      if (move.getStart()->getPosition() == Position(9, 9)) {std::cerr<<"GG"; break; };
+      if (move.getStart()->getPosition() == Position(9, 9)) {
+        std::cerr << "GG";
+        break;
+      };
       chess_ai2.applyMove(move);
       chess_ai.applyMove(move);
-      std::cerr<<i<<"";
+      std::cerr << i << "";
     }
-    std::cerr<<j<<" \n";
+    std::cerr << j << " \n";
   }
   // default time 20.10 <=
   // default time 18.36 <= , generate_no_sort

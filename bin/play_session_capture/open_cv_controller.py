@@ -7,8 +7,6 @@ import cv2
 from mss import mss
 
 from bin.play_session_capture.chess_board import ChessBoard
-from graphics.pictures import PICTURES_PATH
-from bin.play_session_capture.chess_peace import ChessPiece
 import tkinter as tk
 
 
@@ -31,7 +29,6 @@ class OpenCvController:
         while True:
             sleep(0.201)
             sct_img = np.array(self.sct.grab(self.get_box()))
-            lol = np.array(sct_img.shape[:-1:])[::-1] // 4
             sct_img = cv2.resize(sct_img, np.array(sct_img.shape[:-1:])[::-1] // 2)
 
             sct_img2 = cv2.cvtColor(sct_img, cv2.COLOR_BGR2GRAY)

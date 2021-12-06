@@ -128,7 +128,7 @@ class ChessPiece():
             else:
                 color = (255, 201, 42)
 
-        for pt in self.positions:  # Switch collumns and rows
+        for pt in self.positions:
             screen = cv2.rectangle(screen, pt,
-                                   (pt[0] + self.size, pt[1] + self.size),
-                                   color, 4)
+                                   (pt[0] + self.size-4, pt[1] + self.size-4),
+                                   color, 2)
