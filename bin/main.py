@@ -16,7 +16,7 @@ if __name__ == "__main__":
 #                             controller.window.get_window_board_str)
     chess_com_player = ChesscomPlayer()
     controller.set_players(AiPlayer(ChessAi("random")), chess_com_player)
-    while True:
+    while False:
         winner = controller.start_game(
             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         print(winner)
