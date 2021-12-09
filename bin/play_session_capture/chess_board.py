@@ -29,15 +29,14 @@ class ChessBoard:
 
     def update(self, screen):
         self.empty_spaces.find(screen)
-        if self.all_pieces_found:
 
+        if self.all_pieces_found:
             screeen_only_black = self.preprocess_board_screen(screen, True)
             screeen_only_white = self.preprocess_board_screen(screen, False)
             for piece in self.pieces_black:
                 piece.find(screeen_only_black)
             for piece in self.pieces_white:
                 piece.find(screeen_only_white)
-
         if self.find_board_pattern():
             if self.all_pieces_found is False:
                 self.all_pieces_found = True
@@ -50,6 +49,7 @@ class ChessBoard:
                 piece.size = self.piece_size
         else:
             self.all_pieces_found = False
+
 
     def get_screen_only_from(self, screen, color_to_save):
         for i, elements in enumerate(screen):

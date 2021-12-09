@@ -27,21 +27,23 @@ class OpenCvController:
 
     def start_process(self):
         while True:
+
             sleep(0.201)
             sct_img = np.array(self.sct.grab(self.get_box()))
             sct_img = cv2.resize(sct_img, np.array(sct_img.shape[:-1:])[::-1] // 2)
 
             sct_img2 = cv2.cvtColor(sct_img, cv2.COLOR_BGR2GRAY)
 
+
             self.board.update(sct_img2)
-
             self.board.write(sct_img)
-            sct_img = cv2.resize(sct_img, np.array(sct_img.shape[:-1:])[::-1] // 2)
 
+            sct_img = cv2.resize(sct_img, np.array(sct_img.shape[:-1:])[::-1] // 2)
             cv2.imshow('search_for_chess_board', sct_img)
             if (cv2.waitKey(1) & 0xFF) == ord('q'):
                 cv2.destroyAllWindows()
                 break
+
 
     def get_box(self):
         if self.board.all_pieces_found:
