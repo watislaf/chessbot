@@ -9,6 +9,8 @@ from mss import mss
 from bin.play_session_capture.chess_board import ChessBoard
 import tkinter as tk
 
+from bin.play_session_capture.chess_button import ChessButton
+
 
 class OpenCvController:
     sct = mss()
@@ -17,6 +19,7 @@ class OpenCvController:
     __monitor_size = [None, None]
     __atomic_data = None
     __prev_state = 0
+    __button = ChessButton()
 
     def __init__(self, atomic_data):
         root = tk.Tk()
@@ -30,25 +33,32 @@ class OpenCvController:
     def start_process(self):
         while True:
             sleep(0.201)
-            sct_img = np.array(self.sct.grab(self.get_box()))
-            sct_img = cv2.resize(sct_img,
-                                 np.array(sct_img.shape[:-1:])[::-1] // 2)
+            is_start = self.__atomic_data.is_start
+            screen_img = np.array(
+                self.sct.grab(self.get_box(is_start)))#self.__board.found)))
+            screen_img = cv2.resize(screen_img,
+                                    np.array(screen_img.shape[:-1:])[::-1] // 2)
+            gray_img = cv2.cvtColor(screen_img, cv2.COLOR_BGR2GRAY)
 
-            sct_img2 = cv2.cvtColor(sct_img, cv2.COLOR_BGR2GRAY)
+            if not is_start:
+                self.__button.update(gray_img)
+                self.__button.write(screen_img)
+                self.__board.update(gray_img)
+                self.__board.write(screen_img)
 
-            self.__board.update(sct_img2)
-            self.__atomic_data.cant_find_board_ = not self.__board.all_pieces_found
-            self.__board.write(sct_img)
-            sct_img = cv2.resize(sct_img,
-                                 np.array(sct_img.shape[:-1:])[::-1] // 2)
-            cv2.imshow('search_for_chess_board', sct_img)
+            self.__atomic_data.cant_find_go_button = not self.__button.found
+            self.__atomic_data.cant_find_board = not self.__board.found
+
+            cv2.imshow('search_for_chess_board',
+                       cv2.resize(screen_img,
+                                  np.array(screen_img.shape[:-1:])[::-1] // 2))
             cv2.waitKey(1)
 
-    def get_box(self):
-        if self.__board.all_pieces_found:
+    def get_box(self, small_box=False):
+        if small_box:
             bounding_box = \
-                {'top': self.__board.position_left_top[1] * 2,
-                 'left': self.__board.position_left_top[0] * 2,
+                {'top': self.__board.position_left_top[1] ,
+                 'left': self.__board.position_left_top[0] ,
                  'width': self.__board.position_right_bottom[0] * 2 -
                           self.__board.position_left_top[0] * 2,
                  'height': self.__board.position_right_bottom[1] * 2 -

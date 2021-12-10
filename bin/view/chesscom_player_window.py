@@ -39,11 +39,11 @@ class WindowCV:
                 if event.type == pygame.QUIT:
                     self.__application_is_done = False
             self.__button.block = False
-            if self.__atomic_data.cant_find_go_button_:
+            if self.__atomic_data.cant_find_go_button:
                 self.__button.block = True
                 self.__py_window.blit(self.__no_button_surface, (13, 255))
 
-            if self.__atomic_data.cant_find_board_:
+            if self.__atomic_data.cant_find_board:
                 self.__button.block = True
                 self.__py_window.blit(self.__no_board_surface, (54, 288))
             pygame.display.update()

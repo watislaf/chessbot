@@ -10,7 +10,7 @@ from graphics.pictures import GRAY_COLOR, BLACK_PIECE, WHITE_PIECE
 
 
 class ChessBoard:
-    all_pieces_found = False
+    found = False
     position_left_top = [0, 0]
     position_right_bottom = [None, None]
     piece_size = 0
@@ -30,7 +30,7 @@ class ChessBoard:
     def update(self, screen):
         self.empty_spaces.find(screen)
 
-        if self.all_pieces_found:
+        if self.found:
             screeen_only_black = self.preprocess_board_screen(screen, True)
             screeen_only_white = self.preprocess_board_screen(screen, False)
             for piece in self.pieces_black:
@@ -38,8 +38,8 @@ class ChessBoard:
             for piece in self.pieces_white:
                 piece.find(screeen_only_white)
         if self.find_board_pattern():
-            if self.all_pieces_found is False:
-                self.all_pieces_found = True
+            if self.found is False:
+                self.found = True
                 self.apply_board_from_positions()
             else:
                 self.update_board_from_positions()
@@ -48,7 +48,7 @@ class ChessBoard:
             for piece in self.pieces_white:
                 piece.size = self.piece_size
         else:
-            self.all_pieces_found = False
+            self.found = False
 
 
     def get_screen_only_from(self, screen, color_to_save):
@@ -59,7 +59,7 @@ class ChessBoard:
         return screen
 
     def write(self, screen):
-        if self.all_pieces_found:
+        if self.found:
             self.empty_spaces.write(screen, (244, 99, 0))
             for piece in self.pieces_black:
                 piece.write(screen)
