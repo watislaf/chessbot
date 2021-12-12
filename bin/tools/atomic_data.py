@@ -6,6 +6,17 @@ class AtomicData:
     __is_start = False
     __cant_find_go_button = True
     __cant_find_board = True
+    __counter = 0
+
+    @property
+    def counter(self):
+        with self.__counter:
+            return self.__counter
+
+    @counter.setter
+    def counter(self, integer):
+        with self.__counter:
+            self.__counter = integer
 
     @property
     def is_start(self):

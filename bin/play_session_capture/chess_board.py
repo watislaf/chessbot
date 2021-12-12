@@ -20,16 +20,14 @@ class ChessBoard:
 
     def __init__(self):
         self.empty_spaces = ChessPiece("")
-        for piece in {"b", "k", "p", "q", "r", "n"}:
+        for piece in {"b"}:#, "k", "p", "q", "r", "n"}:
             self.pieces_black.append(ChessPiece("b" + piece)),
-        for piece in {"b", "k", "p", "q", "r", "n"}:
+        for piece in {"b"}:#, "k", "p", "q", "r", "n"}:
             self.pieces_white.append(ChessPiece("w" + piece)),
 
         # self.pieces = ChessPiece("")
 
-    def update(self, screen):
-        self.empty_spaces.find(screen)
-
+    def updatePieces(self, screen):
         if self.found:
             screeen_only_black = self.preprocess_board_screen(screen, True)
             screeen_only_white = self.preprocess_board_screen(screen, False)
@@ -37,6 +35,10 @@ class ChessBoard:
                 piece.find(screeen_only_black)
             for piece in self.pieces_white:
                 piece.find(screeen_only_white)
+
+    def updateBoard(self, screen):
+        self.empty_spaces.find(screen)
+
         if self.find_board_pattern():
             if self.found is False:
                 self.found = True
@@ -50,7 +52,6 @@ class ChessBoard:
         else:
             self.found = False
 
-
     def get_screen_only_from(self, screen, color_to_save):
         for i, elements in enumerate(screen):
             for j, color in enumerate(elements):
@@ -58,15 +59,17 @@ class ChessBoard:
                     screen[i][j] = GRAY_COLOR[0]
         return screen
 
-    def write(self, screen):
+    def writeBoard(self, screen):
         if self.found:
             self.empty_spaces.write(screen, (244, 99, 0))
-            for piece in self.pieces_black:
-                piece.write(screen)
-            for piece in self.pieces_white:
-                piece.write(screen)
         else:
             self.empty_spaces.write(screen, (0, 0, 255))
+
+    def writePieces(self, screen):
+        for piece in self.pieces_black:
+            piece.write(screen)
+        for piece in self.pieces_white:
+            piece.write(screen)
 
     def apply_board_from_positions(self):
         min_pos = [10000, 10000]
@@ -83,10 +86,11 @@ class ChessBoard:
 
         self.piece_size = (max_pos[0] - min_pos[0]) // 6
         self.position_right_bottom = (
-            max_pos[0] + 19 + self.piece_size,
-            max_pos[1] + 19 + self.piece_size)
+            max_pos[0] + 11 + self.piece_size,
+            max_pos[1] + 11+ self.piece_size)
         self.position_left_top = (
             min_pos[0] - self.piece_size, min_pos[1] - self.piece_size)
+        print(self.position_left_top)
 
     def find_board_pattern(self):
         if len(self.empty_spaces.positions) == 0:
@@ -141,9 +145,9 @@ class ChessBoard:
 
         self.position_right_bottom = (
             self.position_left_top[0] +
-            max_pos[0] + 14 + self.piece_size,
+            max_pos[0] + 11 + self.piece_size,
             self.position_left_top[1] +
-            max_pos[1] + 14 + self.piece_size)
+            max_pos[1] + 11 + self.piece_size)
 
     def preprocess_board_screen(self, screen, isBlack):
         new_screen = screen.copy()
@@ -160,4 +164,11 @@ class ChessBoard:
                     else:
                         new_screen[i][j] = BLACK_PIECE[0]
 
+        for i in range(8):
+            for j in range(8):
+                min_pos[0] - self.piece_size
+                cv2.imshow('search_for_chess_board',
+                           cv2.resize(screen_img, np.array(
+                               screen_img.shape[:-1:])[::-1] // 2))
+                cv2.waitKey(1)
         return new_screen
