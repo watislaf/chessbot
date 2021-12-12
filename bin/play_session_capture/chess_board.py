@@ -1,4 +1,5 @@
 import random
+from asyncio import sleep
 
 import cv2
 import numpy as np
@@ -12,29 +13,33 @@ from graphics.pictures import GRAY_COLOR, BLACK_PIECE, WHITE_PIECE
 class ChessBoard:
     found = False
     position_left_top = [0, 0]
-    position_right_bottom = [None, None]
-    piece_size = 0
-    pieces_white = []
-    pieces_black = []
+    position_right_bottom = [0, 0]
+    piece_size = 1
+    __pieces_white = []
+    __pieces_black = []
     empty_spaces = None
+    __min_pos = None
 
     def __init__(self):
         self.empty_spaces = ChessPiece("")
-        for piece in {"b"}:#, "k", "p", "q", "r", "n"}:
-            self.pieces_black.append(ChessPiece("b" + piece)),
-        for piece in {"b"}:#, "k", "p", "q", "r", "n"}:
-            self.pieces_white.append(ChessPiece("w" + piece)),
+        for piece in {"p", "k", "b", "q", "r", "n"}:
+            self.__pieces_black.append(ChessPiece("b" + piece)),
+        for piece in {"p", "k", "b", "q", "r", "n"}:
+            self.__pieces_white.append(ChessPiece("w" + piece)),
 
         # self.pieces = ChessPiece("")
 
     def updatePieces(self, screen):
+        if self.__min_pos[0] + 1 < self.piece_size or \
+                self.__min_pos[1] + 1 < self.piece_size or \
+                self.position_right_bottom[0] + 1 < self.__min_pos[0] + \
+                self.piece_size * 8 or \
+                self.position_right_bottom[1] + 1 < self.__min_pos[1] + \
+                self.piece_size * 8:
+            return
         if self.found:
-            screeen_only_black = self.preprocess_board_screen(screen, True)
-            screeen_only_white = self.preprocess_board_screen(screen, False)
-            for piece in self.pieces_black:
-                piece.find(screeen_only_black)
-            for piece in self.pieces_white:
-                piece.find(screeen_only_white)
+            self.preprocess_board_screen(screen, False)
+            self.preprocess_board_screen(screen, True)
 
     def updateBoard(self, screen):
         self.empty_spaces.find(screen)
@@ -45,11 +50,12 @@ class ChessBoard:
                 self.apply_board_from_positions()
             else:
                 self.update_board_from_positions()
-            for piece in self.pieces_black:
+            for piece in self.__pieces_black:
                 piece.size = self.piece_size
-            for piece in self.pieces_white:
+            for piece in self.__pieces_white:
                 piece.size = self.piece_size
         else:
+            self.__min_pos = [10000, 10000]
             self.found = False
 
     def get_screen_only_from(self, screen, color_to_save):
@@ -64,12 +70,15 @@ class ChessBoard:
             self.empty_spaces.write(screen, (244, 99, 0))
         else:
             self.empty_spaces.write(screen, (0, 0, 255))
+        self.empty_spaces.positions.clear()
 
     def writePieces(self, screen):
-        for piece in self.pieces_black:
+        for piece in self.__pieces_black:
             piece.write(screen)
-        for piece in self.pieces_white:
+            piece.positions.clear()
+        for piece in self.__pieces_white:
             piece.write(screen)
+            piece.positions.clear()
 
     def apply_board_from_positions(self):
         min_pos = [10000, 10000]
@@ -83,14 +92,13 @@ class ChessBoard:
                 max_pos[0] = empty_pos[0]
             if empty_pos[1] >= max_pos[1]:
                 max_pos[1] = empty_pos[1]
-
-        self.piece_size = (max_pos[0] - min_pos[0]) // 6
+        self.__min_pos = min_pos
+        self.piece_size = (max_pos[0] - min_pos[0]) / 6
         self.position_right_bottom = (
             max_pos[0] + 11 + self.piece_size,
-            max_pos[1] + 11+ self.piece_size)
+            max_pos[1] + 11 + self.piece_size)
         self.position_left_top = (
             min_pos[0] - self.piece_size, min_pos[1] - self.piece_size)
-        print(self.position_left_top)
 
     def find_board_pattern(self):
         if len(self.empty_spaces.positions) == 0:
@@ -138,16 +146,16 @@ class ChessBoard:
             if empty_pos[1] >= max_pos[1]:
                 max_pos[1] = empty_pos[1]
 
-        self.piece_size = (max_pos[0] - min_pos[0]) // 6
+        self.piece_size = (max_pos[0] - min_pos[0]) / 6
         self.position_left_top = (
-            self.position_left_top[0] + min_pos[0] - self.piece_size,
-            self.position_left_top[1] + min_pos[1] - self.piece_size)
-
+            self.position_left_top[0] + min_pos[0] - int(self.piece_size),
+            self.position_left_top[1] + min_pos[1] - int(self.piece_size))
+        self.__min_pos = min_pos
         self.position_right_bottom = (
             self.position_left_top[0] +
-            max_pos[0] + 11 + self.piece_size,
+            max_pos[0] + 11 + int(self.piece_size),
             self.position_left_top[1] +
-            max_pos[1] + 11 + self.piece_size)
+            max_pos[1] + 11 + int(self.piece_size))
 
     def preprocess_board_screen(self, screen, isBlack):
         new_screen = screen.copy()
@@ -163,12 +171,27 @@ class ChessBoard:
                         new_screen[i][j] = WHITE_PIECE[0]
                     else:
                         new_screen[i][j] = BLACK_PIECE[0]
+        if isBlack:
+            pieces = self.__pieces_black
+        else:
+            pieces = self.__pieces_white
 
         for i in range(8):
             for j in range(8):
-                min_pos[0] - self.piece_size
-                cv2.imshow('search_for_chess_board',
-                           cv2.resize(screen_img, np.array(
-                               screen_img.shape[:-1:])[::-1] // 2))
-                cv2.waitKey(1)
-        return new_screen
+                size = new_screen.shape[0]
+
+                right_bot = [int(self.__min_pos[0] + self.piece_size * i + 8),
+                             int(self.__min_pos[1] + self.piece_size * j + 4)]
+                left_top = [right_bot[0] - int(self.piece_size) - 2,
+                            right_bot[1] - int(self.piece_size) - 2]
+                tmp_cut = new_screen[size - right_bot[1]:size - left_top[1],
+                          left_top[0]:right_bot[0]]
+
+                if tmp_cut.shape[0] < int(self.piece_size) or \
+                        tmp_cut.shape[1] < int(self.piece_size):
+                    return
+                mean = np.mean(tmp_cut)
+                if 20 > mean or mean > 210:
+                    continue
+                for piece in pieces:
+                    piece.find(tmp_cut, left_top)

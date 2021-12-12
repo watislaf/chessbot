@@ -9,7 +9,7 @@ class ChessPiece():
     name = "str"
     size = 52
     __size = 0
-    threshold = 0.81
+    threshold = 0.83
     positions = None
     mode = cv2.TM_CCOEFF_NORMED
 
@@ -19,16 +19,15 @@ class ChessPiece():
 
     @size.setter
     def size(self, new_size):
-        if (new_size == self.__size):
+        if new_size == self.__size:
             return
         self.__size = new_size
         if (self.name == ""):
             prototype = np.zeros((self.size, self.size, 3), dtype=np.uint8)
         else:
             prototype = cv2.imread(PICTURES_PATH + "/{}.png".format(self.name))
-            prototype = cv2.resize(prototype, (self.size, self.size),
+            prototype = cv2.resize(prototype, (int(self.size), int(self.size)),
                                    interpolation=cv2.INTER_AREA)
-        empty_color = prototype[1][1]
         self.image[0] = prototype.copy()
 
         if self.name == "":
@@ -42,8 +41,8 @@ class ChessPiece():
             for i, elements in enumerate(prototype):
                 for j, color in enumerate(elements):
                     if self.name == "":
-                        summ = (int(i > self.size // 2)
-                                + int(j > self.size // 2))
+                        summ = (int(i > self.size / 2)
+                                + int(j > self.size / 2))
                         if (summ == 0 or summ == 2):
                             self.image[num][i][j] = colors[(num + 1) % 2]
                         else:
@@ -61,7 +60,6 @@ class ChessPiece():
             self.image[1] = cv2.cvtColor(np.uint8(self.image[1]),
                                          cv2.COLOR_BGR2GRAY)
         else:
-
             for i, elements in enumerate(self.image[0]):
                 for j, pas in enumerate(elements):
                     if self.name[0] == "b":
@@ -75,10 +73,6 @@ class ChessPiece():
                         else:
                             self.image[0][i][j] = BLACK_PIECE[0]
 
-    def get_piece_color(self):
-        shape = self.image[0].shape
-        return self.image[0][shape[0] // 2, shape[1] // 2]
-
     def __init__(self, name):
         self.positions = []
         self.image = [None, None]
@@ -88,27 +82,32 @@ class ChessPiece():
             self.mode = cv2.TM_CCOEFF_NORMED
             self.size = 10
         else:
-            self.size = 105
+            self.size = 40
 
-    def find(self, sct_img):
-        self.positions.clear()
+    def find(self, sct_img, left_top=[0, 0]):
+        positions_temp = []
+        res = 0
         for image in self.image:
             if image is None:
                 break
             res = cv2.matchTemplate(sct_img, image, self.mode)
 
             loc = np.where(res >= self.threshold)  ## FOUND TAble
+
             for pt in zip(*loc[::-1]):  # Switch collumns and rows
-                self.positions.append(pt)
-        for i in range(len(self.positions) - 1, -1, -1):
+                pt = [pt[0] + left_top[0], pt[1] + left_top[1]]
+                positions_temp.append(pt)
+
+        for i in range(len(positions_temp) - 1, -1, -1):
             j = i - 1
             while j >= 0:
-                if abs(self.positions[j][0] - self.positions[i][0]) + abs(
-                        self.positions[j][1] - self.positions[i][1]) < 10:
+                if abs(positions_temp[j][0] - positions_temp[i][0]) + abs(
+                        positions_temp[j][1] - positions_temp[i][1]) < 10:
                     break
                 j -= 1
             if j != -1:
-                del self.positions[i]
+                del positions_temp[i]
+        self.positions += positions_temp
 
     def write(self, screen, color=True):
         if color == True:
@@ -130,5 +129,5 @@ class ChessPiece():
 
         for pt in self.positions:
             screen = cv2.rectangle(screen, pt,
-                                   (pt[0] + self.size-4, pt[1] + self.size-4),
-                                   color, 2)
+                                   (pt[0] + int(self.size) - 2,
+                                    pt[1] + int(self.size) - 2), color, 2)
