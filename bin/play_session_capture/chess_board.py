@@ -105,7 +105,7 @@ class ChessBoard:
         if len(self.empty_spaces.positions) < 49:
             return False
         for i in range(4):
-            giv_int = (i * 47) % ( len(self.empty_spaces.positions) - 1)
+            giv_int = (i * 47) % (len(self.empty_spaces.positions) - 1)
             start = self.empty_spaces.positions[giv_int]
             green_ones = deque()  # get in
             orange_ones = deque()  # need analize
@@ -195,5 +195,23 @@ class ChessBoard:
                 if 20 > mean or mean > 210:
                     continue
                 for piece in pieces:
-                    piece.find(tmp_cut,[int(self.__min_pos[0] + self.piece_size * (i-1) + 8),
-                                        int(self.__min_pos[1] + self.piece_size * (6-j) + 4)])
+                    piece.find(tmp_cut, [
+                        int(self.__min_pos[0] + self.piece_size * (i - 1) + 8),
+                        int(self.__min_pos[1] + self.piece_size * (6 - j) + 4)])
+
+    def get_side(self):
+        return self.__pieces_white[0].positions[0][0] < \
+               self.__pieces_black[0].positions[0][0]
+
+    def get_hash(self, gray_img):
+        if not self.found:
+            return 0
+        answ = 0
+        for i in range(8):
+            for j in range(8):
+                answ += (i + j*9) * gray_img[
+                    int(self.__min_pos[
+                            0] + self.piece_size * i + 8 - self.piece_size / 2),
+                    int(self.__min_pos[
+                            1] + self.piece_size * j + 4 - self.piece_size / 2)]
+        return answ

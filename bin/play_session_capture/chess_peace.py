@@ -93,11 +93,14 @@ class ChessPiece():
             res = cv2.matchTemplate(sct_img, image, self.mode)
 
             loc = np.where(res >= self.threshold)  ## FOUND TAble
-
+            smthng_found = False
             for pt in zip(*loc[::-1]):  # Switch collumns and rows
                 pt = [pt[0] + left_top[0], pt[1] + left_top[1]]
                 positions_temp.append(pt)
+                smthng_found = True
 
+            if smthng_found and self.name != "":
+                break
         for i in range(len(positions_temp) - 1, -1, -1):
             j = i - 1
             while j >= 0:

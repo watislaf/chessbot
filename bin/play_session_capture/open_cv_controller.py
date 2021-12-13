@@ -10,12 +10,13 @@ from bin.play_session_capture.chess_board import ChessBoard
 import tkinter as tk
 
 from bin.play_session_capture.chess_button import ChessButton
+from bin.play_session_capture.cv_game_controller import CVGameController
 from bin.play_session_capture.mouse_controller import MouseController
 
 
 def slicee(funct):
-    def wrapper(self,*args):
-        bounding_box = funct(self,*args)
+    def wrapper(self, *args):
+        bounding_box = funct(self, *args)
         bounding_box["top"] = max(0, bounding_box["top"])
         bounding_box["left"] = max(0, bounding_box["left"])
         bounding_box["width"] = min(
@@ -47,6 +48,8 @@ class OpenCvController:
     __game_is_found = False
     __game_in_search = False
     __mouse_controller = MouseController()
+    __game_controller = None
+    __hash = 0
 
     def __init__(self, atomic_data):
         root = tk.Tk()
@@ -75,21 +78,31 @@ class OpenCvController:
                 if self.__atomic_data.counter > 2:
                     self.__button_start.update(gray_img)
                     self.__button_start.write(screen_img)
+
                 self.__board.updateBoard(gray_img)
                 self.__board.writeBoard(screen_img)
                 self.__atomic_data.cant_find_go_button = not self.__button_start.found
                 self.__atomic_data.cant_find_board = not self.__board.found
             else:
+                hassh = self.__board.get_hash(gray_img)
                 if self.__game_is_found:
-                    self.__board.updatePieces(gray_img)
-                    self.__board.writePieces(screen_img)
                     self.__button_draw.update(
                         self.get_button(self.__button_draw)[1],
                         self.__button_draw.positions[0]
                     )
                     if not self.__button_draw.found:
                         self.__game_is_found = False
-                    pass  # Game process
+                        self.__game_controller = None
+
+                    if abs(self.__hash - hassh) < 10:
+                        continue
+                    self.__hash = hassh
+                    print(self.__hash)
+                    ## BOARD CHANGED !!!!!!!!!
+                    # self.__game_controller.board_changed()
+                    # if self.__game_controller.need_get_last_move():
+                    #    self.__board.get_last_move(gray_img)
+
                 else:
                     if not self.__game_in_search:
                         self.__mouse_controller.click(
@@ -101,13 +114,18 @@ class OpenCvController:
                         if self.__button_draw.found:
                             self.__game_in_search = False
                             self.__game_is_found = True
+                            self.__board.updatePieces(gray_img)
+                            self.__board.writePieces(screen_img)
+                            self.__game_controller = CVGameController(
+                                self.__board.get_side())
+
             cv2.imshow('search_for_chess_board',
                        cv2.resize(screen_img, np.array(
                            screen_img.shape[:-1:])[::-1] // 2))
             cv2.waitKey(1)
 
     @slicee
-    def get_board(self,*args):
+    def get_board(self, *args):
         return \
             {'top': int(self.__board.position_left_top[1] * 2),
              'left': int(self.__board.position_left_top[0] * 2),
@@ -125,7 +143,7 @@ class OpenCvController:
              'height': int(args[0].last_len[0] * 2 + 20)}
 
     @slicee
-    def get_all(self,*args):
+    def get_all(self, *args):
         bounding_box = {'top': 0, 'left': 0,
                         'width': self.monitor_size[0],
                         'height': self.monitor_size[1]}
