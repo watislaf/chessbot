@@ -7,29 +7,28 @@ from graphics.pictures import PICTURES_PATH
 class ChessButton:
     image = [None, None]  # white and black version
     size = 52
-    threshold = 0.90
+    threshold = 0.80
     mode = cv2.TM_CCOEFF_NORMED
     positions = None
     last_len = 0
     found = False
 
-    def __init__(self):
+    def __init__(self, images):
         self.positions = []
-        self.image = [None, None]
-        for k, name in enumerate(["next_button", "play_button"]):
-            self.image[k] = cv2.imread(
-                PICTURES_PATH + "/{}.png".format(name))
+        self.image = []
+        for k, name in enumerate(images):
+            self.image.append(cv2.imread(
+                PICTURES_PATH + "/{}.png".format(name)))
             self.image[k] = cv2.cvtColor(np.uint8(self.image[k]),
                                          cv2.COLOR_BGR2GRAY)
             self.image[k] = cv2.resize(self.image[k],
-                                       np.array(self.image[k].shape)[
-                                       ::-1] // 2)
+                                       np.array(self.image[k].shape)[::-1] // 2)
 
-    def update(self, sct_img, zero = [0,0]):
+    def update(self, sct_img, zero=[0, 0]):
         self.found = False
         self.positions.clear()
         for scale in range(5):
-            for k in range(2):
+            for k, images in enumerate(self.image):
                 true_scale = (1 + (scale - 1) * 0.5)
                 img = cv2.resize(self.image[k], (
                         np.array(self.image[k].shape)[
@@ -51,8 +50,8 @@ class ChessButton:
                     if len(self.positions) > 0:
                         self.last_len = img.shape
                         self.found = True
-                        self.positions[0][0]+=zero[0]
-                        self.positions[0][1]+=zero[1]
+                        self.positions[0][0] += zero[0]
+                        self.positions[0][1] += zero[1]
                         return True
 
     def write(self, screen):
