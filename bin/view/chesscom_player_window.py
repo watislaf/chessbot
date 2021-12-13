@@ -7,7 +7,7 @@ class WindowCV:
     __application_is_done = True
     __py_window = None
     __button = None
-    __start = True
+    __start = False
     __atomic_data = None
 
     def __init__(self, atomic_data):
@@ -17,19 +17,21 @@ class WindowCV:
         pygame.init()
         self.__button = Button("Start", (200, 200), (200, 80))
 
-        myfont = pygame.font.SysFont('Comic Sans MS', 50)
-        self.__no_board_surface = myfont.render("Can't find board", True,
-                                                (155, 42, 42))
-        self.__no_button_surface = myfont.render("Can't find start button", True,
-                                                 (155, 42, 42))
+        self.__myfont = pygame.font.SysFont('Comic Sans MS', 50)
+        self.__no_board_surface = self.__myfont.render("Can't find board", True,
+                                                       (155, 42, 42))
+        self.__no_button_surface = self.__myfont.render(
+            "Can't find Play button",
+            True,
+            (155, 42, 42))
 
     def start_loop(self):
         while self.__application_is_done:
             pygame.draw.rect(self.__py_window, (118, 150, 86), (0, 0, 400, 400))
             self.__button.update(self.__py_window, pygame.event.get())
-            if (self.__button.get()):
+            if self.__button.get():
                 self.__start = not self.__start
-                if (self.__start):
+                if self.__start:
                     self.__button.titel = "Stop"
                 else:
                     self.__button.titel = "Start"
@@ -46,6 +48,20 @@ class WindowCV:
             if self.__atomic_data.cant_find_board:
                 self.__button.block = True
                 self.__py_window.blit(self.__no_board_surface, (54, 288))
+
+            if self.__button.block:
+                self.__atomic_data.counter = 4
+
+            if self.__atomic_data.counter > 0:
+                self.__timer_surface = self.__myfont.render(
+                    str(self.__atomic_data.counter)[0:4],
+                    True, (155, 42, 42))
+                self.__py_window.blit(self.__timer_surface, (24, 188))
+
+                if not self.__button.block:
+                    self.__atomic_data.counter -= 0.70
+                    self.__button.block = True
+
             pygame.display.update()
             pygame.time.delay(70)
         pygame.quit()

@@ -36,6 +36,7 @@ class ChessBoard:
                 self.piece_size * 8 or \
                 self.position_right_bottom[1] + 1 < self.__min_pos[1] + \
                 self.piece_size * 8:
+            print("CONITUE")
             return
         if self.found:
             self.preprocess_board_screen(screen, False)
@@ -101,10 +102,10 @@ class ChessBoard:
             min_pos[0] - self.piece_size, min_pos[1] - self.piece_size)
 
     def find_board_pattern(self):
-        if len(self.empty_spaces.positions) == 0:
+        if len(self.empty_spaces.positions) < 49:
             return False
         for i in range(4):
-            giv_int = random.randint(0, len(self.empty_spaces.positions) - 1)
+            giv_int = (i * 47) % ( len(self.empty_spaces.positions) - 1)
             start = self.empty_spaces.positions[giv_int]
             green_ones = deque()  # get in
             orange_ones = deque()  # need analize
@@ -194,4 +195,5 @@ class ChessBoard:
                 if 20 > mean or mean > 210:
                     continue
                 for piece in pieces:
-                    piece.find(tmp_cut, left_top)
+                    piece.find(tmp_cut,[int(self.__min_pos[0] + self.piece_size * (i-1) + 8),
+                                        int(self.__min_pos[1] + self.piece_size * (6-j) + 4)])

@@ -10,7 +10,7 @@ class ChessButton:
     threshold = 0.90
     mode = cv2.TM_CCOEFF_NORMED
     positions = None
-    __last_len = 0
+    last_len = 0
     found = False
 
     def __init__(self):
@@ -25,7 +25,7 @@ class ChessButton:
                                        np.array(self.image[k].shape)[
                                        ::-1] // 2)
 
-    def update(self, sct_img):
+    def update(self, sct_img, zero = [0,0]):
         self.found = False
         self.positions.clear()
         for scale in range(5):
@@ -43,20 +43,21 @@ class ChessButton:
                     while j >= 0:
                         if abs(self.positions[j][0] - self.positions[i][
                             0]) + abs(
-                            self.positions[j][1] - self.positions[i][
-                                1]) < 10:
+                            self.positions[j][1] - self.positions[i][1]) < 10:
                             break
                         j -= 1
                     if j != -1:
                         del self.positions[i]
                     if len(self.positions) > 0:
-                        self.__last_len = img.shape
+                        self.last_len = img.shape
                         self.found = True
+                        self.positions[0][0]+=zero[0]
+                        self.positions[0][1]+=zero[1]
                         return True
 
-    def write(self, screen, color=True):
+    def write(self, screen):
         for pt in self.positions:
             screen = cv2.rectangle(screen, pt,
-                                   (pt[0] + self.__last_len[1],
-                                    pt[1] + self.__last_len[0]),
+                                   (pt[0] + self.last_len[1],
+                                    pt[1] + self.last_len[0]),
                                    (12, 122, 199), 2)
