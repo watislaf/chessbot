@@ -21,9 +21,7 @@ class WindowCV:
         self.__no_board_surface = self.__myfont.render("Can't find board", True,
                                                        (155, 42, 42))
         self.__no_button_surface = self.__myfont.render(
-            "Can't find Play button",
-            True,
-            (155, 42, 42))
+            "Can't find Play button", True, (155, 42, 42))
 
     def start_loop(self):
         while self.__application_is_done:
@@ -54,8 +52,7 @@ class WindowCV:
 
             if self.__atomic_data.counter > 0:
                 self.__timer_surface = self.__myfont.render(
-                    str(self.__atomic_data.counter)[0:4],
-                    True, (155, 42, 42))
+                    str(self.__atomic_data.counter)[0:4], True, (155, 42, 42))
                 self.__py_window.blit(self.__timer_surface, (24, 188))
 
                 if not self.__button.block:

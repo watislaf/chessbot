@@ -19,4 +19,4 @@ add_subdirectory(extra/pybind11 REQUIRED)
 pybind11_add_module(${MY_WRAPPER} cppimport/bin/wrapper.cpp)
 target_compile_definitions(${MY_WRAPPER} PRIVATE MY_WRAPPER=${MY_WRAPPER})
 TARGET_LINK_LIBRARIES(${MY_WRAPPER} PUBLIC ${MY_AI_LIB} )
-
+# TODO add black pycodestyle pylint

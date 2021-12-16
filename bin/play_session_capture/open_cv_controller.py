@@ -50,6 +50,7 @@ class OpenCvController:
     __mouse_controller = MouseController()
     __game_controller = None
     __hash = 0
+    __counter = 0
 
     def __init__(self, atomic_data):
         root = tk.Tk()
@@ -59,70 +60,6 @@ class OpenCvController:
         self.__board = ChessBoard()
         t = Thread(target=self.start_process, args=())
         t.start()
-
-    def start_process(self):
-        while True:
-            sleep(0.401)
-            if self.__is_start != self.__atomic_data.is_start:
-                self.__is_start = self.__atomic_data.is_start
-                if self.__is_start == False:
-                    self.__game_is_found = False
-                    self.__game_in_search = False
-
-            if self.__atomic_data.counter < 2:
-                screen_img, gray_img = self.get_board()
-            else:
-                screen_img, gray_img = self.get_all()
-                self.__board.found = False
-            if not self.__is_start:
-                if self.__atomic_data.counter > 2:
-                    self.__button_start.update(gray_img)
-                    self.__button_start.write(screen_img)
-
-                self.__board.updateBoard(gray_img)
-                self.__board.writeBoard(screen_img)
-                self.__atomic_data.cant_find_go_button = not self.__button_start.found
-                self.__atomic_data.cant_find_board = not self.__board.found
-            else:
-                hassh = self.__board.get_hash(gray_img)
-                if self.__game_is_found:
-                    self.__button_draw.update(
-                        self.get_button(self.__button_draw)[1],
-                        self.__button_draw.positions[0]
-                    )
-                    if not self.__button_draw.found:
-                        self.__game_is_found = False
-                        self.__game_controller = None
-
-                    if abs(self.__hash - hassh) < 10:
-                        continue
-                    self.__hash = hassh
-                    print(self.__hash)
-                    ## BOARD CHANGED !!!!!!!!!
-                    # self.__game_controller.board_changed()
-                    # if self.__game_controller.need_get_last_move():
-                    #    self.__board.get_last_move(gray_img)
-
-                else:
-                    if not self.__game_in_search:
-                        self.__mouse_controller.click(
-                            self.__button_start.positions[0][0] * 2,
-                            self.__button_start.positions[0][1] * 2)
-                        self.__game_in_search = True
-                    else:
-                        self.__button_draw.update(self.get_all()[1])
-                        if self.__button_draw.found:
-                            self.__game_in_search = False
-                            self.__game_is_found = True
-                            self.__board.updatePieces(gray_img)
-                            self.__board.writePieces(screen_img)
-                            self.__game_controller = CVGameController(
-                                self.__board.get_side())
-
-            cv2.imshow('search_for_chess_board',
-                       cv2.resize(screen_img, np.array(
-                           screen_img.shape[:-1:])[::-1] // 2))
-            cv2.waitKey(1)
 
     @slicee
     def get_board(self, *args):
@@ -148,3 +85,110 @@ class OpenCvController:
                         'width': self.monitor_size[0],
                         'height': self.monitor_size[1]}
         return bounding_box
+
+    def start_process(self):
+        while True:
+            sleep(0.100)
+            self.is_start_update()
+            if self.__atomic_data.counter < 2:
+                screen_to_write, screen_to_read = self.get_board()
+            else:
+                screen_to_write, screen_to_read = self.get_all()
+                self.__board.found = False
+
+            if not self.__is_start:
+                self.stabilisation(screen_to_write, screen_to_read)
+            else:
+                if self.__game_is_found:
+                    self.game_process(screen_to_read)
+                else:
+                    if not self.__game_in_search:
+                        self.click_start_button()
+                    else:
+                        self.__button_draw.update(self.get_all()[1])
+                        if self.__button_draw.found:  # no not
+                            self.found_the_game(screen_to_read)
+
+            cv2.imshow('search_for_chess_board',
+                       cv2.resize(screen_to_write, np.array(
+                           screen_to_write.shape[:-1:])[::-1] // 2))
+            cv2.waitKey(1)
+
+    def is_start_update(self):
+        if self.__is_start != self.__atomic_data.is_start:
+            self.__is_start = self.__atomic_data.is_start
+            if not self.__is_start:
+                self.__game_is_found = False
+                self.__game_in_search = False
+
+    def stabilisation(self, screen_img, gray_img):
+        if self.__atomic_data.counter > 2:
+            self.__button_start.update(gray_img)
+            self.__button_start.write(screen_img)
+            self.__board.clean()
+
+        self.__board.updateBoard(gray_img)
+        self.__board.writeBoard(screen_img)
+ 
+        self.__board.clean()
+        self.__atomic_data.cant_find_go_button = not self.__button_start.found
+        self.__atomic_data.cant_find_board = not self.__board.found
+
+    def game_process(self, screen_to_read):
+        hassh = self.__board.get_hash(screen_to_read)
+        self.__button_draw.update(
+            self.get_button(self.__button_draw)[1],
+            self.__button_draw.positions[0]
+        )
+        if not self.__button_draw.found:
+            print("GAME is ended because i cant see draw button")
+            self.__game_is_found = False
+            self.__game_controller = None
+            self.__button_start.update(self.get_all()[1])
+            if not self.__button_start.found:
+                self.__atomic_data.is_start = False
+                print("i cant see start button")
+                return
+            self.__counter = 0
+            return
+
+        if abs(self.__hash - hassh) < 10:
+            return
+        self.__hash = hassh
+        self.__counter += 1
+        print(self.__counter)
+        for as_white in {True, False}:
+            if not self.__game_controller.push_board(
+                    as_white, self.__board.get_color_board(
+                        as_white, screen_to_read)):
+                print("To many changes on the board")
+                self.__atomic_data.is_start = False
+                return
+        self.__game_controller.is_whites_move = not self.__game_controller.is_whites_move
+        print(self.__game_controller.last_move)
+
+
+    def click_start_button(self):
+        self.__mouse_controller.click(
+            self.__button_start.positions[0][0] * 2,
+            self.__button_start.positions[0][1] * 2)
+        self.__game_in_search = True
+
+    def found_the_game(self, screen_to_read):
+        self.__board.updatePieces(screen_to_read)
+        if not self.__board.pieces_found:
+            self.__game_in_search = False
+            self.__atomic_data.is_start = False
+            print("CANT SEE PIECES AT THE BEGINNING OF THE GAME")
+            return
+
+        self.__game_in_search = False
+        self.__game_is_found = True
+        print("START")
+        self.__game_controller = CVGameController(
+            self.__board.get_side(),
+            self.__board.get_color_board(1, screen_to_read),
+            self.__board.get_color_board(0, screen_to_read))
+
+        self.__hash = self.__board.get_hash(screen_to_read)
+        self.__board.clean()

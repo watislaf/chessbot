@@ -10,8 +10,33 @@ from collections import deque
 from graphics.pictures import GRAY_COLOR, BLACK_PIECE, WHITE_PIECE
 
 
+def all_to_black(element):
+    if element < 120:
+        return BLACK_PIECE[0]
+    else:
+        return WHITE_PIECE[0]
+
+
+def all_to_white(element):
+    if element > 235:
+        return WHITE_PIECE[0]
+    else:
+        return BLACK_PIECE[0]
+
+
+def brighter(screen, isBlack):
+    new_screen = screen.copy()
+    if isBlack:
+        vfunc = np.vectorize(all_to_black)
+    else:
+        vfunc = np.vectorize(all_to_white)
+    new_screen = vfunc(new_screen).astype(np.uint8)
+    return new_screen
+
+
 class ChessBoard:
     found = False
+    pieces_found = False
     position_left_top = [0, 0]
     position_right_bottom = [0, 0]
     piece_size = 1
@@ -30,17 +55,20 @@ class ChessBoard:
         # self.pieces = ChessPiece("")
 
     def updatePieces(self, screen):
+        self.pieces_found = False
         if self.__min_pos[0] + 1 < self.piece_size or \
                 self.__min_pos[1] + 1 < self.piece_size or \
                 self.position_right_bottom[0] + 1 < self.__min_pos[0] + \
                 self.piece_size * 8 or \
                 self.position_right_bottom[1] + 1 < self.__min_pos[1] + \
                 self.piece_size * 8:
-            print("CONITUE")
             return
+
         if self.found:
             self.preprocess_board_screen(screen, False)
             self.preprocess_board_screen(screen, True)
+            self.pieces_found = len(self.__pieces_white[0].positions) != 0 and \
+                                len(self.__pieces_black[0].positions) != 0
 
     def updateBoard(self, screen):
         self.empty_spaces.find(screen)
@@ -59,27 +87,24 @@ class ChessBoard:
             self.__min_pos = [10000, 10000]
             self.found = False
 
-    def get_screen_only_from(self, screen, color_to_save):
-        for i, elements in enumerate(screen):
-            for j, color in enumerate(elements):
-                if screen[i][j] != color_to_save:
-                    screen[i][j] = GRAY_COLOR[0]
-        return screen
-
     def writeBoard(self, screen):
         if self.found:
             self.empty_spaces.write(screen, (244, 99, 0))
         else:
             self.empty_spaces.write(screen, (0, 0, 255))
+
+    def clean(self):
+        for piece in self.__pieces_black:
+            piece.positions.clear()
+        for piece in self.__pieces_white:
+            piece.positions.clear()
         self.empty_spaces.positions.clear()
 
     def writePieces(self, screen):
         for piece in self.__pieces_black:
             piece.write(screen)
-            piece.positions.clear()
         for piece in self.__pieces_white:
             piece.write(screen)
-            piece.positions.clear()
 
     def apply_board_from_positions(self):
         min_pos = [10000, 10000]
@@ -159,19 +184,7 @@ class ChessBoard:
             max_pos[1] + 11 + int(self.piece_size))
 
     def preprocess_board_screen(self, screen, isBlack):
-        new_screen = screen.copy()
-        for i, elements in enumerate(screen):
-            for j, pas in enumerate(elements):
-                if isBlack:
-                    if new_screen[i][j] < 120:
-                        new_screen[i][j] = BLACK_PIECE[0]
-                    else:
-                        new_screen[i][j] = WHITE_PIECE[0]
-                else:
-                    if new_screen[i][j] > 235:
-                        new_screen[i][j] = WHITE_PIECE[0]
-                    else:
-                        new_screen[i][j] = BLACK_PIECE[0]
+        new_screen = brighter(screen, isBlack)
         if isBlack:
             pieces = self.__pieces_black
         else:
@@ -203,15 +216,44 @@ class ChessBoard:
         return self.__pieces_white[0].positions[0][0] < \
                self.__pieces_black[0].positions[0][0]
 
-    def get_hash(self, gray_img):
+    def get_hash(self, screen_to_read):
         if not self.found:
             return 0
         answ = 0
         for i in range(8):
             for j in range(8):
-                answ += (i + j*9) * gray_img[
+                answ += (i + j * 9) * screen_to_read[
                     int(self.__min_pos[
-                            0] + self.piece_size * i + 8 - self.piece_size / 2),
+                            0] + self.piece_size * i + 14 - self.piece_size / 2),
                     int(self.__min_pos[
-                            1] + self.piece_size * j + 4 - self.piece_size / 2)]
+                            1] + self.piece_size * j + 5 - self.piece_size / 2)]
         return answ
+
+    def get_color_board(self, isWhite, screen_to_read):
+        if not self.found:
+            return 0
+        board_matrix = [['_' for x in range(8)] for y in range(8)]
+        new_screen = brighter(screen_to_read, not isWhite)
+
+        for i in range(8):
+            for j in range(8):
+                size = new_screen.shape[0]
+
+                right_bot = [int(self.__min_pos[0] + self.piece_size * i + 8),
+                             int(self.__min_pos[1] + self.piece_size * j + 4)]
+                left_top = [right_bot[0] - int(self.piece_size) - 2,
+                            right_bot[1] - int(self.piece_size) - 2]
+                tmp_cut = new_screen[size - right_bot[1]:size - left_top[1],
+                          left_top[0]:right_bot[0]]
+
+                if tmp_cut.shape[0] < int(self.piece_size) or \
+                        tmp_cut.shape[1] < int(self.piece_size):
+                    return
+                mean = np.mean(tmp_cut)
+                if 20 > mean or mean > 210:
+                    continue
+                if isWhite:
+                    board_matrix[i][j] = '*'
+                else:
+                    board_matrix[i][j] = '*'
+        return board_matrix

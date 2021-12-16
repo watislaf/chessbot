@@ -33,7 +33,11 @@ class ChessButton:
                 img = cv2.resize(self.image[k], (
                         np.array(self.image[k].shape)[
                         ::-1] // true_scale).astype(int))
-                res = cv2.matchTemplate(sct_img, img, self.mode)
+                if sct_img.shape[0] <= img.shape[0] and \
+                        sct_img.shape[1] <= img.shape[1]:
+                    res = np.array([])
+                else:
+                    res = cv2.matchTemplate(sct_img, img, self.mode)
                 loc = np.where(res >= self.threshold)  ## FOUND TAble
                 for pt in zip(*loc[::-1]):  # Switch collumns and rows
                     self.positions.append((np.array(pt)).astype(int))
