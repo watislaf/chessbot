@@ -9,7 +9,7 @@ class ChessPiece():
     name = "str"
     size = 52
     __size = 0
-    threshold = 0.83
+    threshold = [0.74, 0.80]  # white black
     positions = None
     mode = cv2.TM_CCOEFF_NORMED
 
@@ -22,7 +22,7 @@ class ChessPiece():
         if new_size == self.__size:
             return
         self.__size = new_size
-        if (self.name == ""):
+        if (self.name == "e"):
             prototype = np.zeros((self.size, self.size, 3), dtype=np.uint8)
         else:
             prototype = cv2.imread(PICTURES_PATH + "/{}.png".format(self.name))
@@ -30,7 +30,7 @@ class ChessPiece():
                                    interpolation=cv2.INTER_AREA)
         self.image[0] = prototype.copy()
 
-        if self.name == "":
+        if self.name == "e":
             colors = np.array((WHITE_BOARD_COLOR, BLACK_BOARD_COLOR),
                               dtype=np.uint8)
             self.image[1] = prototype.copy()  # (238, 238, 210)
@@ -40,7 +40,7 @@ class ChessPiece():
         for num, new_color in enumerate(colors):
             for i, elements in enumerate(prototype):
                 for j, color in enumerate(elements):
-                    if self.name == "":
+                    if self.name == "e":
                         summ = (int(i > self.size / 2)
                                 + int(j > self.size / 2))
                         if (summ == 0 or summ == 2):
@@ -56,7 +56,7 @@ class ChessPiece():
 
         self.image[0] = cv2.cvtColor(np.uint8(self.image[0]),
                                      cv2.COLOR_BGR2GRAY)
-        if self.name == "":
+        if self.name == "e":
             self.image[1] = cv2.cvtColor(np.uint8(self.image[1]),
                                          cv2.COLOR_BGR2GRAY)
         else:
@@ -77,8 +77,8 @@ class ChessPiece():
         self.positions = []
         self.image = [None, None]
         self.name = name
-        if (name == ""):
-            self.threshold = 0.75
+        if (name == "e"):
+            self.threshold = [0.75, 0.75]
             self.mode = cv2.TM_CCOEFF_NORMED
             self.size = 10
         else:
@@ -92,14 +92,15 @@ class ChessPiece():
                 break
             res = cv2.matchTemplate(sct_img, image, self.mode)
 
-            loc = np.where(res >= self.threshold)  ## FOUND TAble
+            loc = np.where(res >= self.threshold[
+                1 if self.name[0] == "b" else 0])  ## FOUND TAble
             smthng_found = False
             for pt in zip(*loc[::-1]):  # Switch collumns and rows
                 pt = [pt[0] + left_top[0], pt[1] + left_top[1]]
                 positions_temp.append(pt)
                 smthng_found = True
 
-            if smthng_found and self.name != "":
+            if smthng_found and self.name != "e":
                 break
         for i in range(len(positions_temp) - 1, -1, -1):
             j = i - 1
@@ -115,7 +116,7 @@ class ChessPiece():
     def write(self, screen, color=True):
         if color == True:
             piece = self.name[1]
-            if "r" == piece:
+            if "e" == piece:
                 color = (255, 233, 123)
             elif "n" == piece:
                 color = (255, 123, 123)

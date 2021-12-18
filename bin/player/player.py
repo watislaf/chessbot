@@ -9,10 +9,6 @@ class Player:
         pass
 
     @abstractmethod
-    def whosMowe(self):
-        pass
-
-    @abstractmethod
     def apply_move(self, move):
         pass
 

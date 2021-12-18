@@ -38,7 +38,6 @@ class Button:
                 elif event.type == pygame.MOUSEBUTTONUP:
                     self.__mouse_down = False
                     self.__click = True
-                    print("CLICK")
 
         else:
             self.__mouse_in = False

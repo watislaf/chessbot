@@ -28,12 +28,13 @@ class WindowCV:
             pygame.draw.rect(self.__py_window, (118, 150, 86), (0, 0, 400, 400))
             self.__button.update(self.__py_window, pygame.event.get())
             if self.__button.get():
-                self.__start = not self.__start
-                if self.__start:
-                    self.__button.titel = "Stop"
-                else:
-                    self.__button.titel = "Start"
-                self.__atomic_data.is_start = self.__start
+                self.__atomic_data.is_start = not self.__atomic_data.is_start
+
+            self.__start = self.__atomic_data.is_start
+            if self.__start:
+                self.__button.titel = "Stop"
+            else:
+                self.__button.titel = "Start"
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

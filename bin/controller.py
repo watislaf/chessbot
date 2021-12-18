@@ -4,6 +4,15 @@ import time
 from bin.player.player import Player
 from bin.view.window import Window
 
+import re
+
+
+def clean_from_piece_name(param):
+    param = re.sub(r"w([pqkbnr])", "w", param)
+    param = re.sub(r"b([pqkbnr])", "b", param)
+    param = re.sub(r" ", "", param)
+    return param
+
 
 class Controller:
     window = None
@@ -24,6 +33,7 @@ class Controller:
 
         self.__first_player.start_game(str_fen)
         self.__second_player.start_game(str_fen)
+        print("Started")
         if self.__first_player.is_my_move is None and self.__second_player.is_my_move is None:
             self.__first_player.is_my_move = True
             self.__second_player.is_my_move = False
@@ -38,6 +48,7 @@ class Controller:
                 move = self.__first_player.get_move()
             else:
                 move = self.__second_player.get_move()
+
             if move.isInvalid():
                 self.__first_player.is_my_move = None
                 self.__second_player.is_my_move = None
@@ -55,8 +66,10 @@ class Controller:
 
             if self.__window_is_inicialized:
                 self.window.apply_move(move)
-                if self.__first_player.get_board_str().replace(" ", "") != \
-                        self.__second_player.get_board_str().replace(" ", ""):
+                if clean_from_piece_name(
+                        self.__first_player.get_board_str()) != \
+                        clean_from_piece_name(
+                            self.__second_player.get_board_str()):
                     print("DIFFERENT BOARDS BETWEEN PLAYERS")
                     print(self.__first_player.get_board_str())
                     print(self.__second_player.get_board_str())

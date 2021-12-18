@@ -23,7 +23,7 @@ class Window:
     __py_window = None
     __pieces_img = {}
     __fen = None
-
+    __possible_moves = None
     pos_piece_dragging = (0, 0)
     __is_dragging = False
     __mouse_x = 0
@@ -78,7 +78,6 @@ class Window:
         piece = self.__fen[self.pos_piece_dragging[0]][
             self.pos_piece_dragging[1]]
 
-        ## CHECK PIECE OF OTHER COLOR
         if piece != '_':
             self.__is_dragging = True
             self.__possible_moves = \
@@ -94,9 +93,10 @@ class Window:
             self.__window_event_obj.set()
 
     def end_dragging(self, event):
+
         self.__is_dragging = False
 
-        if event.button != 1:
+        if event.button != 1 or self.__possible_moves is None:
             return
         position_x, position_y = event.pos
         self.pos_piece_dragging = (position_x // self.__cell_size,
@@ -120,14 +120,14 @@ class Window:
                     return
 
     def __draw_board(self):
-        for x in range(0, 8):
-            for y in range(0, 8):
+        for x in range(8):
+            for y in range(8):
                 self.__draw_rect(((x + y) % 2 == 1), x, y)
         if not self.__fen:
             return
 
-        for x in range(0, 8):
-            for y in range(0, 8):
+        for x in range(8):
+            for y in range(8):
                 position_x = x * self.__cell_size
                 position_y = (7 - y) * self.__cell_size
 

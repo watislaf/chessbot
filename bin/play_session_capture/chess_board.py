@@ -1,7 +1,3 @@
-import random
-from asyncio import sleep
-
-import cv2
 import numpy as np
 
 from bin.play_session_capture.chess_peace import ChessPiece
@@ -46,13 +42,11 @@ class ChessBoard:
     __min_pos = None
 
     def __init__(self):
-        self.empty_spaces = ChessPiece("")
-        for piece in {"p", "k", "b", "q", "r", "n"}:
+        self.empty_spaces = ChessPiece("e")
+        for piece in {"k", "p", "b", "q", "r", "n"}:
             self.__pieces_black.append(ChessPiece("b" + piece)),
-        for piece in {"p", "k", "b", "q", "r", "n"}:
+        for piece in {"k", "p", "b", "q", "r", "n"}:
             self.__pieces_white.append(ChessPiece("w" + piece)),
-
-        # self.pieces = ChessPiece("")
 
     def updatePieces(self, screen):
         self.pieces_found = False
@@ -91,7 +85,7 @@ class ChessBoard:
         if self.found:
             self.empty_spaces.write(screen, (244, 99, 0))
         else:
-            self.empty_spaces.write(screen, (0, 0, 255))
+            self.empty_spaces.write(screen, (0, 0, 250))
 
     def clean(self):
         for piece in self.__pieces_black:
@@ -192,41 +186,36 @@ class ChessBoard:
 
         for i in range(8):
             for j in range(8):
-                size = new_screen.shape[0]
-
-                right_bot = [int(self.__min_pos[0] + self.piece_size * i + 8),
-                             int(self.__min_pos[1] + self.piece_size * j + 4)]
-                left_top = [right_bot[0] - int(self.piece_size) - 2,
-                            right_bot[1] - int(self.piece_size) - 2]
-                tmp_cut = new_screen[size - right_bot[1]:size - left_top[1],
-                          left_top[0]:right_bot[0]]
-
+                tmp_cut = self.getCut(i, j, new_screen)
                 if tmp_cut.shape[0] < int(self.piece_size) or \
                         tmp_cut.shape[1] < int(self.piece_size):
                     return
                 mean = np.mean(tmp_cut)
-                if 20 > mean or mean > 210:
+                if not isBlack and 15 > mean or isBlack and mean > 219:
                     continue
                 for piece in pieces:
                     piece.find(tmp_cut, [
-                        int(self.__min_pos[0] + self.piece_size * (i - 1) + 8),
-                        int(self.__min_pos[1] + self.piece_size * (6 - j) + 4)])
+                        int(self.__min_pos[0] + self.piece_size * (
+                                i - 1) + 10),
+                        int(self.__min_pos[1] + self.piece_size * (6 - j) + 6)])
 
-    def get_side(self):
-        return self.__pieces_white[0].positions[0][0] < \
-               self.__pieces_black[0].positions[0][0]
+    def bottom_king_is_white(self):
+        return self.__pieces_white[0].positions[0][1] > \
+               self.__pieces_black[0].positions[0][1]
 
-    def get_hash(self, screen_to_read):
+    def get_hash(self, screen_to_read, color_board):
         if not self.found:
             return 0
         answ = 0
         for i in range(8):
             for j in range(8):
-                answ += (i + j * 9) * screen_to_read[
+                if color_board[j][7 - i] == "_":
+                    continue
+                answ += (1 + i + j * 9) * screen_to_read[
                     int(self.__min_pos[
-                            0] + self.piece_size * i + 14 - self.piece_size / 2),
+                            0] + self.piece_size * i + 4 - self.piece_size / 2),
                     int(self.__min_pos[
-                            1] + self.piece_size * j + 5 - self.piece_size / 2)]
+                            1] + self.piece_size * j + 10 - self.piece_size / 2)]
         return answ
 
     def get_color_board(self, isWhite, screen_to_read):
@@ -239,8 +228,10 @@ class ChessBoard:
             for j in range(8):
                 size = new_screen.shape[0]
 
-                right_bot = [int(self.__min_pos[0] + self.piece_size * i + 8),
-                             int(self.__min_pos[1] + self.piece_size * j + 4)]
+                right_bot = [int(self.__min_pos[
+                                     0] + self.piece_size * i + 8),
+                             int(self.__min_pos[
+                                     1] + self.piece_size * j + 5)]
                 left_top = [right_bot[0] - int(self.piece_size) - 2,
                             right_bot[1] - int(self.piece_size) - 2]
                 tmp_cut = new_screen[size - right_bot[1]:size - left_top[1],
@@ -257,3 +248,30 @@ class ChessBoard:
                 else:
                     board_matrix[i][j] = '*'
         return board_matrix
+
+    def board_to_real_coordinates(self, position, to_reverse):
+        i = position[0]
+        j = 7 - position[1]
+        if to_reverse:
+            i = 7 - position[0]
+            j = position[1]
+        return (
+            int(self.position_left_top[0] + self.__min_pos[0] +
+                + self.piece_size * i + 16 - self.piece_size / 2) * 2,
+            int(self.position_left_top[1] + self.__min_pos[1] +
+                + self.piece_size * j + 5 - self.piece_size / 2) * 2)
+
+    def getCut(self, i, j, screen):
+        size = screen.shape[0]
+
+        right_bot = [int(self.__min_pos[0] \
+                         + self.piece_size * i + 10),
+                     int(self.__min_pos[1] \
+                         + self.piece_size * j + 6)]
+        left_top = [int(self.piece_size * (i - 1) + self.__min_pos[0] \
+                        + 10 - 4),
+                    int(self.piece_size * (j - 1) + self.__min_pos[1] \
+                        + 6 - 4)]
+
+        return screen[size - right_bot[1]:size - left_top[1],
+               left_top[0]:right_bot[0]]

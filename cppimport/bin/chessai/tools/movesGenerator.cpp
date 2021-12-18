@@ -88,10 +88,10 @@ void MovesGenerator::bishopMove(bool reduce_tNone) {
   for (short left = -1; left <= 1; left += 2) {
     for (short top = -1; top <= 1; top += 2) {
       moves_.splice(moves_.end(), goByVector(current_piece_->getPosition(),
-                                          Position(left, top),
-                                          8,
-                                          false,
-                                          reduce_tNone));
+                                             Position(left, top),
+                                             8,
+                                             false,
+                                             reduce_tNone));
     }
   }
 }
@@ -99,12 +99,12 @@ void MovesGenerator::bishopMove(bool reduce_tNone) {
 void MovesGenerator::horseMove(bool reduce_tNone) {
   for (short left = -1; left <= 1; left += 2) {
     for (short top = -1; top <= 2; top += 2) {
-      moves_.splice(moves_.end(),goByVector(current_piece_->getPosition(),
-                                          Position(1 * left, 2 * top),
-                                          1));
       moves_.splice(moves_.end(), goByVector(current_piece_->getPosition(),
-                                          Position(2 * left, 1 * top),
-                                          1));
+                                             Position(1 * left, 2 * top),
+                                             1));
+      moves_.splice(moves_.end(), goByVector(current_piece_->getPosition(),
+                                             Position(2 * left, 1 * top),
+                                             1));
     }
   }
 }
@@ -113,10 +113,10 @@ void MovesGenerator::queenMove(bool reduce_tNone) {
   for (short left = -1; left <= 1; left += 1) {
     for (short top = -1; top <= 1; top += 1) {
       moves_.splice(moves_.end(), goByVector(current_piece_->getPosition(),
-                                          Position(left, top),
-                                          8,
-                                          false,
-                                          reduce_tNone));
+                                             Position(left, top),
+                                             8,
+                                             false,
+                                             reduce_tNone));
     }
   }
 }
@@ -125,21 +125,21 @@ void MovesGenerator::kingMove(bool reduce_tNone) {
   for (short left = -1; left <= 1; left += 1) {
     for (short top = -1; top <= 1; top += 1) {
       moves_.splice(moves_.end(), goByVector(current_piece_->getPosition(),
-                                          Position(left, top),
-                                          1,
-                                          false,
-                                          reduce_tNone));
+                                             Position(left, top),
+                                             1,
+                                             false,
+                                             reduce_tNone));
     }
   }
 }
 
 void MovesGenerator::ponePacificMove(bool reduce_tNone) {
   short length = current_piece_->getPieceColor() == PieceColor::WHITE ? 1 : -1;
-    moves_.splice(moves_.end(), goByVector(current_piece_->getPosition(),
-                                      Position(0, length),
-                                      1,
-                                      true,
-                                      reduce_tNone));
+  moves_.splice(moves_.end(), goByVector(current_piece_->getPosition(),
+                                         Position(0, length),
+                                         1,
+                                         true,
+                                         reduce_tNone));
   auto piece_color = current_piece_->getPieceColor();
   for (auto iter = moves_.begin(); iter != moves_.end(); ++iter) {
     if (iter->getEnd()->getPosition().getY() % 7 == 0) {
@@ -175,16 +175,16 @@ void MovesGenerator::ponePacificMove(bool reduce_tNone) {
 
 void MovesGenerator::ruckMove(bool reduce_tNone) {
   for (short top = -1; top <= 1; top += 2) {
-      moves_.splice(moves_.end(), goByVector(current_piece_->getPosition(),
-                                        Position(0, top),
-                                        8,
-                                        false,
-                                        reduce_tNone));
-      moves_.splice(moves_.end(), goByVector(current_piece_->getPosition(),
-                                        Position(top, 0),
-                                        8,
-                                        false,
-                                        reduce_tNone));
+    moves_.splice(moves_.end(), goByVector(current_piece_->getPosition(),
+                                           Position(0, top),
+                                           8,
+                                           false,
+                                           reduce_tNone));
+    moves_.splice(moves_.end(), goByVector(current_piece_->getPosition(),
+                                           Position(top, 0),
+                                           8,
+                                           false,
+                                           reduce_tNone));
   }
   if (board_->LcIsPossible(board_->isWhiteMove())) {
     if (current_piece_->getPosition().getX() == 0) {
@@ -226,7 +226,8 @@ void MovesGenerator::poneAttackMove() {
                              true,
                              false);
     if (go_diagonal.size() == 1
-        && board_->getLastPassantX() ==go_diagonal.back().getEnd()->getPosition().getX()
+        && board_->getLastPassantX()
+            == go_diagonal.back().getEnd()->getPosition().getX()
         && current_piece_->getPosition().getY() == good_row) {
       moves_.emplace_back(current_piece_, go_diagonal.back().getEnd());
       moves_.back().setIsPassant(true);
@@ -337,21 +338,20 @@ bool MovesGenerator::isShah(const std::shared_ptr<Board>& board,
         if (king_pos.getX() == piece_pos.getX() &&
             goByVector(king_pos,
                        Position(0,
-                                -(king_pos.getY() - piece_pos.getY()+10)
+                                -(king_pos.getY() - piece_pos.getY())
                                     / abs(king_pos.getY()
-                                              - piece_pos.getY())+10),
+                                              - piece_pos.getY())),
                        8, true).size() + 1
-                == abs(king_pos.getY() - piece_pos.getY())) {
+                >= abs(king_pos.getY() - piece_pos.getY())) {
           return true;
         }
         if (king_pos.getY() == piece_pos.getY() &&
             goByVector(king_pos,
                        Position(
-                           -(king_pos.getX() - piece_pos.getX()+10)
-                               / abs(king_pos.getX()
-                                         - piece_pos.getX()+10), 0),
+                           -(king_pos.getX() - piece_pos.getX())
+                               / abs(king_pos.getX() - piece_pos.getX()), 0),
                        8, true).size() + 1
-                == abs(king_pos.getX() - piece_pos.getX())) {
+                >= abs(king_pos.getX() - piece_pos.getX())) {
           return true;
         }
         if (piece->getType() == PieceType::tRUCK)
@@ -361,10 +361,10 @@ bool MovesGenerator::isShah(const std::shared_ptr<Board>& board,
             == abs(king_pos.getY() - piece_pos.getY())) &&
             goByVector(king_pos,
                        Position(
-                           -(abs(king_pos.getX() - piece_pos.getX())+10)
-                               / ((king_pos.getX() - piece_pos.getX())+10),
-                           -(abs(king_pos.getY() - piece_pos.getY())+10)
-                               / (king_pos.getY() - piece_pos.getY()+10)
+                           -(abs(king_pos.getX() - piece_pos.getX()))
+                               / ((king_pos.getX() - piece_pos.getX())),
+                           -(abs(king_pos.getY() - piece_pos.getY()))
+                               / (king_pos.getY() - piece_pos.getY())
                        ),
                        8, true).size() + 1
                 == abs(king_pos.getX() - piece_pos.getX())) {

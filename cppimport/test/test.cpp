@@ -1,8 +1,13 @@
 #include <gtest/gtest.h>
 #include "chessAi.h"
 
-TEST(ChessAi, AlphaBeta) {
+TEST(ChessAi, TEMP) {
+  ChessAi chess_ai("random");
+  chess_ai.startNewGame("6k1/8/8/8/5P1b/6P1/7P/4K3 w - - 0 1");
+  std::cerr<<chess_ai.getPossibleMovesForPosition(4, 0);
+}
 
+TEST(ChessAi, AlphaBeta) {
   ChessAi chess_ai("random");
   ChessAi chess_ai2("random");
   while (true) {
@@ -23,7 +28,7 @@ TEST(ChessAi, AlphaBeta) {
       if (move.getStart()->getPosition() == Position(9, 9)) {
         break;
       }
-      std::cerr << move.toStr()<<"\n";
+      std::cerr << move.toStr() << "\n";
       chess_ai.applyMove(move);
       chess_ai2.applyMove(move);
     }

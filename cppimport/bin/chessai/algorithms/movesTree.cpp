@@ -149,7 +149,7 @@ void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree:
     }
     existed = true;
 
-    if (child_node->height <= max_height + 2) {
+    if (child_node->height <= max_height + 5) {
       board_coppy->apply(child_node->move_to_get_here);
 
       makeTreeDeeper(child_node, board_coppy, 0, true,
