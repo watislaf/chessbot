@@ -4,6 +4,7 @@ import threading
 import pygame
 from pygame.surface import Surface
 from bin.tools.FEN import FEN
+from bin.tools.chess_exception import ChessException
 from bin.tools.pieceMove import PieceMove
 from bin.view.piece_ask import PieceAsk
 from cppimport.output.chessai import ChessAi
@@ -34,7 +35,11 @@ class Window:
         return self.__fen.getBoardStr()
 
     def start_board_from_fen_str(self, str_fen):
-        self.__fen = FEN(str_fen)
+        try:
+            self.__fen = FEN(str_fen)
+        except:
+            raise ChessException("FEN IS WRONG")
+
         self.__chessAi.start_new_game(self.__fen.fen_str)
         self.__is_dragging = False
         self.last_move[0] = PieceMove().getInvalid()

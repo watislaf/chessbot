@@ -24,7 +24,7 @@ class Controller:
     def start_window(self):
         self.window_event_obj = threading.Event()
         self.window = Window(self.window_event_obj)
-        threading.Thread(target=self.window.start_loop).start()
+        threading.Thread(daemon = True, target=self.window.start_loop).start()
         self.__window_is_inicialized = True
 
     def start_game(self, str_fen: str):

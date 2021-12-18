@@ -66,8 +66,7 @@ class OpenCvController:
         self.monitor_size = [root.winfo_screenwidth() - 2,
                              root.winfo_screenheight() - 2]
         self.__board = ChessBoard()
-        t = Thread(target=self.start_process, args=())
-        t.start()
+        Thread(target=self.start_process, args=(), daemon=True).start()
 
     @slicee
     def get_board(self, *args):

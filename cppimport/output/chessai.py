@@ -1,4 +1,6 @@
 import sys
+
+from bin.tools.chess_exception import ChessException
 from bin.tools.pieceMove import PieceMove
 
 AI_PATH = '/'.join(__file__.split("/")[:-1])
@@ -14,7 +16,10 @@ class ChessAi:
         self.__CPPChessLib = lib.ChessAi(mode)  # random A1 A2 A3
 
     def start_new_game(self, str_fen: str):
-        self.__CPPChessLib.startNewGame(str_fen)
+        try:
+            self.__CPPChessLib.startNewGame(str_fen)
+        except:
+            raise ChessException("FEN is wrong")
 
     def get_possible_moves_for_position(self, x: int, y: int):
         mowes_strings = self.__CPPChessLib.getPossibleMovesForPosition(x, y) \

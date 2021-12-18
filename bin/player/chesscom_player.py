@@ -36,4 +36,4 @@ class ChesscomPlayer(Player):
         self.__controller = OpenCvController(atomic_data,
                                              self.__start_game_event)
         self.__window = WindowCV(atomic_data)
-        threading.Thread(target=self.__window.start_loop).start()
+        threading.Thread(target=self.__window.start_loop,daemon = True,).start()
