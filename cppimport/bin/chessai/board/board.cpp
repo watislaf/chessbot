@@ -138,6 +138,7 @@ void Board::apply(const Move& move) {
   }
   is_white_move_ = !is_white_move_;
   move_count_++;
+
 }
 
 void Board::unApply(const Move& move) {

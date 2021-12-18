@@ -77,7 +77,11 @@ Move ChessAi::getBestMove() {
   return best_move;
 }
 
-void ChessAi::applyMoveParams(short fx, short fy, short tx, short ty, char niew_piece) {
+void ChessAi::applyMoveParams(short fx,
+                              short fy,
+                              short tx,
+                              short ty,
+                              char niew_piece) {
   PieceType new_piece_type = PieceType::tPONE;
   switch (niew_piece) {
     case 'r':new_piece_type = PieceType::tRUCK;

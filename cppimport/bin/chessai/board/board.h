@@ -46,7 +46,7 @@ class Board {
       std::vector<std::vector<std::shared_ptr<const Piece>>>
           (8, std::vector<std::shared_ptr<const Piece>>(8));
   bool is_white_move_ = true;
-  short last_passant_x_ = 0;
+  short last_passant_x_ = -1;
   struct Castle {
     Position king_position = {0, 0};
     bool LC_is_possible_ = true;

@@ -10,7 +10,7 @@ int Pricer::getPrice(const std::shared_ptr<const Piece>& piece) {
 int Pricer::countOrder(const std::shared_ptr<Board>& board, const Move& move) {
   int answer = move.getAttackScore();
   if (move.getNewPieceType() != PieceType::tNONE) {
-    answer += getPrice(move.getNewPieceType()) ;
+    answer += getPrice(move.getNewPieceType());
   }
   answer += valOnBoard(move.getEnd()->getPosition(),
                        move.getStart()->getPieceColor() == PieceColor::WHITE,
@@ -34,11 +34,11 @@ int Pricer::countOrder(const std::shared_ptr<Board>& board, const Move& move) {
 
   if (move.getStart()->getType() == PieceType::tPONE) {
     if (endGameCoef(board) < 0.2)
-      answer += 2;
+      answer += 3;
   }
 
   if (move.isCastle()) {
-    answer += 4;
+    answer += 6;
   }
   if (move.isBrakeLeftCastle() || move.isBrakeLeftCastle()) {
     answer -= 2;
@@ -47,6 +47,7 @@ int Pricer::countOrder(const std::shared_ptr<Board>& board, const Move& move) {
   if (board->isBlackMove()) {
     answer *= -1;
   }
+  // check for mate
   return answer;
 }
 
@@ -62,9 +63,9 @@ int Pricer::getPrice(PieceType type) {
     case PieceType::tQUEEN:return 180;
     case PieceType::tRUCK:return 80;
     case PieceType::tPONE:return 20;
-    case PieceType::tNONE:return 0;
     case PieceType::tBISHOP: return 60;
     case PieceType::tHORSE:return 60;
+    default :return 0;
   }
 }
 //[0:1]
@@ -92,18 +93,18 @@ int Pricer::valOnBoard(Position pos,
   if (type == PieceType::tKING) {
     return ((1 - endGameCoef(board))
         * Pricer::KingTable[x + y]
-        + (endGameCoef(board)) * KingTableEndGame[x + y])/10;
+        + (endGameCoef(board)) * KingTableEndGame[x + y]) / 10;
   }
 
   if (type == PieceType::tHORSE) {
-    return KnightTable[x + y]/10;
+    return KnightTable[x + y] / 10;
   }
 
   if (type == PieceType::tBISHOP) {
-    return BishopTable[x + y]/10;
+    return BishopTable[x + y] / 10;
   }
   if (type == PieceType::tPONE) {
-    return PawnTable[x + y]/10;
+    return PawnTable[x + y] / 10;
   }
   return 0;
 }

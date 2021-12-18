@@ -2,9 +2,13 @@
 #include "chessAi.h"
 
 TEST(ChessAi, TEMP) {
-  ChessAi chess_ai("random");
-  chess_ai.startNewGame("6k1/8/8/8/5P1b/6P1/7P/4K3 w - - 0 1");
-  std::cerr<<chess_ai.getPossibleMovesForPosition(4, 0);
+  ChessAi chess_ai("A1");
+  chess_ai.startNewGame(
+      "k1r5/8/8/8/8/1N1n4/PP6/1K6 w - - 1 0");
+  auto move = chess_ai.getBestMove();
+  chess_ai.applyMove(move);
+  chess_ai.applyMoveParams(2, 7, 2, 0);
+  std::cerr << move.toStr();
 }
 
 TEST(ChessAi, AlphaBeta) {
@@ -35,46 +39,6 @@ TEST(ChessAi, AlphaBeta) {
     break;
   }
 }
-TEST(ChessAi, Algo) {
-  ChessAi chess_ai("A1");
-  chess_ai.startNewGame(
-      "1n1k4/pp6/8/8/8/8/PPP5/3K4 w - - 0 1");
-  chess_ai.applyMoveParams(1, 1, 1, 3);
-  auto move = chess_ai.getBestMove();
-  chess_ai.applyMove(move);
-  chess_ai.applyMoveParams(2, 1, 2, 3);
-  move = chess_ai.getBestMove();
-  chess_ai.applyMove(move);
-  chess_ai.applyMoveParams(0, 1, 0, 2);
-  move = chess_ai.getBestMove();
-  chess_ai.applyMove(move);
-}
-
-TEST(ChessAi, A2) {
-  ChessAi chess_ai("A1");
-  ChessAi chess_ai2("random");
-  for (int j = 0; j < 5; j++) {
-    chess_ai.startNewGame(
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    chess_ai2.startNewGame(
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    for (int i = 0; i < 20; i++) {
-      auto move = chess_ai.getBestMove();
-      if (move.getStart()->getPosition() == Position(9, 9)) {
-        std::cerr << "GG";
-        break;
-      };
-      chess_ai2.applyMove(move);
-      chess_ai.applyMove(move);
-      std::cerr << i << "";
-    }
-    std::cerr << j << " \n";
-  }
-  // default time 20.10 <=
-  // default time 18.36 <= , generate_no_sort
-  // default time 26.36 <= , generate_no_sort, apply release no sort
-  // default time 1.0.13 <= , generate_no_sort_!white
-}
 
 TEST(ChessAi, TreeGenerator) {
   ChessAi chess_ai("A1");
@@ -85,9 +49,12 @@ TEST(ChessAi, TreeGenerator) {
     chess_ai.isMoveExists();
     chess_ai.applyMove(move);
   }
+
   // 11sec 972mc  4 default 6 attack
   // 3sec 666mc  4 default 6 attack
   // 2sec 286mc  4 default 6 attack
+
+  // 3 211mc
 }
 
 TEST(ChessAi, MoveGenerator) {

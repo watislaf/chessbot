@@ -25,7 +25,7 @@ class ChesscomPlayer(Player):
     def apply_move(self, move):
         self.is_my_move = not self.is_my_move
         if self.is_my_move:
-            print("MY MOVE",move)
+            print("MY MOVE", move)
             self.__controller.apply_move(move)
 
     def get_move(self):
@@ -36,4 +36,4 @@ class ChesscomPlayer(Player):
         self.__controller = OpenCvController(atomic_data,
                                              self.__start_game_event)
         self.__window = WindowCV(atomic_data)
-        threading.Thread(target=self.__window.start_loop,daemon = True,).start()
+        threading.Thread(target=self.__window.start_loop, daemon=True).start()

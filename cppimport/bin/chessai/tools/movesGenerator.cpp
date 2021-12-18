@@ -28,24 +28,26 @@ const std::list<Move>& MovesGenerator::generateMoves(
       ponePacificMove();
 
       break;
-    case PieceType::tNONE:return {};
+    case PieceType::tNONE:return moves_;
   }
-  for (auto& move: moves_) {
-    move.setPrevPassant(board_->getLastPassantX());
+  if (board_->getLastPassantX() != -1) {
+    for (auto& move: moves_) {
+      move.setPrevPassant(board_->getLastPassantX());
+    }
   }
   auto begin_to_erase_ponter = std::remove_if(moves_.begin(),
                                               moves_.end(),
                                               [this](const Move& move) {
                                                 return isShahDanger(move);
                                               });
-  for (auto& move: moves_) {
-    move.setDefendScore(defende_score);
-  }
-  if (begin_to_erase_ponter != moves_.end())
+//for (auto& move: moves_) {
+//    move.setDefendScore(defende_score);
+//  }
+  if (begin_to_erase_ponter != moves_.end()) {
     moves_.erase(begin_to_erase_ponter, moves_.end());
-
+  }
   current_piece_ = nullptr;
-  board = nullptr;
+  board_ = nullptr;
   return moves_;
 }
 
@@ -186,14 +188,16 @@ void MovesGenerator::ruckMove(bool reduce_tNone) {
                                            false,
                                            reduce_tNone));
   }
-  if (board_->LcIsPossible(board_->isWhiteMove())) {
+  if (board_->LcIsPossible(
+      current_piece_->getPieceColor() == PieceColor::WHITE)) {
     if (current_piece_->getPosition().getX() == 0) {
       for (auto& move: moves_) {
         move.setBrakeLeftCastle(true);
       }
     }
   }
-  if (board_->RcIsPossible(board_->isWhiteMove())) {
+  if (board_->RcIsPossible(
+      current_piece_->getPieceColor() == PieceColor::WHITE)) {
     if (current_piece_->getPosition().getX() == 7) {
       for (auto& move: moves_) {
         move.setBrakeRightCastle(true);
@@ -237,11 +241,24 @@ void MovesGenerator::poneAttackMove() {
 }
 
 void MovesGenerator::castleMove() {
+  if (board_->RcIsPossible(
+      current_piece_->getPieceColor() == PieceColor::WHITE)) {
+    for (auto& move: moves_) {
+      move.setBrakeRightCastle(true);
+    }
+  }
+  if (board_->LcIsPossible(
+      current_piece_->getPieceColor() == PieceColor::WHITE)) {
+    for (auto& move: moves_) {
+      move.setBrakeLeftCastle(true);
+    }
+  }
   // If king move he lost castle
-  if (isShah(board_, board_->isWhiteMove())) {
+  if (isShah(board_, current_piece_->getPieceColor() == PieceColor::WHITE)) {
     return;
   }
-  if (board_->LcIsPossible(board_->isWhiteMove())) {
+  if (board_->LcIsPossible(
+      current_piece_->getPieceColor() == PieceColor::WHITE)) {
     auto positions_left =
         goByVector(current_piece_->getPosition(), Position(-1, 0));
     if (positions_left.size() == 4) {
@@ -251,7 +268,8 @@ void MovesGenerator::castleMove() {
       moves_.back().setIsCastle(true);
     }
   }
-  if (board_->RcIsPossible(board_->isWhiteMove())) {
+  if (board_->RcIsPossible(
+      current_piece_->getPieceColor() == PieceColor::WHITE)) {
     auto positions_right =
         goByVector(current_piece_->getPosition(), Position(1, 0));
     if (positions_right.size() == 3) {
@@ -260,16 +278,6 @@ void MovesGenerator::castleMove() {
       moves_.back().setIsCastle(true);
     }
 
-  }
-  if (board_->RcIsPossible(board_->isWhiteMove())) {
-    for (auto& move: moves_) {
-      move.setBrakeRightCastle(true);
-    }
-  }
-  if (board_->LcIsPossible(board_->isWhiteMove())) {
-    for (auto& move: moves_) {
-      move.setBrakeLeftCastle(true);
-    }
   }
 }
 
@@ -381,6 +389,23 @@ bool MovesGenerator::isShah(const std::shared_ptr<Board>& board,
       case PieceType::tNONE:return {};
     }
   }
+  return false;
+}
+bool MovesGenerator::isMate(const std::shared_ptr<Board>& board,
+                            const Move& move) {
+  board->apply(move);
+  const auto active = board->getActivePieceList(board->isWhiteMove());
+  if (isShah(board, board->isWhiteMove())) {
+    for (const auto& active_piece: active) {
+      const auto& moves = generateMoves(board, active_piece);
+      if (!moves.empty()) {
+        board->unApply(move);
+        return false;
+      }
+    }
+    return true;
+  }
+  board->unApply(move);
   return false;
 }
 

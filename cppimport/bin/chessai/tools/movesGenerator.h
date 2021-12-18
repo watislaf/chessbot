@@ -10,6 +10,7 @@ class MovesGenerator {
 
   bool isShah(const std::shared_ptr<Board>& board, bool is_white);
 
+  bool isMate(const std::shared_ptr<Board>& shared_ptr, const Move& move);
  private:
   std::list<Move> goByVector( Position start,
       Position move_vector, short max_length = 8,
