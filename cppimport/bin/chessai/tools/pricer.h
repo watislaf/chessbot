@@ -71,8 +71,6 @@ class Pricer {
       -30, -30, 0, 0, 0, 0, -30, -30,
       -50, -30, -30, -30, -30, -30, -30, -50
   };
- private:
-  MovesGenerator moves_generator;
 };
 
 #endif //PRICER_H

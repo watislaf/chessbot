@@ -24,7 +24,7 @@ class Controller:
     def start_window(self):
         self.window_event_obj = threading.Event()
         self.window = Window(self.window_event_obj)
-        threading.Thread(daemon = True, target=self.window.start_loop).start()
+        threading.Thread(daemon=True, target=self.window.start_loop).start()
         self.__window_is_inicialized = True
 
     def start_game(self, str_fen: str):
@@ -56,13 +56,12 @@ class Controller:
                     return "DRAW"
                 else:
                     if self.__first_player.is_my_move:
-                        return "FIRST PLAYER LOSE"
+                        return "PLAYER LOSE"
                     else:
-                        return "FIRST PLAYER WIN"
+                        return "PLAYER WIN"
 
             self.__first_player.apply_move(move)
             self.__second_player.apply_move(move)
-            time.sleep(0.05)
 
             if self.__window_is_inicialized:
                 self.window.apply_move(move)

@@ -20,26 +20,30 @@ void MovesTree::generateMovesForNode(const std::shared_ptr<MovesTree::Node>& nod
   if (node->edges.size() != 0) {
     return;
   }
+  //1
+  const auto active = board_coppy->getActivePieceList(
+      board_coppy->isWhiteMove());
 
-  const auto&
-      active = board_coppy->getActivePieceList(board_coppy->isWhiteMove());
   for (const auto& active_piece: active) {
-    const auto
-        moves = moves_generator_.generateMoves(board_coppy, active_piece);
+    const auto& moves =
+        MovesGenerator(board_coppy, active_piece).generateMoves();
 
-    for (const auto move: moves) {
+    for (const auto& move: *moves) {
       int price = pricer.countOrder(board_coppy, move);
       int mate = 0;
-      if (move.getEnd()->getPosition() == Position(2,1)){
+      if (move.getEnd()->getPosition() == Position(2, 1)) {
         int k = 13;
       }
-      if(moves_generator_.isMate(board_coppy,move)){
-        if (board_coppy->isWhiteMove()){
-          mate = -10000000;
-        }else{
-          mate = 10000000;
+      board_coppy->apply(move);
+      if (MovesGenerator(board_coppy).isMate()) {
+        if (board_coppy->isWhiteMove()) {
+          mate = -10000;
+        } else {
+          mate = 10000;
         }
       }
+      board_coppy->unApply(move);
+
       int new_board_sum = node->board_sum + price + mate;
       node->edges.emplace_back(std::make_shared<MovesTree::Node>(move,
                                                                  node->height
@@ -136,7 +140,7 @@ void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_n
   }
 
   if (current_node->edges.empty()) {
-    if (!moves_generator_.isShah(board_coppy, board_coppy->isWhiteMove())) {
+    if (!MovesGenerator(board_coppy).isShah(board_coppy->isWhiteMove())) {
       current_node->best_price_ *= -1;
     }
     current_node->best_price_ /= (board_coppy->getMoveCount() + 1);
@@ -154,9 +158,15 @@ void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree:
   bool existed = false;
 
   for (const auto& child_node: current_node->edges) {
-    if (child_node->move_to_get_here.getAttackScore()
-        == 0) { // ADD IS SHACH to move
-      continue;
+
+    if (child_node->move_to_get_here.getAttackScore() == 0) {
+      board_coppy->apply(child_node->move_to_get_here);
+      bool is_shah =
+          MovesGenerator(board_coppy).isShah(board_coppy->isWhiteMove());
+      board_coppy->unApply(child_node->move_to_get_here);
+      if (!is_shah) {
+        continue;
+      }
     }
     existed = true;
 

@@ -173,11 +173,12 @@ class OpenCvController:
             return
 
         hassh = self.__board.get_hash(
-            screen_to_read, self.__game_controller.get_enemy_color_board())
+            screen_to_read, self.__game_controller.get_enemy_color_board(),
+            not self.__game_controller.is_play_as_white)
 
         if self.__hash is None:
             self.__hash = hassh
-        if abs(self.__hash - hassh) < 10:
+        if self.__hash == hassh:
             return
         self.__hash = hassh
         print("SEE")
@@ -195,7 +196,8 @@ class OpenCvController:
             self.__game_controller.is_whites_move = \
                 not self.__game_controller.is_whites_move
             self.__hash = self.__board.get_hash(
-                screen_to_read, self.__game_controller.get_enemy_color_board())
+                screen_to_read, self.__game_controller.get_enemy_color_board(),
+                not self.__game_controller.is_play_as_white)
 
     def click_start_button(self):
         self.__mouse_controller.click(
@@ -253,7 +255,8 @@ class OpenCvController:
             self.__game_controller.get_enemy_color_board()[ki][kj] = "_"
             self.__hash = self.__board.get_hash(
                 self.__last_screen_to_read,
-                self.__game_controller.get_enemy_color_board()
+                self.__game_controller.get_enemy_color_board(),
+                not self.__game_controller.is_play_as_white
             )
 
     def get_move(self):

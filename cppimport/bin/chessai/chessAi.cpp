@@ -24,10 +24,11 @@ void ChessAi::startNewGame(const std::string& fen_str) {
 }
 
 std::string ChessAi::getPossibleMovesForPosition(short x, short y) {
-  auto moves = moves_generator.generateMoves(
-      main_board_, main_board_->getPiece(Position(x, y)));
+  auto moves = MovesGenerator(
+      main_board_, main_board_->getPiece(
+          Position(x, y))).generateMoves();
   std::string answer;
-  for (const auto& move: moves) {
+  for (const auto& move: *moves) {
     answer += move.toStr() + " ";
   }
   return answer;
@@ -70,17 +71,14 @@ Move ChessAi::getBestMove() {
 
   if (best_move.getStart()->getPosition()
       == empty_move.getStart()->getPosition()
-      && moves_generator.isShah(main_board_, main_board_->isWhiteMove())) {
+      && MovesGenerator(main_board_).isShah(main_board_->isWhiteMove())) {
     best_move.setNewPieceType(PieceType::tKING);
   }
 
   return best_move;
 }
 
-void ChessAi::applyMoveParams(short fx,
-                              short fy,
-                              short tx,
-                              short ty,
+void ChessAi::applyMoveParams(short fx, short fy, short tx, short ty,
                               char niew_piece) {
   PieceType new_piece_type = PieceType::tPONE;
   switch (niew_piece) {

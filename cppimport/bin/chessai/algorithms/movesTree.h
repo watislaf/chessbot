@@ -53,8 +53,6 @@ class MovesTree {
   std::shared_ptr<Board> board_;
   short max_height_;
   Pricer pricer;
-
-  MovesGenerator moves_generator_;
   void generateMovesForNode(const std::shared_ptr<Node>& node,
                             const std::shared_ptr<Board>& board_coppy);
 

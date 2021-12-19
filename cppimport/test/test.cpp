@@ -4,11 +4,12 @@
 TEST(ChessAi, TEMP) {
   ChessAi chess_ai("A1");
   chess_ai.startNewGame(
-      "k1r5/8/8/8/8/1N1n4/PP6/1K6 w - - 1 0");
+      "4k2r/5pb1/8/6QP/2B5/8/8/2K5 b kq - 2 0");
+  chess_ai.applyMoveParams(6,6,7,2);
   auto move = chess_ai.getBestMove();
   chess_ai.applyMove(move);
-  chess_ai.applyMoveParams(2, 7, 2, 0);
   std::cerr << move.toStr();
+
 }
 
 TEST(ChessAi, AlphaBeta) {

@@ -27,12 +27,13 @@ def process():
                                  controller.window_event_obj,
                                  controller.window.get_window_board_str)
         #  controller.set_players( AiPlayer(ChessAi("A1")),view_player)
-        controller.set_players(AiPlayer(ChessAi("A1")),view_player)
+        controller.set_players( view_player,AiPlayer(ChessAi("A1")))
     while True:
         try:
             winner = controller.start_game(
-                "k1r5/8/8/8/8/1N1n4/PP6/1K6 w - - 1 0")
+                "4k2r/5pb1/8/6Q1/2B5/8/8/2K5 b kq - 2 0")
             print(winner)
+            time.sleep(1)
         except ChessException as E:
             print(E)
             return

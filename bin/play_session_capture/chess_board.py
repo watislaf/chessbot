@@ -203,7 +203,7 @@ class ChessBoard:
         return self.__pieces_white[0].positions[0][1] > \
                self.__pieces_black[0].positions[0][1]
 
-    def get_hash(self, screen_to_read, color_board):
+    def get_hash(self, screen_to_read, color_board, is_white):
         if not self.found:
             return 0
         answ = 0
@@ -211,11 +211,13 @@ class ChessBoard:
             for j in range(8):
                 if color_board[j][7 - i] == "_":
                     continue
+
                 answ += (1 + i + j * 9) * screen_to_read[
                     int(self.__min_pos[
                             0] + self.piece_size * i + 4 - self.piece_size / 2),
                     int(self.__min_pos[
                             1] + self.piece_size * j + 10 - self.piece_size / 2)]
+        print(answ)
         return answ
 
     def get_color_board(self, isWhite, screen_to_read):
@@ -241,7 +243,7 @@ class ChessBoard:
                         tmp_cut.shape[1] < int(self.piece_size):
                     return
                 mean = np.mean(tmp_cut)
-                if 20 > mean or mean > 210:
+                if 15 > mean or mean > 210:
                     continue
                 if isWhite:
                     board_matrix[i][j] = '*'

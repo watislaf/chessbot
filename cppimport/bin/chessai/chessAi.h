@@ -31,7 +31,6 @@ class ChessAi {
  private:
   std::shared_ptr<Board> main_board_;
   std::shared_ptr<MovesTree> tree_moves_;
-  MovesGenerator moves_generator;
   AiAdvanceLvl mode_ ;
 
 };
