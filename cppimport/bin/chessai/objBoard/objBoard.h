@@ -7,13 +7,14 @@
 #include <memory>
 #include "tools/fen.h"
 #include "abstracts/move.h"
+#include "abstracts/absBoard.h"
 
-class Board {
+class ObjBoard: AbsBoard  {
 
  public:
-  explicit Board(FEN fen);
-  Board(const Board& board);
-  std::string getFen();
+  explicit ObjBoard(FEN fen);
+  ObjBoard(const ObjBoard& board);
+  std::string toStr() const;
   void apply(const Move&);
   void unApply(const Move&);
 
@@ -31,10 +32,8 @@ class Board {
 
   bool isBlackMove() const;
   short getLastPassantX() const;
-  std::string toStr() const;
-
-  bool operator==(const Board& other) const;
-  bool operator!=(const Board& other) const;
+  bool operator==(const ObjBoard& other) const;
+  bool operator!=(const ObjBoard& other) const;
 
   void setPiece(const Piece& piece_template_object);
 

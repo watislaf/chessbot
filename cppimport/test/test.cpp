@@ -1,11 +1,19 @@
 #include <gtest/gtest.h>
 #include "chessAi.h"
+#include "bitBoard/bitBoard.h"
+
+TEST(BitBoard, test1) {
+  BitBoard board(FEN("k1pp/p1ppp2p/1pp2pp1/8/8/3PP3/PPP2PPP/K7 w KQkq - 0 1"));
+  std::cout << BitBoard::toStr(board.get(board.WHITE_KING)) << "\n__\n";
+  std::cout << BitBoard::toStr(board.queenAttacks(board.WHITE_KING, 27))
+            << "\n__\n";
+}
 
 TEST(ChessAi, TEMP) {
   ChessAi chess_ai("A1");
   chess_ai.startNewGame(
       "4k2r/5pb1/8/6QP/2B5/8/8/2K5 b kq - 2 0");
-  chess_ai.applyMoveParams(6,6,7,2);
+  chess_ai.applyMoveParams(6, 6, 7, 2);
   auto move = chess_ai.getBestMove();
   chess_ai.applyMove(move);
   std::cerr << move.toStr();
@@ -51,11 +59,8 @@ TEST(ChessAi, TreeGenerator) {
     chess_ai.applyMove(move);
   }
 
-  // 11sec 972mc  4 default 6 attack
   // 3sec 666mc  4 default 6 attack
-  // 2sec 286mc  4 default 6 attack
-
-  // 3 211mc
+  //
 }
 
 TEST(ChessAi, MoveGenerator) {

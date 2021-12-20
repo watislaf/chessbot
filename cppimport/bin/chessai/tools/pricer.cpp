@@ -7,22 +7,22 @@ int Pricer::getPrice(const std::shared_ptr<const Piece>& piece) {
   return price;
 }
 
-int Pricer::countOrder(const std::shared_ptr<Board>& board, const Move& move) {
+int Pricer::countOrder(const std::shared_ptr<ObjBoard>& board, const Move& move) {
   int answer = move.getAttackScore();
   if (move.getNewPieceType() != PieceType::tNONE) {
     answer += getPrice(move.getNewPieceType());
   }
   answer += valOnBoard(move.getEnd()->getPosition(),
-                       move.getStart()->getPieceColor() == PieceColor::WHITE,
+                       move.getStart()->getPieceColor() == ColorType::WHITE,
                        board,
                        move.getStart()->getType());
   answer -= valOnBoard(move.getStart()->getPosition(),
-                       move.getStart()->getPieceColor() == PieceColor::WHITE,
+                       move.getStart()->getPieceColor() == ColorType::WHITE,
                        board,
                        move.getStart()->getType());
   if (move.getAttackScore() != 0) {
     answer += valOnBoard(move.getEnd()->getPosition(),
-                         move.getEnd()->getPieceColor() == PieceColor::WHITE,
+                         move.getEnd()->getPieceColor() == ColorType::WHITE,
                          board,
                          move.getEnd()->getType());
   }
@@ -32,7 +32,7 @@ int Pricer::countOrder(const std::shared_ptr<Board>& board, const Move& move) {
       answer -= 3;
   }
 
-  if (move.getStart()->getType() == PieceType::tPONE) {
+  if (move.getStart()->getType() == PieceType::tPAWN) {
     if (endGameCoef(board) < 0.2)
       answer += 3;
   }
@@ -62,14 +62,14 @@ int Pricer::getPrice(PieceType type) {
     case PieceType::tKING:return 999;
     case PieceType::tQUEEN:return 180;
     case PieceType::tRUCK:return 80;
-    case PieceType::tPONE:return 20;
+    case PieceType::tPAWN:return 20;
     case PieceType::tBISHOP: return 60;
-    case PieceType::tHORSE:return 60;
+    case PieceType::tNIGHT:return 60;
     default :return 0;
   }
 }
 //[0:1]
-double Pricer::endGameCoef(const std::shared_ptr<const Board>& board) {
+double Pricer::endGameCoef(const std::shared_ptr<const ObjBoard>& board) {
   int white_count = board->getActivePieceList(true).size();
   int black_count = board->getActivePieceList(false).size();
   double weg = 0.9375 - white_count / 15.;
@@ -80,7 +80,7 @@ double Pricer::endGameCoef(const std::shared_ptr<const Board>& board) {
 
 int Pricer::valOnBoard(Position pos,
                        bool is_white,
-                       const std::shared_ptr<const Board>& board,
+                       const std::shared_ptr<const ObjBoard>& board,
                        PieceType type) {
   int xx = pos.getX();
   int yy = pos.getY();
@@ -96,14 +96,14 @@ int Pricer::valOnBoard(Position pos,
         + (endGameCoef(board)) * KingTableEndGame[x + y]) / 10;
   }
 
-  if (type == PieceType::tHORSE) {
+  if (type == PieceType::tNIGHT) {
     return KnightTable[x + y] / 10;
   }
 
   if (type == PieceType::tBISHOP) {
     return BishopTable[x + y] / 10;
   }
-  if (type == PieceType::tPONE) {
+  if (type == PieceType::tPAWN) {
     return PawnTable[x + y] / 10;
   }
   return 0;

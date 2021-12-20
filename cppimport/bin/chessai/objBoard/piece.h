@@ -9,20 +9,20 @@ class Piece {
  public:
   explicit Piece(const Position& pos = Position(9, 9),
                  PieceType piece_type_ = PieceType::tNONE,
-                 PieceColor piece_color = PieceColor::WHITE);
-  PieceColor getPieceColor() const;
+                 ColorType piece_color = ColorType::WHITE);
+  ColorType getPieceColor() const;
   PieceType getType() const;
 
   std::string toStr() const;
   const Position& getPosition() const;
   void setType(PieceType type);
-  void setPieceColor(PieceColor piece_color);
+  void setPieceColor(ColorType piece_color);
   bool isEnemyTo(const Piece& other) const;
   bool operator==(const Piece& other) const;
   bool operator!=(const Piece& other) const;
 
  private:
-  PieceColor piece_color_;
+  ColorType piece_color_;
   PieceType piece_type_;
 
   Position pos_;

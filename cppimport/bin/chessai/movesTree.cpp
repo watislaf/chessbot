@@ -3,9 +3,9 @@
 
 #include "movesTree.h"
 
-MovesTree::MovesTree(const Board& original_board,
+MovesTree::MovesTree(const ObjBoard& original_board,
                      short tree_grow)
-    : board_(std::make_shared<Board>(original_board)) {
+    : board_(std::make_shared<ObjBoard>(original_board)) {
   auto zero_piece = original_board.getPiece(Position(0, 0));
   main_node_ = std::make_shared<Node>(Move(zero_piece, zero_piece),
                                       original_board.getMoveCount(), 0);
@@ -16,7 +16,7 @@ MovesTree::MovesTree(const Board& original_board,
 }
 
 void MovesTree::generateMovesForNode(const std::shared_ptr<MovesTree::Node>& node,
-                                     const std::shared_ptr<Board>& board_coppy) {
+                                     const std::shared_ptr<ObjBoard>& board_coppy) {
   if (node->edges.size() != 0) {
     return;
   }
@@ -112,7 +112,7 @@ bool MovesTree::isMoveExists() {
 }
 
 void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_node,
-                               const std::shared_ptr<Board>& board_coppy,
+                               const std::shared_ptr<ObjBoard>& board_coppy,
                                short max_height, bool unaply,
                                int prev_node_price, bool capture_only) {
   generateMovesForNode(current_node, board_coppy);
@@ -152,7 +152,7 @@ void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_n
 }
 
 void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree::Node>& current_node,
-                                                const std::shared_ptr<Board>& board_coppy,
+                                                const std::shared_ptr<ObjBoard>& board_coppy,
                                                 int max_height,
                                                 int alpha) {
   bool existed = false;
@@ -170,7 +170,7 @@ void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree:
     }
     existed = true;
 
-    if (child_node->height <= max_height + 5) {
+    if (child_node->height <= max_height + 8) {
       board_coppy->apply(child_node->move_to_get_here);
 
       makeTreeDeeper(child_node, board_coppy, 0, true,
@@ -189,7 +189,7 @@ void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree:
 
 }
 void MovesTree::ProcessUntilHightLimit(const std::shared_ptr<MovesTree::Node>& current_node,
-                                       const std::shared_ptr<Board>& board_coppy,
+                                       const std::shared_ptr<ObjBoard>& board_coppy,
                                        short max_height, int alpha) {
   for (const auto& child_node: current_node->edges) {
     if (child_node->height <= max_height) {

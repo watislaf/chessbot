@@ -211,13 +211,17 @@ class ChessBoard:
             for j in range(8):
                 if color_board[j][7 - i] == "_":
                     continue
-
                 answ += (1 + i + j * 9) * screen_to_read[
                     int(self.__min_pos[
                             0] + self.piece_size * i + 4 - self.piece_size / 2),
                     int(self.__min_pos[
                             1] + self.piece_size * j + 10 - self.piece_size / 2)]
-        print(answ)
+
+                answ += (1 + i + j * 9) * screen_to_read[
+                    int(self.__min_pos[
+                            0] + self.piece_size * i + 5 - self.piece_size / 2),
+                    int(self.__min_pos[
+                            1] + self.piece_size * j + 3 - self.piece_size / 2)]
         return answ
 
     def get_color_board(self, isWhite, screen_to_read):

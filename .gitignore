@@ -5,6 +5,7 @@ venv
 
 cmake-build-debug
 extra/pybind11/*
+extra/magics/*
 
 /cppimport/output/*.so
 /cppimport/bin/lib/*.a

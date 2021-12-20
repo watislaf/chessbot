@@ -2,9 +2,9 @@
 #define CHESS_CHESSAI_H
 
 #include <memory>
-#include "board/board.h"
-#include "tools/movesGenerator.h"
-#include "algorithms/movesTree.h"
+#include "objBoard/objBoard.h"
+#include "objBoard/movesGenerator.h"
+#include "movesTree.h"
 #include <string>
 #include <algorithm>
 #include <tools/pricer.h>
@@ -29,7 +29,7 @@ class ChessAi {
   Move getBestMove();
 
  private:
-  std::shared_ptr<Board> main_board_;
+  std::shared_ptr<ObjBoard> main_board_;
   std::shared_ptr<MovesTree> tree_moves_;
   AiAdvanceLvl mode_ ;
 

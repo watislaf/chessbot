@@ -13,17 +13,17 @@ enable_testing()
 
 #Add execute
 add_executable(
-        ${MY_TESTS_TO_AI}
+        ${TESTS_NAME}
         ${CMAKE_CURRENT_LIST_DIR}/test.cpp
 )
 
 #Add library
 target_link_libraries(
-        ${MY_TESTS_TO_AI}
+        ${TESTS_NAME}
         gtest_main
-        ${MY_AI_LIB}
+        ${AI_LIB_NAME}
 )
 
 
 include(GoogleTest)
-gtest_discover_tests(${MY_TESTS_TO_AI})
+gtest_discover_tests(${TESTS_NAME})

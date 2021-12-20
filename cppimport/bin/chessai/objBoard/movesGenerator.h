@@ -1,11 +1,11 @@
 #ifndef CHESS_MOVEGENERATOR_H
 #define CHESS_MOVEGENERATOR_H
 
-#include "board/board.h"
+#include "objBoard.h"
 
 class MovesGenerator {
  public:
-  MovesGenerator(const std::shared_ptr<Board>& board,
+  MovesGenerator(const std::shared_ptr<ObjBoard>& board,
                  const std::shared_ptr<const Piece>& piece =
                  std::make_shared<const Piece>());
   std::shared_ptr<std::list<Move>> generateMoves();
@@ -30,7 +30,7 @@ class MovesGenerator {
   bool isShahDanger(const Move& move);
 
   std::shared_ptr<const Piece> piece_;
-  std::shared_ptr<Board> board_;
+  std::shared_ptr<ObjBoard> board_;
   std::list<Move> moves_;
   int defende_score = 0;
 };

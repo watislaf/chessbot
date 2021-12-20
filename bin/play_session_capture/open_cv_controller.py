@@ -181,7 +181,6 @@ class OpenCvController:
         if self.__hash == hassh:
             return
         self.__hash = hassh
-        print("SEE")
         with self.__lock:
             if not self.__game_controller.push_board(
                     self.__board.get_color_board(

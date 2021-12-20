@@ -3,21 +3,20 @@
 
 #include <queue>
 #include <utility>
-#include <abstracts/aiAdvanceLvl.h>
+#include "abstracts/aiAdvanceLvl.h"
 #include <thread>
-#include "tools/movesGenerator.h"
-#include <board/board.h>
+#include "objBoard/movesGenerator.h"
+#include "objBoard/objBoard.h"
 #include <algorithm>
 #include <iostream>
 #include <atomic>
 #include <mutex>
 #include "tools/pricer.h"
-#include "transpositionController.h"
 
 class MovesTree {
  public:
   Move apply(const Move& move);
-  explicit MovesTree(const Board& original_board,
+  explicit MovesTree(const ObjBoard& original_board,
                      short tree_grow);
 
   struct Node {
@@ -40,7 +39,7 @@ class MovesTree {
   };
   Move getBestMove();
   void makeTreeDeeper(const std::shared_ptr<Node>& current_node,
-                      const std::shared_ptr<Board>& board_coppy,
+                      const std::shared_ptr<ObjBoard>& board_coppy,
                       short max_height,
                       bool unaply,
                       int prev_node_price = 10000001,
@@ -50,19 +49,19 @@ class MovesTree {
 
  private:
   std::shared_ptr<Node> main_node_;
-  std::shared_ptr<Board> board_;
+  std::shared_ptr<ObjBoard> board_;
   short max_height_;
   Pricer pricer;
   void generateMovesForNode(const std::shared_ptr<Node>& node,
-                            const std::shared_ptr<Board>& board_coppy);
+                            const std::shared_ptr<ObjBoard>& board_coppy);
 
   void ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree::Node>& current_node,
-                                       const std::shared_ptr<Board>& board_coppy,
+                                       const std::shared_ptr<ObjBoard>& board_coppy,
                                        int max_height,
                                        int alpha);
 
   void ProcessUntilHightLimit(const std::shared_ptr<MovesTree::Node>& current_node,
-                              const std::shared_ptr<Board>& board_coppy,
+                              const std::shared_ptr<ObjBoard>& board_coppy,
                               short max_height, int alpha);
   bool updateBest(const std::shared_ptr<MovesTree::Node>& current_node,
                   int child_tmp, int alpha, bool move);

@@ -1,4 +1,4 @@
-enum class PieceColor {
-  WHITE,
-  BLACK,
+enum class ColorType {
+  WHITE=0,
+  BLACK=1,
 };

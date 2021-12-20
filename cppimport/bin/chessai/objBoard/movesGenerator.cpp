@@ -2,9 +2,9 @@
 #include <iostream>
 #include "abstracts/move.h"
 #include "movesGenerator.h"
-#include "pricer.h"
+#include "tools/pricer.h"
 
-MovesGenerator::MovesGenerator(const std::shared_ptr<Board>& board,
+MovesGenerator::MovesGenerator(const std::shared_ptr<ObjBoard>& board,
                                const std::shared_ptr<const Piece>& piece) {
   board_ = board;
   piece_ = piece;
@@ -14,7 +14,7 @@ std::shared_ptr<std::list<Move>> MovesGenerator::generateMoves() {
   defende_score = 0;
   // Create simple moves
   switch (piece_->getType()) {
-    case PieceType::tHORSE:horseMove();
+    case PieceType::tNIGHT:horseMove();
       break;
     case PieceType::tKING:kingMove();
       castleMove();
@@ -25,7 +25,7 @@ std::shared_ptr<std::list<Move>> MovesGenerator::generateMoves() {
       break;
     case PieceType::tBISHOP:bishopMove();
       break;
-    case PieceType::tPONE:poneAttackMove();
+    case PieceType::tPAWN:poneAttackMove();
       ponePacificMove();
 
       break;
@@ -136,7 +136,7 @@ void MovesGenerator::kingMove(bool reduce_tNone) {
 }
 
 void MovesGenerator::ponePacificMove(bool reduce_tNone) {
-  short length = piece_->getPieceColor() == PieceColor::WHITE ? 1 : -1;
+  short length = piece_->getPieceColor() == ColorType::WHITE ? 1 : -1;
   moves_.splice(moves_.end(), goByVector(piece_->getPosition(),
                                          Position(0, length),
                                          1,
@@ -151,23 +151,23 @@ void MovesGenerator::ponePacificMove(bool reduce_tNone) {
       moves_.emplace_front(iter->getStart(), iter->getEnd());
       moves_.front().setNewPieceType(PieceType::tRUCK);
       moves_.emplace_front(iter->getStart(), iter->getEnd());
-      moves_.front().setNewPieceType(PieceType::tHORSE);
+      moves_.front().setNewPieceType(PieceType::tNIGHT);
     }
   }
   // DOUBLE MOVE
-  if (piece_color == PieceColor::WHITE
+  if (piece_color == ColorType::WHITE
       && piece_->getPosition().getY() == 1 ||
-      piece_color == PieceColor::BLACK
+      piece_color == ColorType::BLACK
           && piece_->getPosition().getY() == 6) {
     if (goByVector(piece_->getPosition(),
-                   Position(0, piece_color == PieceColor::WHITE ? 1 : -1),
+                   Position(0, piece_color == ColorType::WHITE ? 1 : -1),
                    2,
                    true).
         size() == 2) {
       moves_.emplace_back(
           piece_,
           board_->getPiece(piece_->getPosition()
-                               + Position(0, piece_color == PieceColor::WHITE
+                               + Position(0, piece_color == ColorType::WHITE
                                              ? 2 : -2)));
       moves_.back().setIsDoubleDistancePone(true, board_->getLastPassantX());
     }
@@ -189,7 +189,7 @@ void MovesGenerator::ruckMove(bool reduce_tNone) {
                                            reduce_tNone));
   }
   if (board_->LcIsPossible(
-      piece_->getPieceColor() == PieceColor::WHITE)) {
+      piece_->getPieceColor() == ColorType::WHITE)) {
     if (piece_->getPosition().getX() == 0) {
       for (auto& move: moves_) {
         move.setBrakeLeftCastle(true);
@@ -197,7 +197,7 @@ void MovesGenerator::ruckMove(bool reduce_tNone) {
     }
   }
   if (board_->RcIsPossible(
-      piece_->getPieceColor() == PieceColor::WHITE)) {
+      piece_->getPieceColor() == ColorType::WHITE)) {
     if (piece_->getPosition().getX() == 7) {
       for (auto& move: moves_) {
         move.setBrakeRightCastle(true);
@@ -207,9 +207,8 @@ void MovesGenerator::ruckMove(bool reduce_tNone) {
 }
 
 void MovesGenerator::poneAttackMove() {
-  // Atack by diagonal
   short
-      direction = piece_->getPieceColor() == PieceColor::WHITE ? 1 : -1;
+      direction = piece_->getPieceColor() == ColorType::WHITE ? 1 : -1;
   for (short i = -1; i <= 1; i += 2) {
     auto go_diagonal = goByVector(piece_->getPosition(),
                                   Position(i, direction),
@@ -223,7 +222,7 @@ void MovesGenerator::poneAttackMove() {
 
     // Atack passant
     short
-        good_row = piece_->getPieceColor() == PieceColor::WHITE ? 4 : 3;
+        good_row = piece_->getPieceColor() == ColorType::WHITE ? 4 : 3;
     go_diagonal = goByVector(piece_->getPosition(),
                              Position(i, direction),
                              1,
@@ -242,23 +241,23 @@ void MovesGenerator::poneAttackMove() {
 
 void MovesGenerator::castleMove() {
   if (board_->RcIsPossible(
-      piece_->getPieceColor() == PieceColor::WHITE)) {
+      piece_->getPieceColor() == ColorType::WHITE)) {
     for (auto& move: moves_) {
       move.setBrakeRightCastle(true);
     }
   }
   if (board_->LcIsPossible(
-      piece_->getPieceColor() == PieceColor::WHITE)) {
+      piece_->getPieceColor() == ColorType::WHITE)) {
     for (auto& move: moves_) {
       move.setBrakeLeftCastle(true);
     }
   }
   // If king move he lost castle
-  if (isShah(piece_->getPieceColor() == PieceColor::WHITE)) {
+  if (isShah(piece_->getPieceColor() == ColorType::WHITE)) {
     return;
   }
   if (board_->LcIsPossible(
-      piece_->getPieceColor() == PieceColor::WHITE)) {
+      piece_->getPieceColor() == ColorType::WHITE)) {
     auto positions_left =
         goByVector(piece_->getPosition(), Position(-1, 0));
     if (positions_left.size() == 4) {
@@ -269,7 +268,7 @@ void MovesGenerator::castleMove() {
     }
   }
   if (board_->RcIsPossible(
-      piece_->getPieceColor() == PieceColor::WHITE)) {
+      piece_->getPieceColor() == ColorType::WHITE)) {
     auto positions_right =
         goByVector(piece_->getPosition(), Position(1, 0));
     if (positions_right.size() == 3) {
@@ -289,7 +288,7 @@ bool MovesGenerator::isShahDanger(const Move& move) {
 
   board_->apply(move);
   bool is_under_shach =
-      isShah(move.getStart()->getPieceColor() == PieceColor::WHITE);
+      isShah(move.getStart()->getPieceColor() == ColorType::WHITE);
   board_->unApply(move);
 
   if (is_under_shach) {
@@ -304,7 +303,7 @@ bool MovesGenerator::isShahDanger(const Move& move) {
     non_castle_move.setIsCastle(false);
     board_->apply(non_castle_move);
     is_under_shach =
-        isShah(move.getStart()->getPieceColor() == PieceColor::WHITE);
+        isShah(move.getStart()->getPieceColor() == ColorType::WHITE);
     board_->unApply(non_castle_move);
   }
 
@@ -325,7 +324,7 @@ bool MovesGenerator::isShah(bool is_white) {
       return true;
     }
     switch (piece->getType()) {
-      case PieceType::tHORSE:
+      case PieceType::tNIGHT:
         if (abs(king_pos.getX() - piece_pos.getX()) == 1 &&
             abs(king_pos.getY() - piece_pos.getY()) == 2 ||
             abs(king_pos.getX() - piece_pos.getX()) == 2 &&
@@ -377,9 +376,9 @@ bool MovesGenerator::isShah(bool is_white) {
           return true;
         }
         break;
-      case PieceType::tPONE:
+      case PieceType::tPAWN:
         if (king_pos.getY() == (piece_pos.getY() - 1
-            + 2 * (piece->getPieceColor() == PieceColor::WHITE))
+            + 2 * (piece->getPieceColor() == ColorType::WHITE))
             && abs(king_pos.getX() - piece_pos.getX()) == 1) {
           return true;
         }

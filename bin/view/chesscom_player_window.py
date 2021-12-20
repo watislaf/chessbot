@@ -18,7 +18,7 @@ class WindowCV:
         self.__button = Button("Start", (200, 200), (200, 80))
 
         self.__myfont = pygame.font.SysFont('Comic Sans MS', 50)
-        self.__no_board_surface = self.__myfont.render("Can't find board", True,
+        self.__no_board_surface = self.__myfont.render("Can't find objBoard", True,
                                                        (155, 42, 42))
         self.__no_button_surface = self.__myfont.render(
             "Can't find Play button", True, (155, 42, 42))

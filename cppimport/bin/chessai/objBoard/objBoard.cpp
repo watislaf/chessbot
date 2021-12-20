@@ -1,25 +1,25 @@
 #include <string>
-#include "board.h"
+#include "objBoard.h"
 
-std::shared_ptr<const Piece> Board::getPiece(const Position& position) const {
+std::shared_ptr<const Piece> ObjBoard::getPiece(const Position& position) const {
   return board_[position.getX()][position.getY()];
 }
 
-bool Board::LcIsPossible(bool is_white) const {
+bool ObjBoard::LcIsPossible(bool is_white) const {
   if (is_white) {
     return whiteCastle.LC_is_possible_;
   }
   return blackCastle.LC_is_possible_;
 }
 
-void Board::setLCIsPossible(bool is_white, bool brake) {
+void ObjBoard::setLCIsPossible(bool is_white, bool brake) {
   if (is_white) {
     whiteCastle.LC_is_possible_ = brake;
   } else {
     blackCastle.LC_is_possible_ = brake;
   }
 }
-void Board::setRCIsPossible(bool is_white, bool brake) {
+void ObjBoard::setRCIsPossible(bool is_white, bool brake) {
   if (is_white) {
     whiteCastle.RC_is_possible_ = brake;
   } else {
@@ -27,25 +27,25 @@ void Board::setRCIsPossible(bool is_white, bool brake) {
   }
 }
 
-bool Board::RcIsPossible(bool is_white) const {
+bool ObjBoard::RcIsPossible(bool is_white) const {
   if (is_white) {
     return whiteCastle.RC_is_possible_;
   }
   return blackCastle.RC_is_possible_;
 }
 
-bool Board::isWhiteMove() const {
+bool ObjBoard::isWhiteMove() const {
   return is_white_move_;
 }
-bool Board::isBlackMove() const {
+bool ObjBoard::isBlackMove() const {
   return !is_white_move_;
 }
 
-void Board::setPiece(const Piece& piece_template_object) {
+void ObjBoard::setPiece(const Piece& piece_template_object) {
   short x = piece_template_object.getPosition().getX();
   short y = piece_template_object.getPosition().getY();
   if (board_[x][y] != NULL && board_[x][y]->getType() != PieceType::tNONE) {
-    if (board_[x][y]->getPieceColor() == PieceColor::WHITE) {
+    if (board_[x][y]->getPieceColor() == ColorType::WHITE) {
       active_white_pieces_.remove(board_[x][y]);
     } else {
       active_black_pieces_.remove(board_[x][y]);
@@ -56,13 +56,13 @@ void Board::setPiece(const Piece& piece_template_object) {
   if (piece_template_object.getType() == PieceType::tNONE) {
     return;
   }
-  if (board_[x][y]->getPieceColor() == PieceColor::WHITE) {
+  if (board_[x][y]->getPieceColor() == ColorType::WHITE) {
     active_white_pieces_.push_back(board_[x][y]);
   } else {
     active_black_pieces_.push_back(board_[x][y]);
   }
   if (board_[x][y]->getType() == PieceType::tKING) {
-    if (board_[x][y]->getPieceColor() == PieceColor::WHITE) {
+    if (board_[x][y]->getPieceColor() == ColorType::WHITE) {
       whiteCastle.king_position = {x, y};
     } else {
       blackCastle.king_position = {x, y};
@@ -70,7 +70,7 @@ void Board::setPiece(const Piece& piece_template_object) {
   }
 }
 
-Board::Board(FEN fen) {
+ObjBoard::ObjBoard(FEN fen) {
   for (short j = 0; j < 8; j++) {
     for (short i = 0; i < 8; i++) {
       auto my_piece = fen.getPiece(i, j);
@@ -86,14 +86,14 @@ Board::Board(FEN fen) {
   move_count_ = fen.getMoveCount();
 }
 
-Position Board::getKingPosition(bool is_white) const {
+Position ObjBoard::getKingPosition(bool is_white) const {
   if (is_white) {
     return whiteCastle.king_position;
   }
   return blackCastle.king_position;
 }
 
-void Board::apply(const Move& move) {
+void ObjBoard::apply(const Move& move) {
   forceMove(getPiece(move.getStart()->getPosition()),
             getPiece(move.getEnd()->getPosition()));
   if (move.isBrakeLeftCastle()) {
@@ -125,7 +125,7 @@ void Board::apply(const Move& move) {
 
   if (move.isPassant()) {
     short back = -1;
-    if (move.getStart()->getPieceColor() == PieceColor::BLACK) {
+    if (move.getStart()->getPieceColor() == ColorType::BLACK) {
       back = 1;
     }
     forceMove(getPiece(move.getStart()->getPosition()),
@@ -141,7 +141,7 @@ void Board::apply(const Move& move) {
 
 }
 
-void Board::unApply(const Move& move) {
+void ObjBoard::unApply(const Move& move) {
   is_white_move_ = !is_white_move_;
   move_count_--;
   // King get Pone
@@ -174,40 +174,41 @@ void Board::unApply(const Move& move) {
 
   if (move.isPassant()) {
     short back = -1;
-    if (move.getStart()->getPieceColor() == PieceColor::BLACK) {
+    if (move.getStart()->getPieceColor() == ColorType::BLACK) {
       back = 1;
     }
     auto position_to_pone_be = move.getEnd()->getPosition() + Position(0, back);
     auto pone_color_reversed_color = move.getStart()->getPieceColor();
-    if (pone_color_reversed_color == PieceColor::BLACK) {
-      pone_color_reversed_color = PieceColor::WHITE;
+    if (pone_color_reversed_color == ColorType::BLACK) {
+      pone_color_reversed_color = ColorType::WHITE;
     } else {
-      pone_color_reversed_color = PieceColor::BLACK;
+      pone_color_reversed_color = ColorType::BLACK;
     }
     setPiece(Piece(position_to_pone_be,
-                   PieceType::tPONE,
+                   PieceType::tPAWN,
                    pone_color_reversed_color));
   }
   if (move.getNewPieceType() != PieceType::tNONE) {
     setPiece(Piece(move.getStart()->getPosition(),
-                   PieceType::tPONE,
+                   PieceType::tPAWN,
                    move.getStart()->getPieceColor()));
   }
 }
 
-short Board::getLastPassantX() const {
+short ObjBoard::getLastPassantX() const {
   return last_passant_x_;
 }
-void Board::forceMove(const std::shared_ptr<const Piece>& piece_from,
-                      const std::shared_ptr<const Piece>& piece_to) {
+void ObjBoard::forceMove(const std::shared_ptr<const Piece>& piece_from,
+                         const std::shared_ptr<const Piece>& piece_to) {
   setPiece(Piece(piece_to->getPosition(),
                  piece_from->getType(),
                  piece_from->getPieceColor()));
   setPiece(Piece(piece_from->getPosition(),
                  PieceType::tNONE,
-                 PieceColor::WHITE));
+                 ColorType::WHITE));
 }
-std::string Board::toStr() const {
+
+std::string ObjBoard::toStr() const {
   std::string answer;
   for (short y = 0; y <= 7; y++) {
     for (short x = 0; x <= 7; x++) {
@@ -219,65 +220,8 @@ std::string Board::toStr() const {
   }
   return answer;
 }
-std::string Board::getFen() {
-  std::string fen;
 
-  for (short y = 7; y >= 0; y--) {
-    short k = 0;
-    for (short x = 0; x <= 7; x++) {
-      std::string piece_str = board_[x][y]->toStr();
-      if (piece_str == "_") {
-        k++;
-      } else {
-        if (k != 0) {
-          fen += std::to_string(k);
-        }
-        fen += board_[x][y]->toStr();
-      }
-    }
-
-    if (k != 0) {
-      fen += std::to_string(k);
-    }
-    if (y > 0)
-      fen += '/';
-  }
-  // w KQkq - 0 1
-  if (is_white_move_) {
-    fen += " w";
-  } else {
-    fen += " b";
-  }
-  fen += " ";
-  if (whiteCastle.RC_is_possible_)
-    fen += "K";
-  if (whiteCastle.LC_is_possible_)
-    fen += "Q";
-  if (blackCastle.RC_is_possible_)
-    fen += "k";
-  if (blackCastle.LC_is_possible_)
-    fen += "q";
-  fen += " ";
-  if (last_passant_x_ != -1) {
-    fen += char('a' + last_passant_x_);
-    if (is_white_move_) {
-      fen += "6";
-    } else {
-      fen += "3";
-    }
-  } else {
-    fen += "-";
-  }
-  fen += " ";
-  fen += std::to_string(move_count_);
-
-  fen += " ";
-  fen += std::to_string(move_count_ * 2 + is_white_move_);
-  return fen;
-
-}
-
-bool Board::operator==(const Board& other) const {
+bool ObjBoard::operator==(const ObjBoard& other) const {
   return other.is_white_move_ == is_white_move_ &&
       other.last_passant_x_ == last_passant_x_ &&
       other.whiteCastle.RC_is_possible_ == whiteCastle.RC_is_possible_ &&
@@ -296,11 +240,11 @@ bool Board::operator==(const Board& other) const {
     return true;
   }();
 }
-bool Board::operator!=(const Board& other) const {
+bool ObjBoard::operator!=(const ObjBoard& other) const {
   return !(*this == other);
 }
 
-Board::Board(const Board& board) {
+ObjBoard::ObjBoard(const ObjBoard& board) {
   *this = board;
   for (short j = 0; j < 8; j++) {
     for (short i = 0; i < 8; i++) {
@@ -310,12 +254,12 @@ Board::Board(const Board& board) {
   }
 }
 
-short Board::getMoveCount() const {
+short ObjBoard::getMoveCount() const {
   return move_count_;
 }
 
 
-const std::list<std::shared_ptr<const Piece>>& Board::getActivePieceList(bool is_white) const {
+const std::list<std::shared_ptr<const Piece>>& ObjBoard::getActivePieceList(bool is_white) const {
   if (is_white) {
     return active_white_pieces_;
   } else {

@@ -8,7 +8,7 @@ from bin.player.view_player import ViewPlayer
 from bin.tools.chess_exception import ChessException
 from cppimport.output.chessai import ChessAi
 
-CHESSCOM = False
+CHESSCOM = True
 
 
 def process():
@@ -31,9 +31,8 @@ def process():
     while True:
         try:
             winner = controller.start_game(
-                "4k2r/5pb1/8/6Q1/2B5/8/8/2K5 b kq - 2 0")
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
             print(winner)
-            time.sleep(1)
         except ChessException as E:
             print(E)
             return

@@ -4,14 +4,14 @@ const Position& Piece::getPosition() const {
   return this->pos_;
 }
 
-Piece::Piece(const Position& pos, PieceType piece_type_, PieceColor piece_color)
+Piece::Piece(const Position& pos, PieceType piece_type_, ColorType piece_color)
     : pos_(pos), piece_type_(piece_type_), piece_color_(piece_color) {}
 
 PieceType Piece::getType() const {
   return this->piece_type_;
 }
 
-PieceColor Piece::getPieceColor() const {
+ColorType Piece::getPieceColor() const {
   return piece_color_;
 }
 void Piece::setType(PieceType type) {
@@ -25,9 +25,9 @@ std::string Piece::toStr() const {
       break;
     case PieceType::tQUEEN:letter = 'q';
       break;
-    case PieceType::tPONE:letter = 'p';
+    case PieceType::tPAWN:letter = 'p';
       break;
-    case PieceType::tHORSE:letter = 'n';
+    case PieceType::tNIGHT:letter = 'n';
       break;
     case PieceType::tRUCK:letter = 'r';
       break;
@@ -35,15 +35,16 @@ std::string Piece::toStr() const {
       break;
     case PieceType::tNONE:letter = '_';
   };
-  if (piece_color_ == PieceColor::WHITE && piece_type_ != PieceType::tNONE) {
+  if (piece_color_ == ColorType::WHITE && piece_type_ != PieceType::tNONE) {
     letter = std::string("w") + std::string(letter);
   }
-  if (piece_color_ == PieceColor::BLACK && piece_type_ != PieceType::tNONE) {
+  if (piece_color_ == ColorType::BLACK && piece_type_ != PieceType::tNONE) {
     letter = std::string("b") + std::string(letter);
   }
   return std::string("") + letter;
 }
-void Piece::setPieceColor(PieceColor piece_color) {
+
+void Piece::setPieceColor(ColorType piece_color) {
   piece_color_ = piece_color;
 }
 

@@ -28,15 +28,16 @@ FEN::FEN(std::string fen_str) {
 Piece FEN::getPiece(short i, short j) {
   auto my_piece = Piece(Position(j, 7-i));
   if (islower(fen_matrix_[i][j])) {
-    my_piece.setPieceColor(PieceColor::BLACK);
+    my_piece.setPieceColor(ColorType::BLACK);
   } else {
-    my_piece.setPieceColor(PieceColor::WHITE);
+    my_piece.setPieceColor(ColorType::WHITE);
   }
+  my_piece.setType(PieceType::tNONE);
   // rnbqkbnr/pppppppp
   switch (tolower(fen_matrix_[i][j])) {
     case 'r':my_piece.setType(PieceType::tRUCK);
       break;
-    case 'n':my_piece.setType(PieceType::tHORSE);
+    case 'n':my_piece.setType(PieceType::tNIGHT);
       break;
     case 'b':my_piece.setType(PieceType::tBISHOP);
       break;
@@ -44,9 +45,10 @@ Piece FEN::getPiece(short i, short j) {
       break;
     case 'k':my_piece.setType(PieceType::tKING);
       break;
-    case 'p':my_piece.setType(PieceType::tPONE);
+    case 'p':my_piece.setType(PieceType::tPAWN);
       break;
   }
+
   return my_piece;
 }
 
