@@ -6,8 +6,8 @@ set(LIB_HEADERS
         chessai/objBoard/objBoard.cpp
         chessai/objBoard/piece.cpp
         chessai/objBoard/movesGenerator.cpp
-        chessai/bitBoard/bitBoard.cpp
-        chessai/bitBoard/bitMovesGenerator.cpp
+        chessai/bitBoard/bit_board.cpp
+        chessai/bitBoard/BMovesGenerator.cpp
         chessai/tools/pricer.cpp
         chessai/tools/fen.cpp
         chessai/abstracts/move.cpp

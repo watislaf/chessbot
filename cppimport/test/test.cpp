@@ -1,12 +1,18 @@
 #include <gtest/gtest.h>
 #include "chessAi.h"
-#include "bitBoard/bitBoard.h"
+#include "bitBoard/bit_board.h"
+#include "bitBoard/b_move.h"
 
 TEST(BitBoard, test1) {
   BitBoard board(FEN("k1pp/p1ppp2p/1pp2pp1/8/8/3PP3/PPP2PPP/K7 w KQkq - 0 1"));
-  std::cout << BitBoard::toStr(board.get(board.WHITE_KING)) << "\n__\n";
-  std::cout << BitBoard::toStr(board.queenAttacks(board.WHITE_KING, 27))
-            << "\n__\n";
+  BMove arr[5];
+  for(int i = 0; i < 5; i ++){
+    arr[i] = BMove(1,2,3);
+  }
+  std::cout<<arr[0].data();
+//  memcpy(answer.data(), moves_free_space, 5* sizeof(BMove));
+
+
 }
 
 TEST(ChessAi, TEMP) {
