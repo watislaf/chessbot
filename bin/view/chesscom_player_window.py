@@ -1,3 +1,8 @@
+import os
+from os import environ
+
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+
 import pygame
 
 from bin.view.button import Button
@@ -18,7 +23,8 @@ class WindowCV:
         self.__button = Button("Start", (200, 200), (200, 80))
 
         self.__myfont = pygame.font.SysFont('Comic Sans MS', 50)
-        self.__no_board_surface = self.__myfont.render("Can't find objBoard", True,
+        self.__no_board_surface = self.__myfont.render("Can't find objBoard",
+                                                       True,
                                                        (155, 42, 42))
         self.__no_button_surface = self.__myfont.render(
             "Can't find Play button", True, (155, 42, 42))
@@ -26,7 +32,11 @@ class WindowCV:
     def start_loop(self):
         while self.__application_is_done:
             pygame.draw.rect(self.__py_window, (118, 150, 86), (0, 0, 400, 400))
-            self.__button.update(self.__py_window, pygame.event.get())
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.QUIT:
+                    self.__application_is_done = False
+            self.__button.update(self.__py_window, events)
             if self.__button.get():
                 self.__atomic_data.is_start = not self.__atomic_data.is_start
 
@@ -36,9 +46,6 @@ class WindowCV:
             else:
                 self.__button.titel = "Start"
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.__application_is_done = False
             self.__button.block = False
             if self.__atomic_data.cant_find_go_button:
                 self.__button.block = True
@@ -63,3 +70,5 @@ class WindowCV:
             pygame.display.update()
             pygame.time.delay(70)
         pygame.quit()
+        print("see you soon")
+        os._exit(1)

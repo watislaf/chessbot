@@ -12,3 +12,7 @@ Bot to play chess on chess.com for me ( cause i am to lazy to learn how to bee g
 - openCV
 - valgrind
 
+```
+$ ./setup.sh
+$ ./ChessBot [board]
+ ``` 

@@ -3,7 +3,7 @@ import numpy as np
 from bin.play_session_capture.chess_peace import ChessPiece
 from collections import deque
 
-from graphics.pictures import GRAY_COLOR, BLACK_PIECE, WHITE_PIECE
+from resources.pictures import GRAY_COLOR, BLACK_PIECE, WHITE_PIECE
 
 
 def all_to_black(element):

@@ -1,6 +1,6 @@
 import pygame
 
-from graphics.pictures import PICTURES_PATH
+from resources.pictures import RESOURCES_PATH
 
 
 class PieceAsk():
@@ -13,7 +13,7 @@ class PieceAsk():
         for symbol in 'rnbq':
             self.__pieces_img[str(symbol)] = pygame.transform.scale(
                 pygame.image.load(
-                    '{}/{}{}.png'.format(PICTURES_PATH, "w", symbol)),
+                    '{}/{}{}.png'.format(RESOURCES_PATH, "w", symbol)),
                 (self.__rect_size[0] / 4, self.__rect_size[0] / 4))
         while True:
             for event in pygame.event.get():

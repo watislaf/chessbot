@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-from graphics.pictures import PICTURES_PATH
+from resources.pictures import RESOURCES_PATH
 
 
 class ChessButton:
@@ -18,7 +18,7 @@ class ChessButton:
         self.image = []
         for k, name in enumerate(images):
             self.image.append(cv2.imread(
-                PICTURES_PATH + "/{}.png".format(name)))
+                RESOURCES_PATH + "/{}.png".format(name)))
             self.image[k] = cv2.cvtColor(np.uint8(self.image[k]),
                                          cv2.COLOR_BGR2GRAY)
             self.image[k] = cv2.resize(self.image[k],

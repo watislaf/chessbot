@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from graphics.pictures import PICTURES_PATH, GRAY_COLOR, WHITE_BOARD_COLOR, \
+from resources.pictures import RESOURCES_PATH, GRAY_COLOR, WHITE_BOARD_COLOR, \
     BLACK_BOARD_COLOR, WHITE_PIECE, BLACK_PIECE
 
 
@@ -25,7 +25,7 @@ class ChessPiece():
         if (self.name == "e"):
             prototype = np.zeros((self.size, self.size, 3), dtype=np.uint8)
         else:
-            prototype = cv2.imread(PICTURES_PATH + "/{}.png".format(self.name))
+            prototype = cv2.imread(RESOURCES_PATH + "/{}.png".format(self.name))
             prototype = cv2.resize(prototype, (int(self.size), int(self.size)),
                                    interpolation=cv2.INTER_AREA)
         self.image[0] = prototype.copy()
