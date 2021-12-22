@@ -1,5 +1,3 @@
-import time
-
 from bin.player.player import Player
 from bin.tools.FEN import FEN
 from bin.tools.pieceMove import PieceMove

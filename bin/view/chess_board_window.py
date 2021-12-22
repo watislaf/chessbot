@@ -32,7 +32,7 @@ class ChessBoardWindow:
 
     __pos_piece_dragging: tuple = (0, 0)
     __possible_moves: list = None
-    __pieces_img: list = []
+    __pieces_img: dict = {}
     __fen: FEN = None
     __mouse_x: int = 0
     __mouse_y: int = 0

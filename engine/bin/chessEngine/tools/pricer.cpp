@@ -7,7 +7,8 @@ int Pricer::getPrice(const std::shared_ptr<const Piece>& piece) {
   return price;
 }
 
-int Pricer::countOrder(const std::shared_ptr<ObjBoard>& board, const Move& move) {
+int Pricer::countOrder(const std::shared_ptr<ObjBoard>& board,
+                       const Move& move) {
   int answer = move.getAttackScore();
   if (move.getNewPieceType() != PieceType::NONE) {
     answer += getPrice(move.getNewPieceType());
@@ -55,16 +56,16 @@ int Pricer::defendScore(const Move& move) {
   if (move.getEnd()->getType() == PieceType::KING) {
     return 0;
   }
-  return getPrice(move.getEnd()) / 5;
+  return getPrice(move.getEnd()) / 50;
 }
 int Pricer::getPrice(PieceType type) {
   switch (type) {
-    case PieceType::KING:return 999;
-    case PieceType::QUEEN:return 180;
-    case PieceType::RUCK:return 80;
-    case PieceType::PAWN:return 20;
-    case PieceType::BISHOP: return 60;
-    case PieceType::NIGHT:return 60;
+    case PieceType::KING:return 9999;
+    case PieceType::QUEEN:return 9000;
+    case PieceType::RUCK:return 500;
+    case PieceType::PAWN:return 100;
+    case PieceType::BISHOP: return 350;
+    case PieceType::NIGHT:return 300;
     default :return 0;
   }
 }
@@ -93,18 +94,18 @@ int Pricer::valOnBoard(Position pos,
   if (type == PieceType::KING) {
     return ((1 - endGameCoef(board))
         * Pricer::KingTable[x + y]
-        + (endGameCoef(board)) * KingTableEndGame[x + y]) / 10;
+        + (endGameCoef(board)) * KingTableEndGame[x + y]);
   }
 
   if (type == PieceType::NIGHT) {
-    return KnightTable[x + y] / 10;
+    return KnightTable[x + y];
   }
 
   if (type == PieceType::BISHOP) {
-    return BishopTable[x + y] / 10;
+    return BishopTable[x + y];
   }
   if (type == PieceType::PAWN) {
-    return PawnTable[x + y] / 10;
+    return PawnTable[x + y];
   }
   return 0;
 }

@@ -205,6 +205,7 @@ class OpenCvController:
         self.__game_in_search = True
 
     def found_the_game(self):
+        print("Game found")
         self.__game_in_search = False
         self.__game_is_found = True
         self.__game_controller = CVGameController(

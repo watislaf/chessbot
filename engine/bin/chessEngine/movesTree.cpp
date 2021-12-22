@@ -31,15 +31,12 @@ void MovesTree::generateMovesForNode(const std::shared_ptr<MovesTree::Node>& nod
     for (const auto& move: *moves) {
       int price = pricer.countOrder(board_coppy, move);
       int mate = 0;
-      if (move.getEnd()->getPosition() == Position(2, 1)) {
-        int k = 13;
-      }
       board_coppy->apply(move);
       if (MovesGenerator(board_coppy).isMate()) {
         if (board_coppy->isWhiteTurn()) {
-          mate = -10000;
+          mate = -100000;
         } else {
-          mate = 10000;
+          mate = 100000;
         }
       }
       board_coppy->unApply(move);

@@ -12,8 +12,8 @@ TEST(BitBoard, test1) {
 TEST(ChessAi, TEMP) {
   ChessEngine chess_ai("A1");
   chess_ai.startNewGame(
-      "4k2r/5pb1/8/6QP/2B5/8/8/2K5 b kq - 2 0");
-  chess_ai.applyMoveParams(6, 6, 7, 2);
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  chess_ai.applyMoveParams(4, 1, 4, 3);
   auto move = chess_ai.getBestMove();
   chess_ai.applyMove(move);
   std::cerr << move.toStr();

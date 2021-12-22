@@ -20,7 +20,6 @@ class ChessEngine {
   std::string getPossibleMovesForPosition(short x, short y);
 
   std::string getBoardStr() const;
-  std::string getFenStr() const;
 
   std::string getBestMoveStr();
   bool isMoveExists();
