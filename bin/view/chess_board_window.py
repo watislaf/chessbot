@@ -62,7 +62,7 @@ class ChessBoardWindow:
         self.__window_event_obj = window_event_obj
         pygame.display.set_caption("CHESS")
         pygame.init()
-        programIcon = pygame.image.load('RESOURCES_PATH/wq.png')
+        programIcon = pygame.image.load('{}/wq.png'.format(RESOURCES_PATH))
         pygame.display.set_icon(programIcon)
 
         self.__py_window = pygame.display.set_mode(
