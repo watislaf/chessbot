@@ -47,6 +47,7 @@ if [[ ! -f "./venv/pyvenv.cfg" ]]; then
 
   sudo pip3 install virtualenv
   virtualenv venv
+  source ./venv/bin/activate
 
   pip3 install pygame
   echo "-- Do you want to setup chess.com Bot? (Y/N) "
