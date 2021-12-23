@@ -21,8 +21,9 @@ class WindowCV:
         self.__py_window = pygame.display.set_mode((400, 400))
         pygame.display.set_caption("bot_view")
         pygame.init()
-        programIcon = pygame.image.load('RESOURCES_PATH/bq.png')
         programIcon = pygame.image.load('{}/wq.png'.format(RESOURCES_PATH))
+        pygame.display.set_icon(programIcon)
+
         self.__button = Button("Start", (200, 200), (200, 80))
 
         self.__myfont = pygame.font.SysFont('Comic Sans MS', 50)
