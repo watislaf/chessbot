@@ -48,7 +48,7 @@ if [[ ! -f "./venv/pyvenv.cfg" ]]; then
   sudo pip3 install virtualenv
   virtualenv venv
 
-  sudo pip3 install pygame
+  pip3 install pygame
   echo "-- Do you want to setup chess.com Bot? (Y/N) "
   read -p "---- if not, then only Playable chess board could be used." yn
   case $yn in
