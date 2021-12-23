@@ -40,9 +40,10 @@ until I reach it (or get banned).
 Download source files.
 
 ```bash
-  $ git-clone https://github.com/watislaf/chessbot.git # install
+  $ git clone https://github.com/watislaf/chessbot.git # install
   $ cd ./chessbot
 ```
+if you don't have git, just download source from this page.
 
 Next, there is a small script to build the project.
 
