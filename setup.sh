@@ -95,7 +95,7 @@ fi
 if [[ ! -f "extra/pybind11/LICENSE" ]]; then
   PYBIND_LINK="https://github.com/pybind/pybind11.git"
   rm extra/pybind11 -r
-  echo "add pybind to extra ./dir" | git clone PYBIND_LINK extra/pybind11
+  echo "add pybind to extra ./dir" | git clone $PYBIND_LINK extra/pybind11
 fi
 
 
