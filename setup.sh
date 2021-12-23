@@ -33,7 +33,6 @@ fi
 
 # uninstall argument
 if [[ "$1" == "uninstall" ]]; then
-  echo "rm -r -f ./" >> "./unis.sh"
   ./unis.sh
 fi
 
@@ -74,8 +73,7 @@ fi
 
 # install magics numbers algo from github
 if [[ ! -f "extra/magics/magics.c" ]]; then
-    MAGIC_LINK="https://raw.githubusercontent.com/maksimKorzh/chess_programming/master/src/magics/magics.c"
-    rm extra/magics -r
+    MAGIC_LINK="https://raw.githubusercontent.com/maksimKorzh/chess_programming/master/src/magics/magics.c" 
     echo "-- add magic generator to ./extra" | wget "$MAGIC_LINK" -P extra/magics
 fi
   
@@ -109,3 +107,5 @@ echo "export PYGAME_HIDE_SUPPORT_PROMPT=1" >> ChessBot
 echo "export PYTHONPATH=\"\$PYTHONPATH:bin/bash\"" >> ChessBot
 echo "./venv/bin/python3 ./bin/main.py \$@" >> ChessBot
 chmod +x ChessBot
+
+echo "rm -r -f ./" >> "./unis.sh"
