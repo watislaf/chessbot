@@ -18,10 +18,10 @@ if [[ ! -f "./unis.sh" ]]; then
 fi
 
 # --help argument
-if [[ "$1" == "--help" ]]; then
-  echo "--help /t information"
-  echo "reinstall /t set up project again"
-  echo "uninstall /t remove all installed with project libraries"
+if [[ "$1" == "help" ]]; then
+  echo $'/t' "help" $'/t' "information"
+  echo $'/t' "reinstall" $'/t' "set up project again"
+  echo $'/t' "uninstall" $'/t' "remove all installed with project libraries"
   exit 0
 fi
 
