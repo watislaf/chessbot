@@ -15,7 +15,7 @@ if [[ ! -f "./unis.sh" ]]; then
   echo "#!/bin/bash" > "./unis.sh"
   echo "# remove all installed with project libraries" >> "./unis.sh"
   chmod +x "./unis.sh"
-  echo " rm -r -f $(ls -a)" >> "./unis.sh"
+  echo " rm -r -f \$(ls -a)" >> "./unis.sh"
 fi
 
 # --help argument
