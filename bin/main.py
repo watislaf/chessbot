@@ -5,6 +5,7 @@ engine to play versus chess.com player.
 """
 import sys
 import argparse
+import time
 
 from bin.gamecontroller import GameController
 from bin.player.ai_player import AiPlayer
@@ -93,6 +94,8 @@ if __name__ == "__main__":
             winner = _controller.start_game(
                 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             )
+            if not CHESSCOM:
+                time.sleep(3)
             print(winner)
         except ChessException as _e:
             print(_e)
