@@ -33,7 +33,7 @@ fi
 
 # uninstall argument
 if [[ "$1" == "uninstall" ]]; then
-  echo "rm -r ./" >> "./unis.sh"
+  echo "rm -r -f ./" >> "./unis.sh"
   ./unis.sh
 fi
 
