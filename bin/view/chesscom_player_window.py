@@ -23,11 +23,11 @@ class WindowCV:
         self.__button = Button("Start", (200, 200), (200, 80))
 
         self.__myfont = pygame.font.SysFont('Comic Sans MS', 50)
-        self.__no_board_surface = self.__myfont.render("Can't find objBoard",
+        self.__no_board_surface = self.__myfont.render("Can't find Board",
                                                        True,
                                                        (155, 42, 42))
         self.__no_button_surface = self.__myfont.render(
-            "Can't find Play button", True, (155, 42, 42))
+            "Can't find Play button", True, (155, 32, 42))
 
     def start_loop(self):
         while self.__application_is_done:
@@ -64,7 +64,7 @@ class WindowCV:
                 self.__py_window.blit(self.__timer_surface, (24, 188))
 
                 if not self.__button.block:
-                    self.__atomic_data.counter -= 0.70
+                    self.__atomic_data.counter -= 0.30
                     self.__button.block = True
 
             pygame.display.update()

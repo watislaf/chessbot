@@ -253,6 +253,7 @@ class OpenCvController:
                 ki = 7 - move.position_to[0]
                 kj = 7 - move.position_to[1]
             self.__game_controller.get_enemy_color_board()[ki][kj] = "_"
+            self.__game_controller.get_pawn_board()[ki][kj] = "_"
             self.__hash = self.__board.get_hash(
                 self.__last_screen_to_read,
                 self.__game_controller.get_enemy_color_board(),
@@ -267,5 +268,7 @@ class OpenCvController:
             if self.__game_controller is None:
                 return PieceMove().getInvalid()
             last_move = self.__game_controller.get_last_move()
+            if self.__game_controller.is_last_move_was_pawn_promotion():
+                last_move.new_piece = "q"
             print(last_move)
             return last_move

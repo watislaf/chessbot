@@ -2,12 +2,18 @@
 #include "chessEngine.h"
 
 ChessEngine::ChessEngine(std::string advance) {
+  mode_ = AiAdvanceLvl::A1;
+
   if (advance == "random")
     mode_ = AiAdvanceLvl::RANDOM;
-  if (advance == "A1")
+
+  if (advance == "bullet")
     mode_ = AiAdvanceLvl::A1;
-  if (advance == "A2")
+  if (advance == "blitz")
     mode_ = AiAdvanceLvl::A2;
+  if (advance == "rapid")
+    mode_ = AiAdvanceLvl::A3;
+
 }
 
 void ChessEngine::startNewGame(const std::string& fen_str) {
@@ -19,7 +25,12 @@ void ChessEngine::startNewGame(const std::string& fen_str) {
   if (mode_ == AiAdvanceLvl::A1) {
     tree_grow = 4;
   }
-
+  if (mode_ == AiAdvanceLvl::A2) {
+    tree_grow = 4;
+  }
+  if (mode_ == AiAdvanceLvl::A3) {
+    tree_grow = 6;
+  }
   tree_moves_ = std::make_shared<MovesTree>(*main_board_, tree_grow);
 }
 

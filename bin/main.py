@@ -3,8 +3,9 @@ The project is created to play chess on chess.com, this is the main function
 witch divide two main modes - play on your own board with bot and make
 engine to play versus chess.com player.
 """
-
 import sys
+import argparse
+
 from bin.gamecontroller import GameController
 from bin.player.ai_player import AiPlayer
 from bin.tools.chess_exception import ChessException
@@ -12,26 +13,41 @@ from engine.output.chessengine import ChessEngine
 from bin.player.view_player import ViewPlayer
 
 
-def init_personal_board():
+def init_personal_board(args: dict):
     """
     Create board and players object
     """
     _controller = GameController()
     _controller.start_window()
-    view_player = ViewPlayer(
-        _controller.window.last_move,
-        _controller.window_event_obj,
-        _controller.window.get_window_board_str,
-    )
-    #  controller.set_players( AiPlayer(ChessAi("A1")),view_player)
-    _controller.set_players(view_player, AiPlayer(ChessEngine("A1")))
+    if args.get("white_player", "player") == "engine":
+        white_player = AiPlayer(ChessEngine(args.get("lvl", "A1")))
+    else:
+        white_player = ViewPlayer(
+            _controller.window.last_move,
+            _controller.window_event_obj,
+            _controller.window.get_window_board_str,
+        )
+
+    if args.get("black_player", "engine") == "human":
+        black_player = ViewPlayer(
+            _controller.window.last_move,
+            _controller.window_event_obj,
+            _controller.window.get_window_board_str,
+        )
+    else:
+        black_player = AiPlayer(ChessEngine(args.get("lvl", "A1")))
+
+    #  controller.set_players( AiPlayer(ChessAi(lvl)),view_player)
+    _controller.set_players(white_player, black_player)
     return _controller
 
 
-def init_board_finder():
+def init_board_finder(args: dict):
     """
     Create OpenCv class and window to track OpenCv progress
     """
+    print("Please, check your board settings on chess.com with the "
+          "settings.png settings.")
     try:
         from bin.player.chesscom_player import ChesscomPlayer
     except ModuleNotFoundError:
@@ -45,20 +61,33 @@ def init_board_finder():
     #                             controller.window_event_obj,
     #                             controller.window.get_window_board_str)
     chess_com_player = ChesscomPlayer()
-    _controller.set_players(chess_com_player, AiPlayer(ChessEngine("A1")))
+
+    _controller.set_players(chess_com_player,
+                            AiPlayer(ChessEngine(args.get("lvl", "bullet"))))
     return _controller
 
 
 if __name__ == "__main__":
-    if "board" in sys.argv:
+    try:
+        args = dict()
+        for k, v in ((k.lstrip('-'), v) for k, v in
+                     (a.split('=') for a in sys.argv[1:])):
+            args[k.lower()] = v.lower()
+    except ValueError:
+        print("Bad arguments")
+        exit(0)
+    if args.get("lvl", "bullet") not in ["bullet", "blitz", "rapid"]:
+        args["lvl"] = "bullet"
+    print("Engine level is: ", args.get("lvl", "bullet"))
+    if args.get("mode", "chesscom") == "board":
         CHESSCOM = False
     else:
         CHESSCOM = True
 
-    if not CHESSCOM:
-        _controller = init_board_finder()
+    if CHESSCOM:
+        _controller = init_board_finder(args)
     else:
-        _controller = init_personal_board()
+        _controller = init_personal_board(args)
     while True:
         try:
             winner = _controller.start_game(

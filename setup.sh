@@ -101,5 +101,6 @@ fi
 
 echo "#!/bin/bash" > ChessBot
 echo "export PYGAME_HIDE_SUPPORT_PROMPT=1" >> ChessBot
+echo "export PYTHONPATH=\"\$PYTHONPATH:bin/bash\"" >> ChessBot
 echo "./venv/bin/python3 ./bin/main.py \$@" >> ChessBot
 chmod +x ChessBot
