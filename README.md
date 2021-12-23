@@ -34,10 +34,6 @@ ___
 The development continues. My goal is 2000 ELO on chess.com, and I won't stop
 until I reach it (or get banned).
 
-## Install 
-
-Check [releases](https://github.com/watislaf/chessbot/releases), and download latest ChessBot.zip
-
 ## Build 
 
 Download source files.
@@ -57,7 +53,14 @@ press No, so the OpenCv library will not be downloaded.
   $ bash ./setup.sh       # run to buil the project and answer No only if you do not need 
 ```
 
-At the end, to run a board-game:
+
+## Or just Install 
+
+Check [releases](https://github.com/watislaf/chessbot/releases), and download latest ChessBot.zip
+
+## Run
+
+To run a board-game:
 
 ```bat
   $ ./ChessBot  --mode=board 
