@@ -51,7 +51,7 @@ If you don't need the bot part, but want a taste of a losing game in chess,
 press No, so the OpenCv library will not be downloaded.
 
 ```bash
-  $ ./setup.sh       # run to buil the project and answer No only if you do not need 
+  $ bash ./setup.sh       # run to buil the project and answer No only if you do not need 
 ```
 
 At the end, to run a board-game:
