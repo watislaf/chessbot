@@ -81,11 +81,11 @@ class GameController:
                 if self.__first_player.is_my_move:
                     return "Game end"
                 return "Game endt"
-            try:
-                self.__first_player.apply_move(move)
-                self.__second_player.apply_move(move)
-            except ...:
-                print("Move error...")
+#            try:
+            self.__first_player.apply_move(move)
+            self.__second_player.apply_move(move)
+#            except ...:
+#                print("Move error...")
 
             if self.__window_is_initialized:
                 self.window.apply_move(move)
