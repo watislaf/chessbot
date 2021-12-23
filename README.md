@@ -1,4 +1,5 @@
-# ChessBot
+# ChessBot  <img src="https://user-images.githubusercontent.com/45079123/147250964-53ae261a-dbf4-4c46-9a4d-3f1f3d6d2ab8.png" width="40 px">
+
 
 [![en](https://img.shields.io/badge/lang-en-yellow.svg)](README.md)
 
