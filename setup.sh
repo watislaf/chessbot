@@ -71,16 +71,17 @@ if [[ ! -f "extra/pybind11/LICENSE" ]]; then
 fi
 
 
+# install magics numbers algo from github
+if [[ ! -f "extra/magics/magics.c" ]]; then
+    MAGIC_LINK="https://raw.githubusercontent.com/maksimKorzh/chess_programming/master/src/magics/magics.c"
+    rm extra/magics -r
+    echo "-- add magic generator to ./extra" | wget "$MAGIC_LINK" -P extra/magics
+fi
+  
 # checks x64 version
 if  lscpu|grep "CPU op-mode" | grep 64-bit 1>/dev/null ; then
   echo "-- Found an x64 arch. "
   cmake  -DCMAKE_BUILD_TYPE=Release -D ARCH=64 cmake -B./"$CHESS_ENGINE_BUILD_DIR_NAME" -S./
-  # install magics numbers algo from github
-  if [[ ! -f "extra/magics/magics.c" ]]; then
-    MAGIC_LINK="https://raw.githubusercontent.com/maksimKorzh/chess_programming/master/src/magics/magics.c"
-    rm extra/magics -r
-    echo "-- add magic generator to ./extra" | wget "$MAGIC_LINK" -P extra/magics
-  fi
 
 else
   echo "-- Cant find an x64 arch, your chess algorithm will be slow down. "
