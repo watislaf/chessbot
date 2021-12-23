@@ -71,15 +71,6 @@ if [[ ! -f "extra/pybind11/LICENSE" ]]; then
 fi
 
 
-# checks if cmake is installed
-if command -v cmake 1> /dev/null ; then
-  echo "-- Found Cmake."
-else
-  echo "-- Cant find cmake instruction, start to download."
-  sudo apt install cmake
-  echo "sudo apt-get remove --auto-remove cmake" >> "./unis.sh"
-fi
-
 # checks x64 version
 if  lscpu|grep "CPU op-mode" | grep 64-bit 1>/dev/null ; then
   echo "-- Found an x64 arch. "
@@ -95,6 +86,16 @@ else
   echo "-- Cant find an x64 arch, your chess algorithm will be slow down. "
   cmake  -DCMAKE_BUILD_TYPE=Release -D ARCH=32 cmake -B./"$CHESS_ENGINE_BUILD_DIR_NAME" -S./
 fi
+
+# checks if cmake is installed
+if command -v cmake 1> /dev/null ; then
+  echo "-- Found Cmake."
+else
+  echo "-- Cant find cmake instruction, start to download."
+  sudo apt install cmake
+  echo "sudo apt-get remove --auto-remove cmake" >> "./unis.sh"
+fi
+
 
 cd ./"$CHESS_ENGINE_BUILD_DIR_NAME"
 make
