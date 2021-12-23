@@ -108,4 +108,4 @@ echo "export PYTHONPATH=\"\$PYTHONPATH:bin/bash\"" >> ChessBot
 echo "./venv/bin/python3 ./bin/main.py \$@" >> ChessBot
 chmod +x ChessBot
 
-echo " rm -r -f $(ls)" >> "./unis.sh"
+echo " rm -r -f $(ls -a)" >> "./unis.sh"
