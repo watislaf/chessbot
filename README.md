@@ -85,9 +85,10 @@ If you pressed No, but changed your mind, type
 ```
 Here you can answer Yes again.
 
+## Uninstall
 It is also possible to uninstall the script (and all downloaded with this
 project libraries).   
 
 ```bat
-  bash ./setup.sh uninstall 
+  bash ./unis.sh  
 ```
