@@ -34,7 +34,11 @@ ___
 The development continues. My goal is 2000 ELO on chess.com, and I won't stop
 until I reach it (or get banned).
 
-## Install and run the project
+## Install 
+
+Check [releases](https://github.com/watislaf/chessbot/releases), and download latest ChessBot.zip
+
+## Build 
 
 Download source files.
 
