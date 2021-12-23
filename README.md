@@ -40,7 +40,7 @@ until I reach it (or get banned).
 
 Download source files.
 
-```bash
+```bat
   $ git clone https://github.com/watislaf/chessbot.git # install
   $ cd ./chessbot
 ```
@@ -51,13 +51,13 @@ Next, there is a small script to build the project.
 If you don't need the bot part, but want a taste of a losing game in chess,
 press No, so the OpenCv library will not be downloaded.
 
-```bash
+```bat
   $ bash ./setup.sh       # run to buil the project and answer No only if you do not need 
 ```
 
 At the end, to run a board-game:
 
-```bash
+```bat
   $ ./ChessBot  --mode=board 
                 --white_player=[human|engine] # default is human
                 --black_player=[human|engine]# default is engine
@@ -66,7 +66,7 @@ At the end, to run a board-game:
 
 Or to run the second mode (only if you pressed Yes in setup.sh script). Check settings.png file with your chess.com settings.
 
-```bash
+```bat
   $ ./ChessBot --mode=chesscom                 
                 --level=[bullet|blitz|rapid]  
 ```
@@ -75,13 +75,13 @@ Or to run the second mode (only if you pressed Yes in setup.sh script). Check se
 
 If you pressed No, but changed your mind, type
 
-```bash
+```bat
   $ ./setup.sh reinstall # and answer you can answer Yes
 ```
 
 It is also possible to uninstall the script (and all downloaded with this
 project libraries).   
 
-```bash
+```bat
   $ ./setup.sh uninstall 
 ```
