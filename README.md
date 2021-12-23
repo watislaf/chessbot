@@ -39,8 +39,8 @@ until I reach it (or get banned).
 Download source files.
 
 ```bat
-  $ git clone https://github.com/watislaf/chessbot.git # install
-  $ cd ./chessbot
+  git clone https://github.com/watislaf/chessbot.git # install
+  cd ./chessbot
 ```
 if you don't have git, just download source from this page.
 
@@ -50,10 +50,10 @@ If you don't need the bot part, but want a taste of a losing game in chess,
 press No, so the OpenCv library will not be downloaded.
 
 ```bat
-  $ bash ./setup.sh       # run to buil the project and answer No only if you do not need 
+  bash ./setup.sh      
 ```
-
-
+ Build the project, answer No only if you do not Bot version
+ 
 ## Or just Install 
 
 Check [releases](https://github.com/watislaf/chessbot/releases), and download latest ChessBot.zip
@@ -63,7 +63,7 @@ Check [releases](https://github.com/watislaf/chessbot/releases), and download la
 To run a board-game:
 
 ```bat
-  $ ./ChessBot  --mode=board 
+    ./ChessBot  --mode=board 
                 --white_player=[human|engine] # default is human
                 --black_player=[human|engine]# default is engine
                 --level=[bullet|blitz|rapid]  # 1,3,10 min games. default is bullet
@@ -72,7 +72,7 @@ To run a board-game:
 Or to run the second mode (only if you pressed Yes in setup.sh script). Check settings.png file with your chess.com settings.
 
 ```bat
-  $ ./ChessBot --mode=chesscom                 
+    ./ChessBot --mode=chesscom                 
                 --level=[bullet|blitz|rapid]  
 ```
 
@@ -81,12 +81,13 @@ Or to run the second mode (only if you pressed Yes in setup.sh script). Check se
 If you pressed No, but changed your mind, type
 
 ```bat
-  $ ./setup.sh reinstall # and answer you can answer Yes
+  bash ./setup.sh reinstall 
 ```
+Here you can answer Yes again.
 
 It is also possible to uninstall the script (and all downloaded with this
 project libraries).   
 
 ```bat
-  $ ./setup.sh uninstall 
+  bash ./setup.sh uninstall 
 ```
