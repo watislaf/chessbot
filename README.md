@@ -42,7 +42,7 @@ Download source files.
   git clone https://github.com/watislaf/chessbot.git # install
   cd ./chessbot
 ```
-if you don't have git, just download source from this page.
+if you don't have git, just download source from [this page](https://github.com/watislaf/chessbot/releases/tag/V1.0.1600Elo).
 
 Next, there is a small script to build the project.
 
