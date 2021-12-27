@@ -30,19 +30,19 @@ int Pricer::countOrder(const std::shared_ptr<ObjBoard>& board,
 
   if (move.getStart()->getType() == PieceType::QUEEN) {
     if (endGameCoef(board) < 0.3)
-      answer -= 3;
+      answer -= 15;
   }
 
   if (move.getStart()->getType() == PieceType::PAWN) {
     if (endGameCoef(board) < 0.2)
-      answer += 3;
+      answer += 10;
   }
 
   if (move.isCastle()) {
-    answer += 6;
+    answer += 20;
   }
   if (move.isBrakeLeftCastle() || move.isBrakeLeftCastle()) {
-    answer -= 2;
+    answer -= 20;
   }
 
   if (board->isBlackMove()) {

@@ -2,11 +2,15 @@
 #include "chessEngine.h"
 #include "bitBoard/bit_board.h"
 #include "bitBoard/b_move.h"
-
+#include "bitBoard/BMovesGenerator.h"
 
 TEST(BitBoard, test1) {
-  BitBoard board(FEN("k1pp/p1ppp2p/1pp2pp1/8/8/3PP3/PPP2PPP/K7 w KQkq - 0 1"));
-   std::cout<<board.toStr();
+  BitBoard board(FEN("k7/pppppppp/8/8/8/8/PPPPPPPP/K7 w KQkq - 0 1"));
+  std::cout << board.toStr();
+  auto vector_bmove = BMovesGenerator::generate(&board, BitBoard::WHITE_PIECES);
+  for (const auto& move: vector_bmove) {
+    std::cout << move.toStr() << "\n";
+  }
 }
 
 TEST(ChessAi, TEMP) {

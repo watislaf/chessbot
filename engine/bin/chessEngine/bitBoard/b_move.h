@@ -16,7 +16,7 @@ class BMove {
   enum BFlagType {
     QUIET_MOVES,
     DOUBLE_PAWN_PUSH,
-    KING_CASTLE,  
+    KING_CASTLE,
     QUEEN_CASTLE,
     CAPTURES,
     EP_CAPTURE,
@@ -29,7 +29,9 @@ class BMove {
     ROOK_PROMO_CAPTURE,
     QUEEN_PROMO_CAPTURE,
   };
+  void xorFlags(BFlagType flag);
   uint16_t data() const;
+  std::string toStr() const ;
  private:
   /// 4bits flags, 6bits from, 6bits to
   uint16_t data_ = 0; // or short or template type
@@ -37,6 +39,8 @@ class BMove {
   void setFrom(uint8_t from);
   uint16_t getButterflyIndex() const;
   bool getIsFlagSet(BFlagType flag_type) const;
+  std::pair<uint8_t, uint8_t> getToPair() const;
+  std::pair<uint8_t, uint8_t> getFromPair() const;
 };
 
 #endif //B_MOVE_H

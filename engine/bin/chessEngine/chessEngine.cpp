@@ -13,7 +13,6 @@ ChessEngine::ChessEngine(std::string advance) {
     mode_ = AiAdvanceLvl::A2;
   if (advance == "rapid")
     mode_ = AiAdvanceLvl::A3;
-
 }
 
 void ChessEngine::startNewGame(const std::string& fen_str) {

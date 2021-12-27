@@ -15,7 +15,7 @@ BitBoard {
     BLACK_PIECES = 1,     // any black piece
     WHITE_PAWN = 2,
     BLACK_PAWN = 3,
-    WHITE_NIGHT = 4,
+    WHITE_KNIGHT = 4,
     BLACK_NIGHT = 5,
     WHITE_BISHOP = 6,
     BLACK_BISHOP = 7,
@@ -26,7 +26,7 @@ BitBoard {
     WHITE_KING = 12,
     BLACK_KING = 13,
   };
-
+  std::string str;
   uint64_t pieceBB[14]{};
   uint64_t occupiedBB;
   uint8_t getMoveCount() const;
@@ -58,8 +58,12 @@ BitBoard {
   static const uint64_t notHFile = 0x7f7f7f7f7f7f7f7f;
   static const uint64_t notGHFile = 0xfcfcfcfcfcfcfcfc;
   static const uint64_t notABFile = 0x3f3f3f3f3f3f3f3f;
+  static const uint64_t rank1 = uint64_t(0x00000000000000FF);
+  static const uint64_t rank2 = uint64_t(0x000000000000FF00);
   static const uint64_t rank4 = uint64_t(0x00000000FF000000);
   static const uint64_t rank5 = uint64_t(0x000000FF00000000);
+  static const uint64_t rank7 = uint64_t(0x00FF000000000000);
+  static const uint64_t rank8 = uint64_t(0xFF00000000000000);
 
   ///---              BIT OPERATIONS           ---///
   /// \return count one in set
@@ -141,11 +145,15 @@ BitBoard {
                                      const uint64_t& empty);
   static uint64_t wPawnsAble2Push(const uint64_t& wpawns,
                                   const uint64_t& empty);
+  static uint64_t wPawnsAble2DblPush(const uint64_t& wpawns,
+                                     const uint64_t& empty);
+  static uint64_t bPawnsAble2Push(const uint64_t& bpawns,
+                                  const uint64_t& empty);
+  static uint64_t bPawnsAble2DblPush(const uint64_t& bpawns,
+                                     const uint64_t& empty);
   static uint64_t wDblPushTargets(const uint64_t& wpawns,
                                   const uint64_t& empty);
   static uint64_t bDoublePushTargets(const uint64_t& bpawns,
-                                     const uint64_t& empty);
-  static uint64_t wPawnsAble2DblPush(const uint64_t& wpawns,
                                      const uint64_t& empty);
 
   static uint64_t wPawnEastAttacks(const uint64_t& wpawns);
@@ -223,12 +231,21 @@ BitBoard {
   uint64_t getLeastValuablePiece(uint64_t attadef, int bySide, int& piece);
   int see(int toSq, BPieceType target, int frSq, BPieceType aPiece);
 
+  const uint64_t& getLastDoublePush() const;
+
+  static uint64_t wPawnsAble2WestEP(uint64_t wpawns, const uint64_t& file);
+  static uint64_t wPawnsAble2EastEP(uint64_t wpawns, const uint64_t& file);
+  static uint64_t bPawnsAble2WestEP(uint64_t bpawns, const uint64_t& file);
+  static uint64_t bPawnsAble2EastEP(uint64_t bpawns, const uint64_t& file);
  private:
   static uint64_t pawn_attacks_[2][64];
   static uint64_t king_attacks_[64];
   static uint64_t knight_attacks_[64];
   static uint64_t ray_attacks_[64][8];
+
+  uint64_t _last_double_push = 0;
   static uint64_t file_attacks_[64];
+
   static uint64_t rank_attacks_[64];
   static uint64_t diagonal_attacks_[64];
   static uint64_t anti_diagonal_attacks_[64];

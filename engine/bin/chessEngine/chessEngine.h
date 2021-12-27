@@ -1,6 +1,7 @@
 #ifndef CHESS_CHESSAI_H
 #define CHESS_CHESSAI_H
 
+
 #include <memory>
 #include "objBoard/objBoard.h"
 #include "objBoard/movesGenerator.h"
@@ -9,7 +10,6 @@
 #include <algorithm>
 #include <tools/pricer.h>
 #include <iostream>
-
 class ChessEngine {
  public:
   explicit ChessEngine(std::string difficulty = "A1");

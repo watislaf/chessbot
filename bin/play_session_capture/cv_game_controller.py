@@ -17,11 +17,11 @@ class CVGameController:
         if play_as_white:
             self.white_board = [['*'] * 2 + ['_'] * 6] * 8
             self.black_board = [['_'] * 6 + ['*'] * 2] * 8
-            self.pawns_board = [['_'] * 6 + ['*'] + ['_']] * 8
+            self.pawns_board = [(['_'] * 6 + ['*'] + ['_']) for i in range(8)]
         else:
             self.black_board = [['*'] * 2 + ['_'] * 2] * 8
             self.white_board = [['_'] * 6 + ['*'] * 2] * 8
-            self.pawns_board = [['_'] * 6 + ['*'] + ['_']] * 8
+            self.pawns_board = [(['_'] * 6 + ['*'] + ['_']) for i in range(8)]
 
     def push_board(self, new_board):
         if not self.is_play_as_white:
@@ -42,7 +42,6 @@ class CVGameController:
                 if new_board[i][j] != my_matrix[i][j]:
                     differences.append(
                         [self.get_index(i), self.get_index(j), my_matrix[i][j]])
-
         if len(differences) == 4:  # castle
             try:
                 king_from = next(
@@ -73,7 +72,6 @@ class CVGameController:
                        differences))[:-1], next(
                 filter(lambda move: move[2] == '_',
                        differences))[:-1])
-            self.is_last_move_was_pawn_promotion()
             return True
         return False
 
@@ -99,13 +97,13 @@ class CVGameController:
         start_i, start_j = self.__last_move[0]
         start_i, start_j = self.get_index(start_i), \
                            self.get_index(start_j)
-        end_i, end_j = self.__last_move[0]
+        end_i, end_j = self.__last_move[1]
         end_i, end_j = self.get_index(end_i), \
                        self.get_index(end_j)
 
         if self.pawns_board[start_i][start_j] == "*":
             self.pawns_board[start_i][start_j] = "_"
-            if end_j == 8:
+            if end_j == 0:
                 return True
             self.pawns_board[end_i][end_j] = "*"
         return False

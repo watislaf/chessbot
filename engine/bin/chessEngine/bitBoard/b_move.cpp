@@ -17,6 +17,14 @@ uint8_t BMove::getTo() const {
 uint8_t BMove::getFrom() const {
   return (data_ >> 6) & 0x3f;
 }
+
+std::pair<uint8_t, uint8_t> BMove::getToPair() const {
+  return {getTo() % 8, getTo() / 8};
+}
+std::pair<uint8_t, uint8_t> BMove::getFromPair() const {
+  return {getFrom() % 8, getFrom() / 8};
+}
+
 uint8_t BMove::getFlags() const {
   return (data_ >> 12) & 0x0f;
 }
@@ -48,4 +56,13 @@ bool BMove::operator!=(const BMove& a) const {
 
 uint16_t BMove::data() const {
   return data_;
+}
+std::string BMove::toStr() const {
+  return std::string("((") + char('0' + getFromPair().first) + ','
+      + char('0' + getFromPair().second) + "),("
+      + char('0' + getToPair().first) + ','
+      + char('0' + getToPair().second) + "))";
+}
+void BMove::xorFlags(BMove::BFlagType flag) {
+  data_ ^= flag;
 }

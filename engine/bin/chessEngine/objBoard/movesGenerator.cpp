@@ -258,6 +258,14 @@ void MovesGenerator::castleMove() {
   }
   if (board_->LcIsPossible(
       piece_->getPieceColor() == ColorType::WHITE)) {
+    auto rock_mo_move = board_->getPiece(
+        Position(0, 7 * (piece_->getPieceColor()
+            != ColorType::WHITE)));
+    if (rock_mo_move->getType() != PieceType::RUCK
+        || rock_mo_move->getPieceColor() != piece_->getPieceColor()) {
+      return;
+    }
+
     auto positions_left =
         goByVector(piece_->getPosition(), Position(-1, 0));
     if (positions_left.size() == 4) {
@@ -269,6 +277,13 @@ void MovesGenerator::castleMove() {
   }
   if (board_->RcIsPossible(
       piece_->getPieceColor() == ColorType::WHITE)) {
+    auto rock_mo_move = board_->getPiece(
+        Position(7, 7 * (piece_->getPieceColor()
+            != ColorType::WHITE)));
+    if (rock_mo_move->getType() != PieceType::RUCK
+        || rock_mo_move->getPieceColor() != piece_->getPieceColor()) {
+      return;
+    }
     auto positions_right =
         goByVector(piece_->getPosition(), Position(1, 0));
     if (positions_right.size() == 3) {
@@ -318,7 +333,7 @@ bool MovesGenerator::isShah(bool is_white) {
   Position king_pos =
       board_->getPiece(board_->getKingPosition(is_white))->getPosition();
   const auto& list_of_pieces = board_->getActivePieceList(!is_white);
-  for (auto piece: list_of_pieces) {
+  for (const auto& piece: list_of_pieces) {
     auto piece_pos = piece->getPosition();
     if (piece_pos == king_pos) {
       return true;

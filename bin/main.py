@@ -4,7 +4,6 @@ witch divide two main modes - play on your own board with bot and make
 engine to play versus chess.com player.
 """
 import sys
-import argparse
 
 from bin.gamecontroller import GameController
 from bin.player.ai_player import AiPlayer

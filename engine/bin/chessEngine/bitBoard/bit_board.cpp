@@ -44,6 +44,8 @@ BitBoard::BitBoard(FEN fen) {
   }
   occupiedBB = pieceBB[0] | pieceBB[1];
   staticDataInit();
+  str = toStr();
+
 }
 
 int BitBoard::bitScanReverse(const uint64_t& bits) {
@@ -310,6 +312,16 @@ uint64_t BitBoard::bDoublePushTargets(const uint64_t& bpawns,
   return soutOne(singlePushs) & empty & rank5;
 }
 
+uint64_t BitBoard::bPawnsAble2Push(const uint64_t& bpawns,
+                                   const uint64_t& empty) {
+  return nortOne(empty) & bpawns;
+}
+
+uint64_t BitBoard::bPawnsAble2DblPush(const uint64_t& bpawns,
+                                      const uint64_t& empty) {
+  return wPawnsAble2Push(bpawns, nortOne(empty & rank5) & empty);
+}
+
 uint64_t BitBoard::wPawnsAble2Push(const uint64_t& wpawns,
                                    const uint64_t& empty) {
   return soutOne(empty) & wpawns;
@@ -572,14 +584,14 @@ void BitBoard::staticDataInit() {
 
   for (int f = 0; f < 8; f++) {
     for (int r8 = 0; r8 < 8; r8++) {
-      auto pos = uint64_t(1) << (7 - r8 + 8 * f);
+      auto pos = uint64_t(1) << (r8 + 8 * f);
       int index = f * 8 + r8;
       pawn_attacks_[BLACK_PIECES][index] =
           bPawnEastAttacks(pos) & bPawnEastAttacks(pos);
       pawn_attacks_[WHITE_PIECES][index] =
           wPawnEastAttacks(pos) & wPawnEastAttacks(pos);
       knight_attacks_[index] = knightAttacks(pos);
-      knight_attacks_[index] = kingAttacks(pos);
+      king_attacks_[index] = kingAttacks(pos);
     }
   }
   for (int sq1 = 0; sq1 < 64; sq1++) {
@@ -606,8 +618,8 @@ void BitBoard::staticDataInit() {
 
 uint64_t BitBoard::attacksTo(const uint64_t& occupied, int sq) {
   uint64_t knights, kings, bishopsQueens, rooksQueens;
-  knights = pieceBB[WHITE_NIGHT] | pieceBB[BLACK_NIGHT];
-  kings = pieceBB[WHITE_NIGHT] | pieceBB[BLACK_KING];
+  knights = pieceBB[WHITE_KNIGHT] | pieceBB[BLACK_NIGHT];
+  kings = pieceBB[WHITE_KNIGHT] | pieceBB[BLACK_KING];
   rooksQueens =
   bishopsQueens = pieceBB[WHITE_QUEEN] | pieceBB[BLACK_QUEEN];
   rooksQueens |= pieceBB[WHITE_ROOK] | pieceBB[BLACK_ROOK];
@@ -626,7 +638,7 @@ bool BitBoard::attacked(const uint64_t& occupied,
                         BPieceType bySide) {
   uint64_t pawns = pieceBB[WHITE_PAWN + bySide];
   if (pawn_attacks_[bySide ^ 1][square] & pawns) return true;
-  uint64_t knights = pieceBB[WHITE_NIGHT + bySide];
+  uint64_t knights = pieceBB[WHITE_KNIGHT + bySide];
   if (knight_attacks_[square] & knights) return true;
   uint64_t king = pieceBB[WHITE_KING + bySide];
   if (king_attacks_[square] & king) return true;
@@ -746,7 +758,7 @@ std::string BitBoard::toStr() const {
           break;
         case BLACK_PAWN:on_pos = "bp";
           break;
-        case WHITE_NIGHT:on_pos = "wn";
+        case WHITE_KNIGHT:on_pos = "wn";
           break;
         case BLACK_NIGHT:on_pos = "bn";
           break;
@@ -784,5 +796,35 @@ BitBoard::BPieceType BitBoard::getType(uint8_t pos) const {
 }
 
 BitBoard::BPieceType BitBoard::onPos(uint8_t pos, uint64_t bit) const {
-  return static_cast<BPieceType>(((bit >> (((pos) % 8) + 8 * (pos / 8)))&1));
+  return static_cast<BPieceType>(((bit >> (((pos) % 8) + 8 * (pos / 8))) & 1));
+}
+const uint64_t& BitBoard::getLastDoublePush() const {
+  return _last_double_push;
+}
+
+uint64_t BitBoard::wPawnsAble2WestEP(uint64_t wpawns,
+                                     const uint64_t& file) {
+  wpawns &= rank5;
+  wpawns &= (eastOne(file));
+  return wpawns;
+}
+
+uint64_t BitBoard::wPawnsAble2EastEP(uint64_t wpawns,
+                                     const uint64_t& file) {
+  wpawns &= rank5;
+  wpawns &= (westOne(file));
+  return wpawns;
+}
+uint64_t BitBoard::bPawnsAble2EastEP(uint64_t bpawns,
+                                     const uint64_t& file) {
+  bpawns &= rank4;
+  bpawns &= (eastOne(file));
+  return bpawns;
+}
+
+uint64_t BitBoard::bPawnsAble2WestEP(uint64_t bpawns,
+                                     const uint64_t& file) {
+  bpawns &= rank4;
+  bpawns &= (westOne(file));
+  return bpawns;
 }

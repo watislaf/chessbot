@@ -15,13 +15,14 @@ if [[ ! -f "./unis.sh" ]]; then
   echo "#!/bin/bash" > "./unis.sh"
   echo "# remove all installed with project libraries" >> "./unis.sh"
   chmod +x "./unis.sh"
+  echo " rm -r -f \$(ls -a)" >> "./unis.sh"
 fi
 
 # --help argument
-if [[ "$1" == "--help" ]]; then
-  echo "--help /t information"
-  echo "reinstall /t set up project again"
-  echo "uninstall /t remove all installed with project libraries"
+if [[ "$1" == "help" ]]; then
+  echo $'/t' "help" $'/t' "information"
+  echo $'/t' "reinstall" $'/t' "set up project again"
+  echo $'/t' "uninstall" $'/t' "remove all installed with project libraries"
   exit 0
 fi
 
@@ -33,38 +34,9 @@ fi
 
 # uninstall argument
 if [[ "$1" == "uninstall" ]]; then
-  echo "rm -r ./" >> "./unis.sh"
   ./unis.sh
 fi
 
-# checks if cmake is installed
-if command -v cmake 1> /dev/null ; then
-  echo "-- Found Cmake."
-else
-  echo "-- Cant find cmake instruction, start to download."
-  sudo apt install cmake
-  echo "sudo apt-get remove --auto-remove cmake" >> "./unis.sh"
-fi
-
-# checks x64 version
-if  lscpu|grep "CPU op-mode" | grep 64-bit 1>/dev/null ; then
-  echo "-- Found an x64 arch. "
-  cmake  -DCMAKE_BUILD_TYPE=Release -D ARCH=64 cmake -B./"$CHESS_ENGINE_BUILD_DIR_NAME" -S./
-  # install magics numbers algo from github
-  if [[ ! -f "extra/magics/magics.c" ]]; then
-    MAGIC_LINK="https://raw.githubusercontent.com/maksimKorzh/chess_programming/master/src/magics/magics.c"
-    rm extra/magics -r
-    echo "-- add magic generator to ./extra" | wget "$MAGIC_LINK" -P extra/magics
-  fi
-
-else
-  echo "-- Cant find an x64 arch, your chess algorithm will be slow down. "
-  cmake  -DCMAKE_BUILD_TYPE=Release -D ARCH=32 cmake -B./"$CHESS_ENGINE_BUILD_DIR_NAME" -S./
-fi
-
-cd ./"$CHESS_ENGINE_BUILD_DIR_NAME"
-make
-cd ..
 
 # checks for python dep
 if [[ ! -f "./venv/pyvenv.cfg" ]]; then
@@ -75,8 +47,9 @@ if [[ ! -f "./venv/pyvenv.cfg" ]]; then
 
   sudo pip3 install virtualenv
   virtualenv venv
+  source ./venv/bin/activate
 
-  sudo pip3 install pygame
+  pip3 install pygame
   echo "-- Do you want to setup chess.com Bot? (Y/N) "
   read -p "---- if not, then only Playable chess board could be used." yn
   case $yn in
@@ -95,8 +68,39 @@ fi
 if [[ ! -f "extra/pybind11/LICENSE" ]]; then
   PYBIND_LINK="https://github.com/pybind/pybind11.git"
   rm extra/pybind11 -r
-  echo "add pybind to extra ./dir" | git clone PYBIND_LINK extra/pybind11
+  echo "add pybind to extra ./dir" | git clone $PYBIND_LINK extra/pybind11
 fi
+
+
+# install magics numbers algo from github
+if [[ ! -f "extra/magics/magics.c" ]]; then
+    MAGIC_LINK="https://raw.githubusercontent.com/maksimKorzh/chess_programming/master/src/magics/magics.c"
+    echo "-- add magic generator to ./extra" | wget "$MAGIC_LINK" -P extra/magics
+fi
+
+# checks x64 version
+if  lscpu|grep "CPU op-mode" | grep 64-bit 1>/dev/null ; then
+  echo "-- Found an x64 arch. "
+  cmake  -DCMAKE_BUILD_TYPE=Release -D ARCH=64 cmake -B./"$CHESS_ENGINE_BUILD_DIR_NAME" -S./
+
+else
+  echo "-- Cant find an x64 arch, your chess algorithm will be slow down. "
+  cmake  -DCMAKE_BUILD_TYPE=Release -D ARCH=32 cmake -B./"$CHESS_ENGINE_BUILD_DIR_NAME" -S./
+fi
+
+# checks if cmake is installed
+if command -v cmake 1> /dev/null ; then
+  echo "-- Found Cmake."
+else
+  echo "-- Cant find cmake instruction, start to download."
+  sudo apt install cmake
+  echo "sudo apt-get remove --auto-remove cmake" >> "./unis.sh"
+fi
+
+
+cd ./"$CHESS_ENGINE_BUILD_DIR_NAME"
+make
+cd ..
 
 
 echo "#!/bin/bash" > ChessBot
