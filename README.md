@@ -4,7 +4,7 @@
 Bot to play chess on [chess.com](https://www.qt.io) for me  (cause
 i am to lazy to learn how to bee good at chess)(Linux only).
 
-Current ELO rating is **1596**.
+Current ELO rating is **1696**.
 ___
 
 #### You can try out the Engine or compete it with other players.
