@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
 #include "chessEngine.h"
-#include "bitBoard/bit_board.h"
-#include "bitBoard/b_move.h"
-#include "bitBoard/BMovesGenerator.h"
+#include "bitBoard/bBoard.h"
+#include "bitBoard/bMove.h"
+#include "bitBoard/bMovesGenerator.h"
 
-TEST(BitBoard, test1) {
-  BitBoard board(FEN("k7/pppppppp/8/8/8/8/PPPPPPPP/K7 w KQkq - 0 1"));
+TEST(BBoard, test1) {
+  BBoard board(FEN("k7/pppppppp/8/8/8/8/PPPPPPPP/K7 w KQkq - 0 1"));
   std::cout << board.toStr();
-  auto vector_bmove = BMovesGenerator::generate(&board, BitBoard::WHITE_PIECES);
+  auto vector_bmove = BMovesGenerator::generate(&board, BBoard::WHITE_PIECES);
   for (const auto& move: vector_bmove) {
     std::cout << move.toStr() << "\n";
   }
@@ -16,8 +16,7 @@ TEST(BitBoard, test1) {
 TEST(ChessAi, TEMP) {
   ChessEngine chess_ai("A1");
   chess_ai.startNewGame(
-      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-  chess_ai.applyMoveParams(4, 1, 4, 3);
+      "1k1r4/8/8/1p6/8/2N1n3/PPP5/K7 w - - 0 1");
   auto move = chess_ai.getBestMove();
   chess_ai.applyMove(move);
   std::cerr << move.toStr();

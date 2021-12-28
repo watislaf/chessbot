@@ -1,13 +1,12 @@
-#include <memory>
-#include <cstring>
-#include "BMovesGenerator.h"
+
+#include "bMovesGenerator.h"
 
 BMove BMovesGenerator::moves_free_space[MAX_MOVES];
 uint8_t  BMovesGenerator::cur_moves_count_ = 0;
 
-std::vector<BMove> BMovesGenerator::generate(BitBoard* board,
-                                             BitBoard::BPieceType color) {
-  auto enemy_color = static_cast<BitBoard::BPieceType>(!color);
+std::vector<BMove> BMovesGenerator::generate(BBoard* board,
+                                             BBoard::BPieceType color) {
+  auto enemy_color = static_cast<BBoard::BPieceType>(!color);
   cur_moves_count_ = 0;
   auto empty = ~board->get(color)
       & ~board->get(enemy_color);
@@ -26,45 +25,45 @@ void BMovesGenerator::generateMovesFromPosition(uint8_t start_pos,
                                                 uint8_t flag) {
   uint8_t end_position;
   while (attacks) {
-    end_position = BitBoard::bitScanForward(attacks);
+    end_position = BBoard::bitScanForward(attacks);
     attacks &= attacks - 1;
     moves_free_space[cur_moves_count_++] = BMove(start_pos, end_position, flag);
   }
 }
-void BMovesGenerator::Pawn(const BitBoard* board,
-                           const BitBoard::BPieceType& color,
-                           const BitBoard::BPieceType& enemy_color,
+void BMovesGenerator::Pawn(const BBoard* board,
+                           const BBoard::BPieceType& color,
+                           const BBoard::BPieceType& enemy_color,
                            const uint64_t& empty,
                            const uint64_t& enemy) {
   // PAWN
   uint8_t start_pos;
-  auto pawns_on_board = board->get(BitBoard::WHITE_PAWN, color);
+  auto pawns_on_board = board->get(BBoard::WHITE_PAWN, color);
   uint64_t pawns_ready_to_push;
   uint64_t pawns_ready_to_double_push;
   uint64_t pawns_ready_to_get_west;
   uint64_t pawns_ready_to_get_east;
   uint64_t pawns_ready_to_ep;
   int start = cur_moves_count_;
-  if (color == BitBoard::WHITE_PIECES) {
-    pawns_ready_to_push = BitBoard::wPawnsAble2Push(pawns_on_board, empty);
+  if (color == BBoard::WHITE_PIECES) {
+    pawns_ready_to_push = BBoard::wPawnsAble2Push(pawns_on_board, empty);
     while (pawns_ready_to_push) {
-      start_pos = BitBoard::bitScanForward(pawns_ready_to_push);
+      start_pos = BBoard::bitScanForward(pawns_ready_to_push);
       pawns_ready_to_push &= pawns_ready_to_push - 1;
       moves_free_space[cur_moves_count_++] =
           BMove(start_pos, start_pos + 8, 0);
     }
     pawns_ready_to_get_west =
-        BitBoard::wPawnsAble2CaptureWest(pawns_on_board, enemy);
+        BBoard::wPawnsAble2CaptureWest(pawns_on_board, enemy);
     while (pawns_ready_to_get_west) {
-      start_pos = BitBoard::bitScanForward(pawns_ready_to_get_west);
+      start_pos = BBoard::bitScanForward(pawns_ready_to_get_west);
       pawns_ready_to_get_west &= pawns_ready_to_get_west - 1;
       moves_free_space[cur_moves_count_++] =
           BMove(start_pos, start_pos + 7, BMove::BFlagType::CAPTURES);
     }
     pawns_ready_to_get_east =
-        BitBoard::wPawnsAble2CaptureEast(pawns_on_board, enemy);
+        BBoard::wPawnsAble2CaptureEast(pawns_on_board, enemy);
     while (pawns_ready_to_get_east) {
-      start_pos = BitBoard::bitScanForward(pawns_ready_to_get_east);
+      start_pos = BBoard::bitScanForward(pawns_ready_to_get_east);
       pawns_ready_to_get_east &= pawns_ready_to_get_east - 1;
       moves_free_space[cur_moves_count_++] =
           BMove(start_pos, start_pos + 9, BMove::BFlagType::CAPTURES);
@@ -82,50 +81,50 @@ void BMovesGenerator::Pawn(const BitBoard* board,
       }
     }
     pawns_ready_to_double_push =
-        BitBoard::wPawnsAble2DblPush(pawns_on_board, empty);
+        BBoard::wPawnsAble2DblPush(pawns_on_board, empty);
     while (pawns_ready_to_double_push) {
-      start_pos = BitBoard::bitScanForward(pawns_ready_to_double_push);
+      start_pos = BBoard::bitScanForward(pawns_ready_to_double_push);
       pawns_ready_to_double_push &= pawns_ready_to_double_push - 1;
       moves_free_space[cur_moves_count_++] =
           BMove(start_pos, start_pos + 16, BMove::BFlagType::DOUBLE_PAWN_PUSH);
     }
     pawns_ready_to_ep =
-        BitBoard::wPawnsAble2WestEP(pawns_on_board, board->getLastDoublePush());
+        BBoard::wPawnsAble2WestEP(pawns_on_board, board->getLastDoublePush());
     while (pawns_ready_to_ep) {
-      start_pos = BitBoard::bitScanForward(pawns_ready_to_ep);
+      start_pos = BBoard::bitScanForward(pawns_ready_to_ep);
       pawns_ready_to_ep &= pawns_ready_to_ep - 1;
       moves_free_space[cur_moves_count_++] =
           BMove(start_pos, start_pos + 7, BMove::BFlagType::EP_CAPTURE);
     }
     pawns_ready_to_ep =
-        BitBoard::wPawnsAble2EastEP(pawns_on_board, board->getLastDoublePush());
+        BBoard::wPawnsAble2EastEP(pawns_on_board, board->getLastDoublePush());
     while (pawns_ready_to_ep) {
-      start_pos = BitBoard::bitScanForward(pawns_ready_to_ep);
+      start_pos = BBoard::bitScanForward(pawns_ready_to_ep);
       pawns_ready_to_ep &= pawns_ready_to_ep - 1;
       moves_free_space[cur_moves_count_++] =
           BMove(start_pos, start_pos + 9, BMove::BFlagType::EP_CAPTURE);
     }
 
   } else {
-    pawns_ready_to_push = BitBoard::bPawnsAble2Push(pawns_on_board, empty);
+    pawns_ready_to_push = BBoard::bPawnsAble2Push(pawns_on_board, empty);
     while (pawns_ready_to_push) {
-      start_pos = BitBoard::bitScanForward(pawns_ready_to_push);
+      start_pos = BBoard::bitScanForward(pawns_ready_to_push);
       pawns_ready_to_push &= pawns_ready_to_push - 1;
       moves_free_space[cur_moves_count_++] =
           BMove(start_pos, start_pos - 8, 0);
     }
     pawns_ready_to_get_west =
-        BitBoard::bPawnsAble2CaptureWest(pawns_on_board, enemy);
+        BBoard::bPawnsAble2CaptureWest(pawns_on_board, enemy);
     while (pawns_ready_to_get_west) {
-      start_pos = BitBoard::bitScanForward(pawns_ready_to_get_west);
+      start_pos = BBoard::bitScanForward(pawns_ready_to_get_west);
       pawns_ready_to_get_west &= pawns_ready_to_get_west - 1;
       moves_free_space[cur_moves_count_++] =
           BMove(start_pos, start_pos - 9, BMove::BFlagType::CAPTURES);
     }
     pawns_ready_to_get_east =
-        BitBoard::bPawnsAble2CaptureEast(pawns_on_board, enemy);
+        BBoard::bPawnsAble2CaptureEast(pawns_on_board, enemy);
     while (pawns_ready_to_get_east) {
-      start_pos = BitBoard::bitScanForward(pawns_ready_to_get_east);
+      start_pos = BBoard::bitScanForward(pawns_ready_to_get_east);
       pawns_ready_to_get_east &= pawns_ready_to_get_east - 1;
       moves_free_space[cur_moves_count_++] =
           BMove(start_pos, start_pos - 7, BMove::BFlagType::CAPTURES);
@@ -143,25 +142,25 @@ void BMovesGenerator::Pawn(const BitBoard* board,
       }
     }
     pawns_ready_to_double_push =
-        BitBoard::bPawnsAble2DblPush(pawns_on_board, empty);
+        BBoard::bPawnsAble2DblPush(pawns_on_board, empty);
     while (pawns_ready_to_double_push) {
-      start_pos = BitBoard::bitScanForward(pawns_ready_to_double_push);
+      start_pos = BBoard::bitScanForward(pawns_ready_to_double_push);
       pawns_ready_to_double_push &= pawns_ready_to_double_push - 1;
       moves_free_space[cur_moves_count_++] =
           BMove(start_pos, start_pos - 16, BMove::BFlagType::DOUBLE_PAWN_PUSH);
     }
     pawns_ready_to_ep =
-        BitBoard::bPawnsAble2WestEP(pawns_on_board, board->getLastDoublePush());
+        BBoard::bPawnsAble2WestEP(pawns_on_board, board->getLastDoublePush());
     while (pawns_ready_to_ep) {
-      start_pos = BitBoard::bitScanForward(pawns_ready_to_ep);
+      start_pos = BBoard::bitScanForward(pawns_ready_to_ep);
       pawns_ready_to_ep &= pawns_ready_to_ep - 1;
       moves_free_space[cur_moves_count_++] =
           BMove(start_pos, start_pos - 9, BMove::BFlagType::EP_CAPTURE);
     }
     pawns_ready_to_ep =
-        BitBoard::bPawnsAble2EastEP(pawns_on_board, board->getLastDoublePush());
+        BBoard::bPawnsAble2EastEP(pawns_on_board, board->getLastDoublePush());
     while (pawns_ready_to_ep) {
-      start_pos = BitBoard::bitScanForward(pawns_ready_to_ep);
+      start_pos = BBoard::bitScanForward(pawns_ready_to_ep);
       pawns_ready_to_ep &= pawns_ready_to_ep - 1;
       moves_free_space[cur_moves_count_++] =
           BMove(start_pos, start_pos - 7, BMove::BFlagType::EP_CAPTURE);
@@ -169,25 +168,25 @@ void BMovesGenerator::Pawn(const BitBoard* board,
   }
 }
 
-void BMovesGenerator::Knight(const BitBoard* board,
-                             const BitBoard::BPieceType& color,
-                             const BitBoard::BPieceType& enemy_color,
+void BMovesGenerator::Knight(const BBoard* board,
+                             const BBoard::BPieceType& color,
+                             const BBoard::BPieceType& enemy_color,
                              const uint64_t& empty,
                              const uint64_t& enemy) {
 
   uint8_t start_pos;
-  auto knight_on_board = board->get(BitBoard::WHITE_KNIGHT, color);
+  auto knight_on_board = board->get(BBoard::WHITE_KNIGHT, color);
   uint64_t knight_atack;
   while (knight_on_board) {
     start_pos =
-        BitBoard::bitScanForward(knight_on_board);
+        BBoard::bitScanForward(knight_on_board);
     knight_on_board &= knight_on_board - 1;
-    knight_atack = BitBoard::knightAttacks(start_pos) & empty;
+    knight_atack = BBoard::knightAttacks(start_pos) & empty;
     generateMovesFromPosition(
         start_pos,
         knight_atack
     );
-    knight_atack = BitBoard::knightAttacks(start_pos) & enemy;
+    knight_atack = BBoard::knightAttacks(start_pos) & enemy;
     generateMovesFromPosition(
         start_pos,
         knight_atack,

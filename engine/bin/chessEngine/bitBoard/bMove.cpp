@@ -1,5 +1,5 @@
 #include <iomanip>
-#include "b_move.h"
+#include "bMove.h"
 
 BMove::BMove(uint8_t from, uint8_t to, uint8_t flags) {
   data_ = (flags & 0xf);
@@ -43,10 +43,6 @@ bool BMove::getIsFlagSet(BFlagType flag_type) const {
   return (data_ & flag_type) != 0;
 }
 
-uint16_t BMove::getButterflyIndex() const {
-  return data_ & 0x0fff;
-}
-
 bool BMove::operator==(const BMove& a) const {
   return (data_ & 0xffff) == (a.data_ & 0xffff);
 }
@@ -65,4 +61,25 @@ std::string BMove::toStr() const {
 }
 void BMove::xorFlags(BMove::BFlagType flag) {
   data_ ^= flag;
+}
+void BMove::setNewPieceType(PieceType type) {
+  data_ |= static_cast<uint8_t>(type);
+}
+BMove BMove::makeInvalid() {
+  data_ = -1;
+  return *this;
+}
+bool BMove::isInvalid() const {
+  return data_ == uint16_t(-1);
+}
+PieceType BMove::getNewPieceType() const {
+  return static_cast<PieceType>(data_
+      & (KING_PROMOTION |
+          KNIGHT_PROMOTION |
+          ROOK_PROMOTION |
+          QUEEN_PROMOTION |
+          BISHOP_PROMOTION));
+}
+BMove::BMove() {
+  data_ = -1;
 }

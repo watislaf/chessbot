@@ -6,9 +6,9 @@ set(LIB_HEADERS
         chessEngine/objBoard/objBoard.cpp
         chessEngine/objBoard/piece.cpp
         chessEngine/objBoard/movesGenerator.cpp
-        chessEngine/bitBoard/bit_board.cpp
-        chessEngine/bitBoard/b_move.cpp
-        chessEngine/bitBoard/BMovesGenerator.cpp
+        chessEngine/bitBoard/bBoard.cpp
+        chessEngine/bitBoard/bMove.cpp
+        chessEngine/bitBoard/bMovesGenerator.cpp
         chessEngine/tools/pricer.cpp
         chessEngine/tools/fen.cpp
         chessEngine/abstracts/move.cpp
@@ -21,6 +21,8 @@ set(LIB_HEADERS
 set(LIB_HEADERS ${LIB_HEADERS} ${EXTRA_DIR}/magics/magics.c)
 ADD_LIBRARY(${AI_LIB_NAME} STATIC ${LIB_HEADERS})
 target_compile_definitions(${AI_LIB_NAME} PRIVATE ARCH=${ARCH})
+
+target_compile_definitions(${AI_LIB_NAME} PUBLIC ARCH=64)
 
 
 target_include_directories(${AI_LIB_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/chessEngine)

@@ -1,5 +1,6 @@
 
 #include "chessEngine.h"
+#include "bitBoard/bMovesGenerator.h"
 
 ChessEngine::ChessEngine(std::string advance) {
   mode_ = AiAdvanceLvl::A1;
@@ -34,6 +35,8 @@ void ChessEngine::startNewGame(const std::string& fen_str) {
 }
 
 std::string ChessEngine::getPossibleMovesForPosition(short x, short y) {
+
+#if ARCH == 32
   auto moves = MovesGenerator(
       main_board_, main_board_->getPiece(
           Position(x, y))).generateMoves();
@@ -42,6 +45,17 @@ std::string ChessEngine::getPossibleMovesForPosition(short x, short y) {
     answer += move.toStr() + " ";
   }
   return answer;
+
+#else
+  auto moves = MovesGenerator::generate(&*main_board_, main_board_->whosTurn());
+  std::string answer;
+  for (const auto& move: moves) {
+    if (Position(move.getFromPair()) == Position(x, y))
+      answer += move.toStr() + " ";
+  }
+  return answer;
+
+#endif
 }
 
 std::string ChessEngine::getBoardStr() const {
@@ -68,6 +82,7 @@ std::string ChessEngine::getBestMoveStr() {
 }
 
 Move ChessEngine::getBestMove() {
+#if ARCH == 32
   auto empty_piece = std::make_shared<Piece>();
   auto empty_move = Move(empty_piece, empty_piece);
   if (main_board_->getMoveCount() > 120) {
@@ -80,8 +95,19 @@ Move ChessEngine::getBestMove() {
       && MovesGenerator(main_board_).isShah(main_board_->isWhiteTurn())) {
     best_move.setNewPieceType(PieceType::KING);
   }
-
   return best_move;
+#else
+  if (main_board_->getMoveCount() > 120) {
+    return Move();
+  }
+  auto best_move = tree_moves_->getBestMove();
+
+  if (best_move.isInvalid()
+      && main_board_->isShah(main_board_->whosTurn())) {
+    best_move.setNewPieceType(PieceType::KING);
+  }
+  return best_move;
+#endif
 }
 
 void ChessEngine::applyMoveParams(short fx, short fy, short tx, short ty,
@@ -99,19 +125,31 @@ void ChessEngine::applyMoveParams(short fx, short fy, short tx, short ty,
     case '_':new_piece_type = PieceType::NONE;
       break;
   }
-
+#if ARCH == 32
   auto naked_move = Move(main_board_->getPiece(Position(fx, fy)),
                          main_board_->getPiece(Position(tx, ty)));
+#else
+  auto naked_move = Move(fx + fy * 8, tx + ty * 8);
+#endif
   naked_move.setNewPieceType(new_piece_type);
   applyMove(naked_move);
 }
 
 void ChessEngine::applyMove(const Move& naked_move) {
+#if ARCH == 32
   if (naked_move.getStart()->getPosition() == Position(9, 9)) {
     std::cout << "CNAT APPLY EMPTY MOVE";
     return;
   }
   const auto& full_move = tree_moves_->apply(naked_move);
   main_board_->apply(full_move);
+#else
+  if (naked_move.isInvalid()) {
+    std::cout << "CNAT APPLY EMPTY MOVE";
+    return;
+  }
+  const auto& full_move = tree_moves_->apply(naked_move);
+  main_board_->apply(full_move);
+#endif
 }
 

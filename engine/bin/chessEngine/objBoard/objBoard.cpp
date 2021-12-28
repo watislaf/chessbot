@@ -37,7 +37,7 @@ bool ObjBoard::RcIsPossible(bool is_white) const {
 bool ObjBoard::isWhiteTurn() const {
   return is_white_move_;
 }
-bool ObjBoard::isBlackMove() const {
+bool ObjBoard::isBlackTurn() const {
   return !is_white_move_;
 }
 

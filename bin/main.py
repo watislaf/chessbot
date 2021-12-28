@@ -90,7 +90,8 @@ if __name__ == "__main__":
     while True:
         try:
             winner = _controller.start_game(
-                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+                "2kr1b1r/2p1p1pp/4q1p1/p1p5/3P1BP1/N1P2Q2/PP3P2/R4RK1 b - - 1 17"
+#                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             )
             print(winner)
         except ChessException as _e:

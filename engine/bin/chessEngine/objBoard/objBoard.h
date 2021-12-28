@@ -30,7 +30,7 @@ class ObjBoard: AbsBoard  {
   Position getKingPosition(bool is_white) const;
   bool isWhiteTurn() const;
 
-  bool isBlackMove() const;
+  bool isBlackTurn() const;
   short getLastPassantX() const;
   bool operator==(const ObjBoard& other) const;
   bool operator!=(const ObjBoard& other) const;
@@ -46,6 +46,7 @@ class ObjBoard: AbsBoard  {
           (8, std::vector<std::shared_ptr<const Piece>>(8));
   bool is_white_move_ = true;
   short last_passant_x_ = -1;
+  short move_count_ = 0;
   struct Castle {
     Position king_position = {0, 0};
     bool LC_is_possible_ = true;
@@ -53,7 +54,6 @@ class ObjBoard: AbsBoard  {
   } whiteCastle, blackCastle;
   std::list<std::shared_ptr<const Piece>> active_white_pieces_;
   std::list<std::shared_ptr<const Piece>> active_black_pieces_;
-  short move_count_ = 0;
 };
 
 #endif // CHESS_BOARD_H

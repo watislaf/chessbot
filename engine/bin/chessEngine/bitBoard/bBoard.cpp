@@ -1,8 +1,8 @@
-#include "bit_board.h"
+#include "bBoard.h"
 #include "magicsWrapper.cpp"
 
-bool  BitBoard::_data_initialised = false;
-const int BitBoard::index64[64] = {
+bool  BBoard::_data_initialised = false;
+const int BBoard::index64[64] = {
     0, 47, 1, 56, 48, 27, 2, 60,
     57, 49, 41, 37, 28, 16, 3, 61,
     54, 58, 35, 52, 50, 42, 21, 44,
@@ -12,27 +12,30 @@ const int BitBoard::index64[64] = {
     25, 39, 14, 33, 19, 30, 9, 24,
     13, 18, 8, 12, 7, 6, 5, 63
 };
-uint64_t BitBoard::pawn_attacks_[2][64];
-uint64_t BitBoard::king_attacks_[64];
-uint64_t BitBoard::knight_attacks_[64];
-uint64_t BitBoard::ray_attacks_[64][8];
-uint64_t BitBoard::file_attacks_[64];
-uint64_t BitBoard::rank_attacks_[64];
-uint64_t BitBoard::diagonal_attacks_[64];
-uint64_t BitBoard::anti_diagonal_attacks_[64];
-uint64_t BitBoard::rook_attacks_[64];
-uint64_t BitBoard::bishop_attacks_[64];
-uint64_t BitBoard::queen_attacks_[64];
-uint64_t BitBoard::arrRectangular[64][64];
+uint64_t BBoard::pawn_attacks_[2][64];
+uint64_t BBoard::king_attacks_[64];
+uint64_t BBoard::knight_attacks_[64];
+uint64_t BBoard::ray_attacks_[64][8];
+uint64_t BBoard::file_attacks_[64];
+uint64_t BBoard::rank_attacks_[64];
+uint64_t BBoard::diagonal_attacks_[64];
+uint64_t BBoard::anti_diagonal_attacks_[64];
+uint64_t BBoard::rook_attacks_[64];
+uint64_t BBoard::bishop_attacks_[64];
+uint64_t BBoard::queen_attacks_[64];
+uint64_t BBoard::arrRectangular[64][64];
+uint64_t BBoard::one_square_[64];
 
-BitBoard::BitBoard(FEN fen) {
+BBoard::BBoard(FEN fen) {
   for (int i = 0; i < 14; i++) {
     pieceBB[i] = 0;
   }
+  pieces_count_ = 64;
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
       auto piece = fen.getPiece(i, j);
       if (piece.getType() == PieceType::NONE) {
+        pieces_count_--;
         continue;
       }
       pieceBB[static_cast<int>(piece.getPieceColor())] |=
@@ -42,13 +45,14 @@ BitBoard::BitBoard(FEN fen) {
           |= (u_int64_t(1) << ((7 - i) * 8 + j));
     }
   }
+  is_white_move_ = fen.getIsWhiteMowe();
   occupiedBB = pieceBB[0] | pieceBB[1];
   staticDataInit();
   str = toStr();
 
 }
 
-int BitBoard::bitScanReverse(const uint64_t& bits) {
+int BBoard::bitScanReverse(const uint64_t& bits) {
   unsigned long int nlb;
   asm (
   "BSR %[a], %[nlb]"
@@ -57,7 +61,7 @@ int BitBoard::bitScanReverse(const uint64_t& bits) {
   );
   return nlb;
 }
-int BitBoard::bitScanForward(const uint64_t& bits) {
+int BBoard::bitScanForward(const uint64_t& bits) {
   unsigned long int nlb;
   asm (
   "BSF %[a], %[nlb]"
@@ -67,14 +71,14 @@ int BitBoard::bitScanForward(const uint64_t& bits) {
   return nlb;
 }
 
-int BitBoard::bitScan(const uint64_t& bits, bool reverse) {
+int BBoard::bitScan(const uint64_t& bits, bool reverse) {
   if (reverse) {
     return bitScanReverse(bits);
   }
   return bitScanForward(bits);
 }
 
-int BitBoard::countBits(uint64_t set) {
+int BBoard::countBits(uint64_t set) {
   const auto k1 = uint64_t(0x5555555555555555); /*  -1/3   */
   const auto k2 = uint64_t(0x3333333333333333); /*  -1/5   */
   const auto k4 = uint64_t(0x0f0f0f0f0f0f0f0f); /*  -1/17  */
@@ -86,32 +90,32 @@ int BitBoard::countBits(uint64_t set) {
   return (uint8_t) set;
 }
 
-uint64_t BitBoard::soutOne(const uint64_t& bit) {
+uint64_t BBoard::soutOne(const uint64_t& bit) {
   return bit >> 8;
 }
-uint64_t BitBoard::nortOne(const uint64_t& bit) {
+uint64_t BBoard::nortOne(const uint64_t& bit) {
   return bit << 8;
 }
-uint64_t BitBoard::eastOne(const uint64_t& bit) {
+uint64_t BBoard::eastOne(const uint64_t& bit) {
   return (bit & notHFile) << 1;
 }
-uint64_t BitBoard::noEaOne(const uint64_t& bit) {
+uint64_t BBoard::noEaOne(const uint64_t& bit) {
   return (bit & notHFile) << 9;
 }
-uint64_t BitBoard::soEaOne(const uint64_t& bit) {
+uint64_t BBoard::soEaOne(const uint64_t& bit) {
   return (bit & notHFile) >> 7;
 }
-uint64_t BitBoard::westOne(const uint64_t& bit) {
+uint64_t BBoard::westOne(const uint64_t& bit) {
   return (bit & notAFile) >> 1;
 }
-uint64_t BitBoard::soWeOne(const uint64_t& bit) {
+uint64_t BBoard::soWeOne(const uint64_t& bit) {
   return (bit & notAFile) >> 9;
 }
-uint64_t BitBoard::noWeOne(const uint64_t& bit) {
+uint64_t BBoard::noWeOne(const uint64_t& bit) {
   return (bit & notAFile) << 7;
 }
 
-uint64_t BitBoard::mirrorHorizontal(uint64_t bit) {
+uint64_t BBoard::mirrorHorizontal(uint64_t bit) {
   const auto k1 = uint64_t(0x5555555555555555);
   const auto k2 = uint64_t(0x3333333333333333);
   const auto k4 = uint64_t(0x0f0f0f0f0f0f0f0f);
@@ -120,7 +124,7 @@ uint64_t BitBoard::mirrorHorizontal(uint64_t bit) {
   bit = ((bit >> 4) & k4) | ((bit & k4) << 4);
   return bit;
 }
-uint64_t BitBoard::mirrorVertical(uint64_t bit) {
+uint64_t BBoard::mirrorVertical(uint64_t bit) {
   const auto k1 = uint64_t(0x00FF00FF00FF00FF);
   const auto k2 = uint64_t(0x0000FFFF0000FFFF);
   bit = ((bit >> 8) & k1) | ((bit & k1) << 8);
@@ -128,38 +132,38 @@ uint64_t BitBoard::mirrorVertical(uint64_t bit) {
   bit = (bit >> 32) | (bit << 32);
   return bit;
 }
-uint64_t BitBoard::northFill(uint64_t bit) {
+uint64_t BBoard::northFill(uint64_t bit) {
   bit |= (bit << 8);
   bit |= (bit << 16);
   bit |= (bit << 32);
   return bit;
 }
 
-uint64_t BitBoard::soutFill(uint64_t bit) {
+uint64_t BBoard::soutFill(uint64_t bit) {
   bit |= (bit >> 8);
   bit |= (bit >> 16);
   bit |= (bit >> 32);
   return bit;
 }
 
-uint64_t BitBoard::fileFill(const uint64_t& bit) {
+uint64_t BBoard::fileFill(const uint64_t& bit) {
   return soutFill(bit) | northFill(bit);
 }
 
-uint64_t BitBoard::wFrontSpans(const uint64_t& wpawns) {
+uint64_t BBoard::wFrontSpans(const uint64_t& wpawns) {
   return nortOne(northFill(wpawns));
 }
 
-uint64_t BitBoard::bRearSpans(const uint64_t& bpawns) {
+uint64_t BBoard::bRearSpans(const uint64_t& bpawns) {
   return nortOne(northFill(bpawns));
 }
-uint64_t BitBoard::bFrontSpans(const uint64_t& bpawns) {
+uint64_t BBoard::bFrontSpans(const uint64_t& bpawns) {
   return soutOne(soutFill(bpawns));
 }
-uint64_t BitBoard::wRearSpans(const uint64_t& wpawns) {
+uint64_t BBoard::wRearSpans(const uint64_t& wpawns) {
   return soutOne(soutFill(wpawns));
 }
-std::string BitBoard::toStr(uint64_t bits) {
+std::string BBoard::toStr(uint64_t bits) {
   std::bitset<64> set = bits;
   std::string answer;
   for (int i = 0; i < 8; i++) {
@@ -172,39 +176,39 @@ std::string BitBoard::toStr(uint64_t bits) {
   }
   return answer;
 }
-uint64_t BitBoard::wFrontFill(const uint64_t& wpawns) { return northFill(wpawns); }
-uint64_t BitBoard::wRearFill(const uint64_t& wpawns) { return soutFill(wpawns); }
+uint64_t BBoard::wFrontFill(const uint64_t& wpawns) { return northFill(wpawns); }
+uint64_t BBoard::wRearFill(const uint64_t& wpawns) { return soutFill(wpawns); }
 
-uint64_t BitBoard::bFrontFill(const uint64_t& bpawns) { return soutFill(bpawns); }
-uint64_t BitBoard::bRearFill(const uint64_t& bpawns) { return northFill(bpawns); }
+uint64_t BBoard::bFrontFill(const uint64_t& bpawns) { return soutFill(bpawns); }
+uint64_t BBoard::bRearFill(const uint64_t& bpawns) { return northFill(bpawns); }
 
-uint64_t BitBoard::wEastAttackFrontSpans(const uint64_t& wpawns) {
+uint64_t BBoard::wEastAttackFrontSpans(const uint64_t& wpawns) {
   return eastOne(wFrontSpans(wpawns));
 }
-uint64_t BitBoard::wWestAttackFrontSpans(const uint64_t& wpawns) {
+uint64_t BBoard::wWestAttackFrontSpans(const uint64_t& wpawns) {
   return westOne(wFrontSpans(wpawns));
 }
-uint64_t BitBoard::bEastAttackFrontSpans(const uint64_t& bpawns) {
+uint64_t BBoard::bEastAttackFrontSpans(const uint64_t& bpawns) {
   return eastOne(bFrontSpans(bpawns));
 }
-uint64_t BitBoard::bWestAttackFrontSpans(const uint64_t& bpawns) {
+uint64_t BBoard::bWestAttackFrontSpans(const uint64_t& bpawns) {
   return westOne(bFrontSpans(bpawns));
 }
 
-uint64_t BitBoard::wEastAttackRearSpans(const uint64_t& wpawns) {
-  return eastOne(BitBoard::wRearFill(wpawns));
+uint64_t BBoard::wEastAttackRearSpans(const uint64_t& wpawns) {
+  return eastOne(BBoard::wRearFill(wpawns));
 }
-uint64_t BitBoard::wWestAttackRearSpans(const uint64_t& wpawns) {
-  return westOne(BitBoard::wRearFill(wpawns));
+uint64_t BBoard::wWestAttackRearSpans(const uint64_t& wpawns) {
+  return westOne(BBoard::wRearFill(wpawns));
 }
-uint64_t BitBoard::bEastAttackRearSpans(const uint64_t& bpawns) {
-  return eastOne(BitBoard::bRearFill(bpawns));
+uint64_t BBoard::bEastAttackRearSpans(const uint64_t& bpawns) {
+  return eastOne(BBoard::bRearFill(bpawns));
 }
-uint64_t BitBoard::bWestAttackRearSpans(const uint64_t& bpawns) {
-  return westOne(BitBoard::bRearFill(bpawns));
+uint64_t BBoard::bWestAttackRearSpans(const uint64_t& bpawns) {
+  return westOne(BBoard::bRearFill(bpawns));
 }
 
-uint64_t BitBoard::eastAttacks(uint64_t rooks, const uint64_t& empty) {
+uint64_t BBoard::eastAttacks(uint64_t rooks, const uint64_t& empty) {
   uint64_t flood = rooks;
   flood |= rooks = (rooks << 1) & (empty & notAFile);
   flood |= rooks = (rooks << 1) & (empty & notAFile);
@@ -215,7 +219,7 @@ uint64_t BitBoard::eastAttacks(uint64_t rooks, const uint64_t& empty) {
   return (flood << 1) & notAFile;
 }
 
-uint64_t BitBoard::noEaAttacks(uint64_t bishops, const uint64_t& empty) {
+uint64_t BBoard::noEaAttacks(uint64_t bishops, const uint64_t& empty) {
   uint64_t flood = bishops;
   flood |= bishops = (bishops << 9) & (empty & notAFile);
   flood |= bishops = (bishops << 9) & (empty & notAFile);
@@ -226,7 +230,7 @@ uint64_t BitBoard::noEaAttacks(uint64_t bishops, const uint64_t& empty) {
   return (flood << 9) & notAFile;
 }
 
-uint64_t BitBoard::soutAttacks(uint64_t bishops, const uint64_t& empty) {
+uint64_t BBoard::soutAttacks(uint64_t bishops, const uint64_t& empty) {
   uint64_t flood = bishops;
   flood |= bishops = (bishops >> 7) & (empty & notAFile);
   flood |= bishops = (bishops >> 7) & (empty & notAFile);
@@ -237,7 +241,7 @@ uint64_t BitBoard::soutAttacks(uint64_t bishops, const uint64_t& empty) {
   return (flood >> 7) & notAFile;
 }
 
-uint64_t BitBoard::nortAttacks(uint64_t rooks, const uint64_t& empty) {
+uint64_t BBoard::nortAttacks(uint64_t rooks, const uint64_t& empty) {
   uint64_t flood = rooks;
   flood |= rooks = (rooks >> 1) & (empty & notHFile);
   flood |= rooks = (rooks >> 1) & (empty & notHFile);
@@ -248,7 +252,7 @@ uint64_t BitBoard::nortAttacks(uint64_t rooks, const uint64_t& empty) {
   return (flood >> 1) & notHFile;
 }
 
-uint64_t BitBoard::noWeAttacks(uint64_t bishops, const uint64_t& empty) {
+uint64_t BBoard::noWeAttacks(uint64_t bishops, const uint64_t& empty) {
   uint64_t flood = bishops;
   flood |= bishops = (bishops >> 9) & (empty & notHFile);
   flood |= bishops = (bishops >> 9) & (empty & notHFile);
@@ -259,7 +263,7 @@ uint64_t BitBoard::noWeAttacks(uint64_t bishops, const uint64_t& empty) {
   return (flood >> 9) & notHFile;
 }
 
-uint64_t BitBoard::soEaAttacks(uint64_t bishops, const uint64_t& empty) {
+uint64_t BBoard::soEaAttacks(uint64_t bishops, const uint64_t& empty) {
   uint64_t flood = bishops;
   flood |= bishops = (bishops >> 7) & (empty & notHFile);
   flood |= bishops = (bishops >> 7) & (empty & notHFile);
@@ -270,7 +274,7 @@ uint64_t BitBoard::soEaAttacks(uint64_t bishops, const uint64_t& empty) {
   return (flood >> 7) & notAFile;
 }
 
-uint64_t BitBoard::westAttacks(uint64_t rooks, const uint64_t& empty) {
+uint64_t BBoard::westAttacks(uint64_t rooks, const uint64_t& empty) {
   uint64_t flood = rooks;
   flood |= rooks = (rooks >> 1) & (empty & notHFile);
   flood |= rooks = (rooks >> 1) & (empty & notHFile);
@@ -281,7 +285,7 @@ uint64_t BitBoard::westAttacks(uint64_t rooks, const uint64_t& empty) {
   return (flood >> 1) & notHFile;
 }
 
-uint64_t BitBoard::soWeAttacks(uint64_t bishops, const uint64_t& empty) {
+uint64_t BBoard::soWeAttacks(uint64_t bishops, const uint64_t& empty) {
   uint64_t flood = bishops;
   flood |= bishops = (bishops >> 9) & (empty & notHFile);
   flood |= bishops = (bishops >> 9) & (empty & notHFile);
@@ -291,107 +295,107 @@ uint64_t BitBoard::soWeAttacks(uint64_t bishops, const uint64_t& empty) {
   flood |= (bishops >> 9) & (empty & notHFile);
   return (flood >> 9) & notHFile;
 }
-uint64_t BitBoard::wSinglePushTargets(const uint64_t& wpawns,
-                                      const uint64_t& empty) {
+uint64_t BBoard::wSinglePushTargets(const uint64_t& wpawns,
+                                    const uint64_t& empty) {
   return nortOne(wpawns) & empty;
 }
 
-uint64_t BitBoard::wDblPushTargets(const uint64_t& wpawns,
-                                   const uint64_t& empty) {
+uint64_t BBoard::wDblPushTargets(const uint64_t& wpawns,
+                                 const uint64_t& empty) {
   return nortOne(wSinglePushTargets(wpawns, empty)) & empty & rank4;
 }
 
-uint64_t BitBoard::bSinglePushTargets(const uint64_t& bpawns,
-                                      const uint64_t& empty) {
+uint64_t BBoard::bSinglePushTargets(const uint64_t& bpawns,
+                                    const uint64_t& empty) {
   return soutOne(bpawns) & empty;
 }
 
-uint64_t BitBoard::bDoublePushTargets(const uint64_t& bpawns,
-                                      const uint64_t& empty) {
+uint64_t BBoard::bDoublePushTargets(const uint64_t& bpawns,
+                                    const uint64_t& empty) {
   uint64_t singlePushs = bSinglePushTargets(bpawns, empty);
   return soutOne(singlePushs) & empty & rank5;
 }
 
-uint64_t BitBoard::bPawnsAble2Push(const uint64_t& bpawns,
-                                   const uint64_t& empty) {
+uint64_t BBoard::bPawnsAble2Push(const uint64_t& bpawns,
+                                 const uint64_t& empty) {
   return nortOne(empty) & bpawns;
 }
 
-uint64_t BitBoard::bPawnsAble2DblPush(const uint64_t& bpawns,
-                                      const uint64_t& empty) {
+uint64_t BBoard::bPawnsAble2DblPush(const uint64_t& bpawns,
+                                    const uint64_t& empty) {
   return wPawnsAble2Push(bpawns, nortOne(empty & rank5) & empty);
 }
 
-uint64_t BitBoard::wPawnsAble2Push(const uint64_t& wpawns,
-                                   const uint64_t& empty) {
+uint64_t BBoard::wPawnsAble2Push(const uint64_t& wpawns,
+                                 const uint64_t& empty) {
   return soutOne(empty) & wpawns;
 }
 
-uint64_t BitBoard::wPawnsAble2DblPush(const uint64_t& wpawns,
-                                      const uint64_t& empty) {
+uint64_t BBoard::wPawnsAble2DblPush(const uint64_t& wpawns,
+                                    const uint64_t& empty) {
   return wPawnsAble2Push(wpawns, soutOne(empty & rank4) & empty);
 }
 
-uint64_t BitBoard::wPawnEastAttacks(const uint64_t& wpawns) {
+uint64_t BBoard::wPawnEastAttacks(const uint64_t& wpawns) {
   return noEaOne(wpawns);
 }
-uint64_t BitBoard::wPawnWestAttacks(const uint64_t& wpawns) {
+uint64_t BBoard::wPawnWestAttacks(const uint64_t& wpawns) {
   return noWeOne(wpawns);
 }
 
-uint64_t BitBoard::bPawnEastAttacks(const uint64_t& bpawns) {
+uint64_t BBoard::bPawnEastAttacks(const uint64_t& bpawns) {
   return soEaOne(bpawns);
 }
-uint64_t BitBoard::bPawnWestAttacks(const uint64_t& bpawns) {
+uint64_t BBoard::bPawnWestAttacks(const uint64_t& bpawns) {
   return soWeOne(bpawns);
 }
 
-uint64_t BitBoard::wPawnsAble2CaptureEast(const uint64_t& wpawns,
-                                          const uint64_t& bpieces) {
+uint64_t BBoard::wPawnsAble2CaptureEast(const uint64_t& wpawns,
+                                        const uint64_t& bpieces) {
   return wpawns & bPawnWestAttacks(bpieces);
 }
 
-uint64_t BitBoard::wPawnsAble2CaptureWest(const uint64_t& wpawns,
-                                          const uint64_t& bpieces) {
+uint64_t BBoard::wPawnsAble2CaptureWest(const uint64_t& wpawns,
+                                        const uint64_t& bpieces) {
   return wpawns & bPawnEastAttacks(bpieces);
 }
 
-uint64_t BitBoard::bPawnsAble2CaptureEast(const uint64_t& bpawns,
-                                          const uint64_t& wpieces) {
+uint64_t BBoard::bPawnsAble2CaptureEast(const uint64_t& bpawns,
+                                        const uint64_t& wpieces) {
   return bpawns & bPawnWestAttacks(wpieces);
 }
 
-uint64_t BitBoard::bPawnsAble2CaptureWest(const uint64_t& bpawns,
-                                          const uint64_t& wpieces) {
+uint64_t BBoard::bPawnsAble2CaptureWest(const uint64_t& bpawns,
+                                        const uint64_t& wpieces) {
   return bpawns & bPawnEastAttacks(wpieces);
 }
 
-uint64_t BitBoard::noNoEa(const uint64_t& bit) {
+uint64_t BBoard::noNoEa(const uint64_t& bit) {
   return (bit & notHFile) << 17;
 }
-uint64_t BitBoard::noEaEa(const uint64_t& bit) {
+uint64_t BBoard::noEaEa(const uint64_t& bit) {
   return (bit & notGHFile) << 10;
 }
-uint64_t BitBoard::soEaEa(const uint64_t& bit) {
+uint64_t BBoard::soEaEa(const uint64_t& bit) {
   return (bit & notGHFile) >> 6;
 }
-uint64_t BitBoard::soSoEa(const uint64_t& bit) {
+uint64_t BBoard::soSoEa(const uint64_t& bit) {
   return (bit & notHFile) >> 15;
 }
-uint64_t BitBoard::noNoWe(const uint64_t& bit) {
+uint64_t BBoard::noNoWe(const uint64_t& bit) {
   return (bit & notAFile) << 15;
 }
-uint64_t BitBoard::noWeWe(const uint64_t& bit) {
+uint64_t BBoard::noWeWe(const uint64_t& bit) {
   return (bit & notABFile) << 6;
 }
-uint64_t BitBoard::soWeWe(const uint64_t& bit) {
+uint64_t BBoard::soWeWe(const uint64_t& bit) {
   return (bit & notABFile) >> 10;
 }
-uint64_t BitBoard::soSoWe(const uint64_t& bit) {
+uint64_t BBoard::soSoWe(const uint64_t& bit) {
   return (bit & notAFile) >> 17;
 }
 
-uint64_t BitBoard::knightAttacks(const uint64_t& knights) {
+uint64_t BBoard::knightAttacks(const uint64_t& knights) {
   uint64_t l1 = (knights >> 1) & uint64_t(0x7f7f7f7f7f7f7f7f);
   uint64_t l2 = (knights >> 2) & uint64_t(0x3f3f3f3f3f3f3f3f);
   uint64_t r1 = (knights << 1) & uint64_t(0xfefefefefefefefe);
@@ -401,10 +405,10 @@ uint64_t BitBoard::knightAttacks(const uint64_t& knights) {
   return (h1 << 16) | (h1 >> 16) | (h2 << 8) | (h2 >> 8);
 }
 
-uint64_t BitBoard::forkTargetSquare(const uint64_t& targets) {
+uint64_t BBoard::forkTargetSquare(const uint64_t& targets) {
   uint64_t west, east, attak, forks;
-  east = BitBoard::eastOne(targets);
-  west = BitBoard::westOne(targets);
+  east = BBoard::eastOne(targets);
+  west = BBoard::westOne(targets);
   attak = east << 16;
   forks = (west << 16) & attak;
   attak |= west << 16;
@@ -412,8 +416,8 @@ uint64_t BitBoard::forkTargetSquare(const uint64_t& targets) {
   attak |= east >> 16;
   forks |= (west >> 16) & attak;
   attak |= west >> 16;
-  east = BitBoard::eastOne(east);
-  west = BitBoard::westOne(west);
+  east = BBoard::eastOne(east);
+  west = BBoard::westOne(west);
   forks |= (east << 8) & attak;
   attak |= east << 8;
   forks |= (west << 8) & attak;
@@ -424,16 +428,16 @@ uint64_t BitBoard::forkTargetSquare(const uint64_t& targets) {
   return forks;
 }
 
-uint64_t BitBoard::kingAttacks(uint64_t kingSet) {
+uint64_t BBoard::kingAttacks(uint64_t kingSet) {
   uint64_t attacks = eastOne(kingSet) | westOne(kingSet);
   kingSet |= attacks;
   attacks |= nortOne(kingSet) | soutOne(kingSet);
   return attacks;
 }
 
-uint64_t BitBoard::getPositiveRayAttacks(const uint64_t& occupied,
-                                         enumDir dir8,
-                                         int square) {
+uint64_t BBoard::getPositiveRayAttacks(const uint64_t& occupied,
+                                       enumDir dir8,
+                                       int square) {
   uint64_t attacks = ray_attacks_[square][dir8];
   uint64_t blocker = attacks & occupied;
   if (blocker) {
@@ -443,9 +447,9 @@ uint64_t BitBoard::getPositiveRayAttacks(const uint64_t& occupied,
   return attacks;
 }
 
-uint64_t BitBoard::getNegativeRayAttacks(const uint64_t& occupied,
-                                         enumDir dir8,
-                                         int square) {
+uint64_t BBoard::getNegativeRayAttacks(const uint64_t& occupied,
+                                       enumDir dir8,
+                                       int square) {
   uint64_t attacks = ray_attacks_[square][dir8];
   uint64_t blocker = attacks & occupied;
   if (blocker) {
@@ -455,9 +459,9 @@ uint64_t BitBoard::getNegativeRayAttacks(const uint64_t& occupied,
   return attacks;
 }
 
-uint64_t BitBoard::getRayAttacks(const uint64_t& occupied,
-                                 enumDir dir8,
-                                 int square) {
+uint64_t BBoard::getRayAttacks(const uint64_t& occupied,
+                               enumDir dir8,
+                               int square) {
   uint64_t attacks = ray_attacks_[square][dir8];
   uint64_t blocker = attacks & occupied;
   if (blocker) {
@@ -467,26 +471,26 @@ uint64_t BitBoard::getRayAttacks(const uint64_t& occupied,
   return attacks;
 }
 
-bool BitBoard::isNegative(enumDir dir8) {
+bool BBoard::isNegative(enumDir dir8) {
   return dir8 < 4;
 }
 
-uint64_t BitBoard::diagonalAttacks(const uint64_t& occupied, int square) {
+uint64_t BBoard::diagonalAttacks(const uint64_t& occupied, int square) {
   return getPositiveRayAttacks(occupied, NoEa, square)
       | getNegativeRayAttacks(occupied, SoWe, square); // ^ +
 }
 
-uint64_t BitBoard::antiDiagAttacks(const uint64_t& occupied, int square) {
+uint64_t BBoard::antiDiagAttacks(const uint64_t& occupied, int square) {
   return getPositiveRayAttacks(occupied, NoWe, square)
       | getNegativeRayAttacks(occupied, SoEa, square); // ^ +
 }
 
-uint64_t BitBoard::fileAttacks(const uint64_t& occupied, int square) {
+uint64_t BBoard::fileAttacks(const uint64_t& occupied, int square) {
   return getPositiveRayAttacks(occupied, Nort, square)
       | getNegativeRayAttacks(occupied, Sout, square); // ^ +
 }
 
-uint64_t BitBoard::rankAttacks(const uint64_t& occupied, int square) {
+uint64_t BBoard::rankAttacks(const uint64_t& occupied, int square) {
   return getPositiveRayAttacks(occupied, East, square)
       | getNegativeRayAttacks(occupied, West, square); // ^ +
 }
@@ -502,20 +506,20 @@ uint64_t BitBoard::bishopAttacks(const uint64_t& occupied, int square) {
       | antiDiagAttacks( occupied, square); // ^ +
 }
 */
-uint64_t BitBoard::queenAttacks(uint64_t occupied, int square) {
+uint64_t BBoard::queenAttacks(uint64_t occupied, int square) {
   return rookAttacks(occupied, square)
       | bishopAttacks(occupied, square); // ^ +
 }
 
-uint64_t BitBoard::bishopAttacks(uint64_t occupied, int sq) {
+uint64_t BBoard::bishopAttacks(uint64_t occupied, int sq) {
   return Magics::get_bishop_attacks(Magics::d4, occupied);
 }
 
-uint64_t BitBoard::rookAttacks(uint64_t occupied, int sq) {
+uint64_t BBoard::rookAttacks(uint64_t occupied, int sq) {
   return Magics::get_rook_attacks(Magics::d4, occupied);
 }
 
-void BitBoard::staticDataInit() {
+void BBoard::staticDataInit() {
   if (_data_initialised) {
     return;
   }
@@ -568,6 +572,7 @@ void BitBoard::staticDataInit() {
   }
 
   for (int square = 63; square >= 0; square--) {
+    one_square_[square] = uint64_t(1) << square;
     rank_attacks_[square] =
         ray_attacks_[square][East] | ray_attacks_[square][West];
     file_attacks_[square] =
@@ -616,7 +621,7 @@ void BitBoard::staticDataInit() {
   }
 }
 
-uint64_t BitBoard::attacksTo(const uint64_t& occupied, int sq) {
+uint64_t BBoard::attacksTo(const uint64_t& occupied, int sq) {
   uint64_t knights, kings, bishopsQueens, rooksQueens;
   knights = pieceBB[WHITE_KNIGHT] | pieceBB[BLACK_NIGHT];
   kings = pieceBB[WHITE_KNIGHT] | pieceBB[BLACK_KING];
@@ -633,9 +638,9 @@ uint64_t BitBoard::attacksTo(const uint64_t& occupied, int sq) {
       | (rookAttacks(occupied, sq) & rooksQueens);
 }
 
-bool BitBoard::attacked(const uint64_t& occupied,
-                        int square,
-                        BPieceType bySide) {
+bool BBoard::attacked(const uint64_t& occupied,
+                      int square,
+                      BPieceType bySide) {
   uint64_t pawns = pieceBB[WHITE_PAWN + bySide];
   if (pawn_attacks_[bySide ^ 1][square] & pawns) return true;
   uint64_t knights = pieceBB[WHITE_KNIGHT + bySide];
@@ -651,41 +656,41 @@ bool BitBoard::attacked(const uint64_t& occupied,
   return false;
 }
 
-uint64_t BitBoard::inBetween(int from, int to) {
+uint64_t BBoard::inBetween(int from, int to) {
   return arrRectangular[from][to];
 }
 
-bool BitBoard::mayMove(int from, int to, const uint64_t& occupied) {
+bool BBoard::mayMove(int from, int to, const uint64_t& occupied) {
   return (inBetween(from, to) & occupied) == 0;
 }
 
-uint64_t BitBoard::xrayFileAttacks(const uint64_t& occupied,
-                                   uint64_t blockers,
-                                   int rookSq) {
+uint64_t BBoard::xrayFileAttacks(const uint64_t& occupied,
+                                 uint64_t blockers,
+                                 int rookSq) {
   uint64_t attacks = fileAttacks(occupied, rookSq);
   blockers &= attacks & uint64_t(0x00FFFFFFFFFFFF00);
   if (blockers == 0) return blockers;
   return attacks ^ fileAttacks(occupied ^ blockers, rookSq);
 }
 
-uint64_t BitBoard::xrayRankAttacks(const uint64_t& occupied,
-                                   uint64_t blockers,
-                                   int rookSq) {
+uint64_t BBoard::xrayRankAttacks(const uint64_t& occupied,
+                                 uint64_t blockers,
+                                 int rookSq) {
   uint64_t attacks = rankAttacks(occupied, rookSq);
   blockers &= attacks & uint64_t(0x7E7E7E7E7E7E7E7E);
   if (blockers == 0) return blockers;
   return attacks ^ rankAttacks(occupied ^ blockers, rookSq);
 }
 
-uint64_t BitBoard::xrayDiagonalAttacks(const uint64_t& occupied,
-                                       uint64_t blockers,
-                                       int bishopSq) {
+uint64_t BBoard::xrayDiagonalAttacks(const uint64_t& occupied,
+                                     uint64_t blockers,
+                                     int bishopSq) {
   uint64_t attacks = diagonalAttacks(occupied, bishopSq);
   blockers &= attacks & uint64_t(0x007E7E7E7E7E7E00);
   if (blockers == 0) return blockers;
   return attacks ^ diagonalAttacks(occupied ^ blockers, bishopSq);
 }
-uint64_t BitBoard::attacksToKing(int squareOfKing, BPieceType colorOfKing) {
+uint64_t BBoard::attacksToKing(int squareOfKing, BPieceType colorOfKing) const {
   uint64_t opPawns, opKnights, opRQ, opBQ;
   opPawns = pieceBB[BLACK_PAWN - colorOfKing];
   opKnights = pieceBB[BLACK_NIGHT - colorOfKing];
@@ -698,9 +703,9 @@ uint64_t BitBoard::attacksToKing(int squareOfKing, BPieceType colorOfKing) {
       | (rookAttacks(occupiedBB, squareOfKing) & opRQ);
 }
 
-uint64_t BitBoard::getLeastValuablePiece(uint64_t attadef,
-                                         int bySide,
-                                         int& piece) {
+uint64_t BBoard::getLeastValuablePiece(uint64_t attadef,
+                                       int bySide,
+                                       int& piece) {
   for (piece = WHITE_PAWN + bySide; piece <= WHITE_KING + bySide; piece += 2) {
     uint64_t subset = attadef & pieceBB[piece];
     if (subset)
@@ -710,7 +715,7 @@ uint64_t BitBoard::getLeastValuablePiece(uint64_t attadef,
 }
 
 //TODO  https://www.chessprogramming.org/SEE_-_The_Swap_Algorithm
-int BitBoard::see(int toSq, BPieceType target, int frSq, BPieceType aPiece) {/*
+int BBoard::see(int toSq, BPieceType target, int frSq, BPieceType aPiece) {/*
   int gain[32], d = 0;
   U64 mayXray = pawns | bishops | rooks | queen;
   U64 fromSet = 1ULL << frSq;
@@ -732,20 +737,20 @@ int BitBoard::see(int toSq, BPieceType target, int frSq, BPieceType aPiece) {/*
   return gain[0];*/
   return 42;
 }
-const uint64_t& BitBoard::getOccupied() const {
+const uint64_t& BBoard::getOccupied() const {
   return this->occupiedBB;
 }
-uint64_t BitBoard::get(BitBoard::BPieceType white_piece_type,
-                       BitBoard::BPieceType color) const {
+uint64_t BBoard::get(BBoard::BPieceType white_piece_type,
+                     BBoard::BPieceType color) const {
   return pieceBB[white_piece_type + color];
 }
-uint64_t BitBoard::knightAttacks(int pos) {
+uint64_t BBoard::knightAttacks(int pos) {
   return knight_attacks_[pos];
 }
-uint8_t BitBoard::getMoveCount() const {
+uint8_t BBoard::getMoveCount() const {
   return move_count_;
 }
-std::string BitBoard::toStr() const {
+std::string BBoard::toStr() const {
   std::string answer;
   for (short y = 0; y <= 7; y++) {
     for (short x = 0; x <= 7; x++) {
@@ -787,44 +792,82 @@ std::string BitBoard::toStr() const {
   return answer;
 }
 
-BitBoard::BPieceType BitBoard::getType(uint8_t pos) const {
+BBoard::BPieceType BBoard::getType(uint8_t pos) const {
   int answ = 0;
   for (int i = 2; i <= 13 && answ == 0; i++) {
-    answ = BitBoard::onPos(pos, get(static_cast<BPieceType>(i))) * i;
+    answ = BBoard::onPos(pos, get(static_cast<BPieceType>(i))) * i;
   }
   return static_cast<BPieceType>(answ);
 }
 
-BitBoard::BPieceType BitBoard::onPos(uint8_t pos, uint64_t bit) const {
+BBoard::BPieceType BBoard::onPos(uint8_t pos, uint64_t bit) const {
   return static_cast<BPieceType>(((bit >> (((pos) % 8) + 8 * (pos / 8))) & 1));
 }
-const uint64_t& BitBoard::getLastDoublePush() const {
+const uint64_t& BBoard::getLastDoublePush() const {
   return _last_double_push;
 }
 
-uint64_t BitBoard::wPawnsAble2WestEP(uint64_t wpawns,
-                                     const uint64_t& file) {
+uint64_t BBoard::wPawnsAble2WestEP(uint64_t wpawns,
+                                   const uint64_t& file) {
   wpawns &= rank5;
   wpawns &= (eastOne(file));
   return wpawns;
 }
 
-uint64_t BitBoard::wPawnsAble2EastEP(uint64_t wpawns,
-                                     const uint64_t& file) {
+uint64_t BBoard::wPawnsAble2EastEP(uint64_t wpawns,
+                                   const uint64_t& file) {
   wpawns &= rank5;
   wpawns &= (westOne(file));
   return wpawns;
 }
-uint64_t BitBoard::bPawnsAble2EastEP(uint64_t bpawns,
-                                     const uint64_t& file) {
+uint64_t BBoard::bPawnsAble2EastEP(uint64_t bpawns,
+                                   const uint64_t& file) {
   bpawns &= rank4;
   bpawns &= (eastOne(file));
   return bpawns;
 }
 
-uint64_t BitBoard::bPawnsAble2WestEP(uint64_t bpawns,
-                                     const uint64_t& file) {
+uint64_t BBoard::bPawnsAble2WestEP(uint64_t bpawns,
+                                   const uint64_t& file) {
   bpawns &= rank4;
   bpawns &= (westOne(file));
   return bpawns;
+}
+bool BBoard::isWhiteTurn() const {
+  return is_white_move_;
+}
+BBoard::BPieceType BBoard::whosTurn() const {
+  return static_cast<BPieceType>(!isWhiteTurn());
+}
+
+bool BBoard::isShah(BPieceType whos_move) const {
+  return attacksToKing(get(WHITE_KING, whos_move), whos_move) == 0;
+}
+
+BBoard::BPieceType BBoard::getPiece(uint8_t  square,
+                                    BPieceType side) const {
+  if (get(BPieceType::WHITE_PAWN, side) & one_square_[square]) {
+    return BPieceType::WHITE_PAWN;
+  }
+  if (get(BPieceType::WHITE_KNIGHT, side) & one_square_[square]) {
+    return BPieceType::WHITE_KNIGHT;
+  }
+  if (get(BPieceType::WHITE_BISHOP, side) & one_square_[square]) {
+    return BPieceType::WHITE_BISHOP;
+  }
+  if (get(BPieceType::WHITE_ROOK, side) & one_square_[square]) {
+    return BPieceType::WHITE_ROOK;
+  }
+  if (get(BPieceType::WHITE_QUEEN, side) & one_square_[square]) {
+    return BPieceType::WHITE_QUEEN;
+  }
+  if (get(BPieceType::WHITE_KING, side) & one_square_[square]) {
+    return BPieceType::WHITE_KING;
+  }
+  throw 42;
+  return BPieceType::WHITE_QUEEN;
+}
+
+uint8_t BBoard::countPieces() const {
+  return pieces_count_;
 }

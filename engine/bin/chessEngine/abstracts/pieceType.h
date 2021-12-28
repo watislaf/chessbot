@@ -1,3 +1,6 @@
+#ifndef PIECETYPE_H
+#define PIECETYPE_H
+
 enum class PieceType {
   NONE=0,
   PAWN=1,
@@ -7,3 +10,5 @@ enum class PieceType {
   QUEEN=5,
   KING=6,
 };
+
+#endif //PIECETYPE_H

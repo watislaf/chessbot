@@ -297,7 +297,6 @@ void MovesGenerator::castleMove() {
 
 bool MovesGenerator::isShahDanger(const Move& move) {
   if (move.getDefendScore() != 0) {
-    defende_score += Pricer::defendScore(move);
     return true;
   }
 

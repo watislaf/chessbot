@@ -5,13 +5,25 @@
 #include <utility>
 #include "abstracts/aiAdvanceLvl.h"
 #include <thread>
-#include "objBoard/movesGenerator.h"
-#include "objBoard/objBoard.h"
+
 #include <algorithm>
 #include <iostream>
 #include <atomic>
 #include <mutex>
 #include "tools/pricer.h"
+
+
+#if ARCH == 32
+#include "objBoard/objBoard.h"
+#include "objBoard/movesGenerator.h"
+#else
+#include "bitBoard/bBoard.h"
+#include "bitBoard/bMove.h"
+#include "bitBoard/bMovesGenerator.h"
+#define Move BMove
+#define ObjBoard BBoard
+#define MovesGenerator BMovesGenerator
+#endif
 
 class MovesTree {
  public:

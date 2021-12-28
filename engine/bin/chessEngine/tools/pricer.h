@@ -2,23 +2,34 @@
 #define PRICER_H
 
 #include "memory"
-#include "objBoard/movesGenerator.h"
-#include "objBoard/piece.h"
+
 #include "objBoard/objBoard.h"
+#include "objBoard/movesGenerator.h"
+#include "bitBoard/bBoard.h"
+#include "bitBoard/bMove.h"
+#include "bitBoard/bMovesGenerator.h"
 
 class Pricer {
  public:
-  static int getPrice(const std::shared_ptr<const Piece>& piece);
-  static int getPrice(PieceType type);
 
   int countOrder(const std::shared_ptr<ObjBoard>& board, const Move& move);
-  static int defendScore(const Move& move);
+  int countOrder(const BBoard* board, const BMove& move);
+  static int getPrice(const std::shared_ptr<const Piece>& piece);
+  static int getPrice(PieceType type);
+  static int getPrice(BBoard::BPieceType type);
   double endGameCoef(const std::shared_ptr<const ObjBoard>& board);
-  int valOnBoard(Position pos, bool is_white,
-                 const std::shared_ptr<const ObjBoard>& board, PieceType type);
-
+  double endGameCoef(const BBoard& board);
+  int valOnBoard(Position pos,
+                 bool is_white,
+                 double endgamecoef,
+                 PieceType type);
+  int valOnBoard(int x,
+                 int y,
+                 bool is_white,
+                 double endgamecoef,
+                 PieceType type);
   short PawnTable[64]{
-      90,90, 90, 90, 90, 90, 90, 90,
+      90, 90, 90, 90, 90, 90, 90, 90,
       50, 50, 50, 50, 50, 50, 50, 50,
       20, 20, 30, 40, 40, 30, 20, 20,
       5, 5, 10, 30, 30, 10, 5, 5,

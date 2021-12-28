@@ -1,15 +1,20 @@
-#ifndef BIT_BOARD_H
-#define BIT_BOARD_H
+#ifndef BBOARD_H
+#define BBOARD_H
 #include <cstdint>
 #include "tools/fen.h"
+#include "bMove.h"
 #include <bitset>
 
 class
-BitBoard {
+BBoard {
  public:
-  explicit BitBoard(FEN fen);
+  explicit BBoard(FEN fen);
   static void staticDataInit();
   static bool _data_initialised;
+
+  /// void apply(const Move& )
+  // void unapply(cont Move& )
+
   enum BPieceType {
     WHITE_PIECES = 0,     // any white piece
     BLACK_PIECES = 1,     // any black piece
@@ -26,6 +31,10 @@ BitBoard {
     WHITE_KING = 12,
     BLACK_KING = 13,
   };
+  bool isWhiteTurn() const;
+  BPieceType whosTurn() const;
+  bool isShah(BPieceType whos_move) const;
+  uint8_t countPieces() const;
   std::string str;
   uint64_t pieceBB[14]{};
   uint64_t occupiedBB;
@@ -227,7 +236,7 @@ BitBoard {
   uint64_t xrayDiagonalAttacks(const uint64_t& occupied,
                                uint64_t blockers,
                                int bishopSq);
-  uint64_t attacksToKing(int squareOfKing, BPieceType colorOfKing);
+  uint64_t attacksToKing(int squareOfKing, BPieceType colorOfKing) const;
   uint64_t getLeastValuablePiece(uint64_t attadef, int bySide, int& piece);
   int see(int toSq, BPieceType target, int frSq, BPieceType aPiece);
 
@@ -237,13 +246,15 @@ BitBoard {
   static uint64_t wPawnsAble2EastEP(uint64_t wpawns, const uint64_t& file);
   static uint64_t bPawnsAble2WestEP(uint64_t bpawns, const uint64_t& file);
   static uint64_t bPawnsAble2EastEP(uint64_t bpawns, const uint64_t& file);
+  BPieceType getPiece(uint8_t square, BPieceType side) const;
+
  private:
+  static uint64_t one_square_[64];
   static uint64_t pawn_attacks_[2][64];
   static uint64_t king_attacks_[64];
   static uint64_t knight_attacks_[64];
   static uint64_t ray_attacks_[64][8];
 
-  uint64_t _last_double_push = 0;
   static uint64_t file_attacks_[64];
 
   static uint64_t rank_attacks_[64];
@@ -253,10 +264,13 @@ BitBoard {
   static uint64_t bishop_attacks_[64];
   static uint64_t queen_attacks_[64];
   static const uint64_t debruijn64 = 0x03f79d71b4cb0a89;
+  uint8_t pieces_count_=0;
   uint8_t move_count_ = 0;
+  bool is_white_move_ = 0;
+  uint64_t _last_double_push = 0;
 
   BPieceType onPos(uint8_t pos, uint64_t i) const;
 };
 
-#endif //BIT_BOARD_H
+#endif //BBOARD_H
 
