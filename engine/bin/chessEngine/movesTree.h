@@ -31,17 +31,11 @@ class MovesTree {
                      short tree_grow);
 
   struct Node {
-    explicit Node(Move move, short height, int board_sum) :
+    explicit Node(Move move, short height, const int& board_sum) :
         move_to_get_here(std::move(move)),
         height(height),
-        board_sum(board_sum) {
-      if (height % 2) {
-        best_price_ = -100000000;
-      } else {
-        best_price_ = 100000000;
-      }
-      best_price_ = board_sum;
-    }
+        board_sum(board_sum),
+        best_price_(board_sum) {};
     int board_sum = 0;
     int height;
     std::vector<std::shared_ptr<Node>> edges;
@@ -51,9 +45,10 @@ class MovesTree {
   Move getBestMove();
   void makeTreeDeeper(const std::shared_ptr<Node>& current_node,
                       const std::shared_ptr<ObjBoard>& board_coppy,
-                      short max_height,
-                      bool unaply, int father_price, int grand_father_price,
-                      int prev_node_price = 10000001,
+                      short max_height, const int& grand_father_price,
+                      const int& prev_node_price,
+                      const int& father_sum,
+                      const int& grand_father_sum,
                       bool capture_only = false);
 
   bool isMoveExists();
@@ -68,16 +63,31 @@ class MovesTree {
 
   void ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree::Node>& current_node,
                                        const std::shared_ptr<ObjBoard>& board_coppy,
-                                       int max_height,
-                                       int alpha, int father_price,
-                                       int grand_father_price);
+                                       const int& max_height,
+                                       const int& alpha,
+                                       const int& grand_father_price,
+                                       const int& father_sum,
+                                       const int& grand_father_sum
+  );
 
   void ProcessUntilHightLimit(const std::shared_ptr<MovesTree::Node>& current_node,
                               const std::shared_ptr<ObjBoard>& board_coppy,
-                              short max_height, int alpha,
-                              int father_price, int grand_father_price);
-  bool updateBest(const std::shared_ptr<MovesTree::Node>& current_node,
-                  int child_tmp, int alpha, bool move);
+                              short max_height,
+                              const int& alpha,
+                              const int& grand_father_price,
+                              const int& father_sum,
+                              const int& grand_father_sum
+  );
+  static bool updateBestResultAndReturnReasonToContinue(const std::shared_ptr<MovesTree::Node>& current_node,
+                                                        const int& child_tmp, const int& alpha, bool is_white_move);
+
+  static bool isNodeToWeak(const int& delta_moves,
+                           bool is_white_turn,
+                           const int& grand_father_price,
+                           const int& current_price,
+                           const int& grand_father_sum,
+                           const int& current_sum);
+  static int getMinusInf(bool turn);
 };
 
 #endif //ONLYCPP_MOVESTREE_H

@@ -19,7 +19,6 @@ class ChessEngine:
     __cpp_chess_lib: lib.ChessEngine = None
 
     def __init__(self, mode: str):
-        print("START AS ", mode)
         self.__cpp_chess_lib = lib.ChessEngine(mode)
 
     def start_new_game(self, _fen: str):
