@@ -19,7 +19,7 @@ def init_personal_board(args: dict):
     _controller = GameController()
     _controller.start_window()
     if args.get("white_player", "player") == "engine":
-        white_player = AiPlayer(ChessEngine(args.get("lvl", "A1")))
+        white_player = AiPlayer(ChessEngine(args.get("lvl", "bullet")))
     else:
         white_player = ViewPlayer(
             _controller.window.last_move,
@@ -34,7 +34,7 @@ def init_personal_board(args: dict):
             _controller.window.get_window_board_str,
         )
     else:
-        black_player = AiPlayer(ChessEngine(args.get("lvl", "A1")))
+        black_player = AiPlayer(ChessEngine(args.get("lvl", "bullet")))
 
     #  controller.set_players( AiPlayer(ChessAi(lvl)),view_player)
     _controller.set_players(white_player, black_player)
@@ -90,8 +90,8 @@ if __name__ == "__main__":
     while True:
         try:
             winner = _controller.start_game(
-                "2kr1b1r/2p1p1pp/4q1p1/p1p5/3P1BP1/N1P2Q2/PP3P2/R4RK1 b - - 1 17"
-#                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#                               "r3k2r/4pp2/8/8/8/8/4PP2/4K2R w KQkq - 0 1"
             )
             print(winner)
         except ChessException as _e:

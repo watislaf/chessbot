@@ -17,7 +17,6 @@ MovesTree::MovesTree(const ObjBoard& original_board,
 
   max_height_ = original_board.getMoveCount();
   max_height_ += tree_grow;
-
   generateMovesForNode(main_node_, board_);
 }
 
@@ -47,7 +46,7 @@ void MovesTree::generateMovesForNode(const std::shared_ptr<MovesTree::Node>& nod
   }
 #else
   const auto& moves =
-      MovesGenerator::generate(&*board_coppy, board_coppy->whosTurn());
+      MovesGenerator::generate(&*board_coppy);
 
   for (const auto& move: moves) {
     int price = pricer.countOrder(&*board_coppy, move);
@@ -84,7 +83,7 @@ void MovesTree::generateMovesForNode(const std::shared_ptr<MovesTree::Node>& nod
 }
 
 Move MovesTree::getBestMove() {
-  makeTreeDeeper(main_node_, board_, max_height_, false);
+  makeTreeDeeper(main_node_, board_, max_height_, false, 0, 0);
   for (const auto& node: main_node_->edges) {
     if (node->best_price_ == main_node_->best_price_) {
       return node->move_to_get_here;
@@ -128,7 +127,9 @@ Move MovesTree::apply(const Move& move) {
   for (auto& node: main_node_->edges) {
     if (node->move_to_get_here.getFrom() == move.getFrom() &&
         node->move_to_get_here.getTo() == move.getTo() &&
-        node->move_to_get_here.getNewPieceType() == move.getNewPieceType()) {
+        ((!move.isPromotion()) ||
+            node->move_to_get_here.getNewPieceType()
+                == move.getNewPieceType())) {
       node_by_this_move = node;
       break;
     }
@@ -151,10 +152,11 @@ Move MovesTree::apply(const Move& move) {
 bool MovesTree::isMoveExists() {
   return !main_node_->edges.empty();
 }
-
+int shit = 0;
 void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_node,
                                const std::shared_ptr<ObjBoard>& board_coppy,
                                short max_height, bool unaply,
+                               int father_price, int grand_father_price,
                                int prev_node_price, bool capture_only) {
   generateMovesForNode(current_node, board_coppy);
 
@@ -185,28 +187,50 @@ void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_n
       ProcessUntilAttacksAndShachsEnd(current_node,
                                       board_coppy,
                                       max_height,
-                                      prev_node_price);
+                                      prev_node_price,
+                                      father_price,
+                                      grand_father_price);
     } else {
       ProcessUntilHightLimit(current_node,
                              board_coppy,
                              max_height,
-                             prev_node_price);
+                             prev_node_price,
+                             father_price, grand_father_price);
     }
   }
 
   if (unaply) {
     board_coppy->unApply(current_node->move_to_get_here);
+  }else{
+    std::cout<<shit<<"\n";
+    shit =0;
   }
 }
 
 void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree::Node>& current_node,
                                                 const std::shared_ptr<ObjBoard>& board_coppy,
                                                 int max_height,
-                                                int alpha) {
+                                                int alpha,
+                                                int father_price,
+                                                int grand_father_price) {
   bool existed = false;
 
   for (const auto& child_node: current_node->edges) {
     existed = true;
+    if (((child_node->height-main_node_->height ) >= 2)) {
+      if (board_coppy->isWhiteTurn()) {
+        if (grand_father_price - child_node->best_price_ > 95) {
+          shit++;
+          continue;
+        }
+      } else {
+        if (child_node->best_price_ - grand_father_price > 95) {
+          shit++;
+          continue;
+        }
+      }
+    }
+    //TODO: GENERATE ONLY CAPTURES
 #if ARCH == 32
     if (child_node->move_to_get_here.getAttackScore() == 0) {
       board_coppy->apply(child_node->move_to_get_here);
@@ -214,10 +238,10 @@ void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree:
           MovesGenerator(board_coppy).isShah(board_coppy->isWhiteTurn());
       board_coppy->unApply(child_node->move_to_get_here);
 #else
-    if (child_node->move_to_get_here.getIsFlagSet(BMove::CAPTURES)) {
-      board_coppy->apply(child_node->move_to_get_here);
-      bool is_shah = board_coppy->isShah(board_coppy->whosTurn());
-      board_coppy->unApply(child_node->move_to_get_here);
+      if (!child_node->move_to_get_here.isCapture()) {
+        board_coppy->apply(child_node->move_to_get_here);
+        bool is_shah = board_coppy->isShah(board_coppy->whosTurn());
+        board_coppy->unApply(child_node->move_to_get_here);
 #endif
 
       if (!is_shah) {
@@ -230,7 +254,9 @@ void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree:
     if (child_node->height <= max_height + 8) {
       board_coppy->apply(child_node->move_to_get_here);
 
-      makeTreeDeeper(child_node, board_coppy, 0, true,
+      makeTreeDeeper(child_node, board_coppy, max_height, true,
+                     current_node->best_price_,
+                     father_price,
                      current_node->best_price_, true);
     }
     bool continue_search = updateBest(current_node, child_node->best_price_,
@@ -247,19 +273,41 @@ void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree:
 }
 void MovesTree::ProcessUntilHightLimit(const std::shared_ptr<MovesTree::Node>& current_node,
                                        const std::shared_ptr<ObjBoard>& board_coppy,
-                                       short max_height, int alpha) {
+                                       short max_height, int alpha,
+                                       int father_price,
+                                       int grand_father_price) {
   for (const auto& child_node: current_node->edges) {
-    if (child_node->height <= max_height) {
-      board_coppy->apply(child_node->move_to_get_here);
 #if ARCH == 32
-      bool capture_only = child_node->move_to_get_here.getAttackScore() != 0;
+    bool capture_only = (child_node->move_to_get_here.getAttackScore() != 0);
 #else
-      bool capture_only =
-          !child_node->move_to_get_here.getIsFlagSet(BMove::CAPTURES);
+    bool capture_only = child_node->move_to_get_here.isCapture();
 #endif
+    if ((( child_node->height-main_node_->height) >= 2)) {
+      if (board_coppy->isWhiteTurn()) {
+      if (grand_father_price - child_node->best_price_ > 95) {
+          shit++;
+          continue;
+        }
+      } else {
+        if (child_node->best_price_ - grand_father_price > 95) {
+          shit++;
+          continue;
+        }
+      }
+    }
+// 7667 23064 347684 ->  price - best_price_
+// >  board_sum -- best_sum
+    if (child_node->height <= max_height || capture_only) {
+      board_coppy->apply(child_node->move_to_get_here);
+
       makeTreeDeeper(child_node,
-                     board_coppy, max_height, true,
-                     current_node->best_price_, capture_only);
+                     board_coppy,
+                     max_height,
+                     true,
+                     current_node->best_price_,
+                     father_price,
+                     current_node->best_price_,
+                     capture_only);
     } else {
       child_node->best_price_ = child_node->board_sum;
     }

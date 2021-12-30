@@ -23,13 +23,13 @@ void ChessEngine::startNewGame(const std::string& fen_str) {
     tree_grow = 1;
   }
   if (mode_ == AiAdvanceLvl::A1) {
-    tree_grow = 4;
+    tree_grow = 3;
   }
   if (mode_ == AiAdvanceLvl::A2) {
-    tree_grow = 4;
+    tree_grow = 3;
   }
   if (mode_ == AiAdvanceLvl::A3) {
-    tree_grow = 6;
+    tree_grow = 5;
   }
   tree_moves_ = std::make_shared<MovesTree>(*main_board_, tree_grow);
 }
@@ -47,7 +47,7 @@ std::string ChessEngine::getPossibleMovesForPosition(short x, short y) {
   return answer;
 
 #else
-  auto moves = MovesGenerator::generate(&*main_board_, main_board_->whosTurn());
+  auto moves = MovesGenerator::generate(&*main_board_);
   std::string answer;
   for (const auto& move: moves) {
     if (Position(move.getFromPair()) == Position(x, y))
@@ -85,7 +85,7 @@ Move ChessEngine::getBestMove() {
 #if ARCH == 32
   auto empty_piece = std::make_shared<Piece>();
   auto empty_move = Move(empty_piece, empty_piece);
-  if (main_board_->getMoveCount() > 120) {
+  if (main_board_->getMoveCount() > 399) {
     return empty_move;
   }
   auto best_move = tree_moves_->getBestMove();
@@ -97,7 +97,7 @@ Move ChessEngine::getBestMove() {
   }
   return best_move;
 #else
-  if (main_board_->getMoveCount() > 120) {
+  if (main_board_->getMoveCount() > 399) {
     return Move();
   }
   auto best_move = tree_moves_->getBestMove();
@@ -118,7 +118,7 @@ void ChessEngine::applyMoveParams(short fx, short fy, short tx, short ty,
       break;
     case 'q':new_piece_type = PieceType::QUEEN;
       break;
-    case 'n': new_piece_type = PieceType::NIGHT;
+    case 'n': new_piece_type = PieceType::KNIGHT;
       break;
     case 'b': new_piece_type = PieceType::BISHOP;
       break;
@@ -128,10 +128,15 @@ void ChessEngine::applyMoveParams(short fx, short fy, short tx, short ty,
 #if ARCH == 32
   auto naked_move = Move(main_board_->getPiece(Position(fx, fy)),
                          main_board_->getPiece(Position(tx, ty)));
+    naked_move.setNewPieceType(new_piece_type);
+
 #else
-  auto naked_move = Move(fx + fy * 8, tx + ty * 8);
+
+  auto naked_move = Move(fx + fy * 8, tx + ty * 8, 0);
+  if (new_piece_type != PieceType::NONE) {
+    naked_move.setNewPieceType(new_piece_type);
+  }
 #endif
-  naked_move.setNewPieceType(new_piece_type);
   applyMove(naked_move);
 }
 

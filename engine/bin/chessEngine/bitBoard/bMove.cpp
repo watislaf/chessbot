@@ -1,21 +1,29 @@
 #include <iomanip>
 #include "bMove.h"
 
-BMove::BMove(uint8_t from, uint8_t to, uint8_t flags) {
-  data_ = (flags & 0xf);
+BMove::BMove(uint8_t from_, uint8_t to_, uint8_t flags) {
+  data_ = to_;
   data_ <<= 6;
-  data_ |= from & 0x3f;
-  data_ <<= 6;
-  data_ |= to & 0x3f;
+  data_ |= from_;
+  data_ <<= 4;
+  data_ |= (flags);
+  // to from flags
+  //000000 000000 0000
+  from=getFrom();
+  to=getTo();
+  flag = getFlags();
 }
 
 BMove& BMove::operator=(const BMove& right) = default;
 
 uint8_t BMove::getTo() const {
-  return data_ & 0x3f;
+  return (data_ >> 10) & 0x3F;
 }
 uint8_t BMove::getFrom() const {
-  return (data_ >> 6) & 0x3f;
+  return (data_ >> 4) & 0x3F;
+}
+uint8_t BMove::getFlags() const {
+  return data_ & 0xF;
 }
 
 std::pair<uint8_t, uint8_t> BMove::getToPair() const {
@@ -25,22 +33,8 @@ std::pair<uint8_t, uint8_t> BMove::getFromPair() const {
   return {getFrom() % 8, getFrom() / 8};
 }
 
-uint8_t BMove::getFlags() const {
-  return (data_ >> 12) & 0x0f;
-}
-
-void BMove::setTo(uint8_t to) {
-  data_ &= ~0x3f;
-  data_ |= to & 0x3f;
-}
-
-void BMove::setFrom(uint8_t from) {
-  data_ &= ~0xfc0;
-  data_ |= (from & 0x3f) << 6;
-}
-
 bool BMove::getIsFlagSet(BFlagType flag_type) const {
-  return (data_ & flag_type) != 0;
+  return data_ == flag_type;
 }
 
 bool BMove::operator==(const BMove& a) const {
@@ -54,32 +48,72 @@ uint16_t BMove::data() const {
   return data_;
 }
 std::string BMove::toStr() const {
-  return std::string("((") + char('0' + getFromPair().first) + ','
-      + char('0' + getFromPair().second) + "),("
-      + char('0' + getToPair().first) + ','
-      + char('0' + getToPair().second) + "))";
-}
-void BMove::xorFlags(BMove::BFlagType flag) {
-  data_ ^= flag;
+  int sx = getFromPair().first;
+  int sy = getFromPair().second;
+  int ex = getToPair().first;
+  int ey = getToPair().second;
+  if (isInvalid()) {
+    sx = 9;
+    sy = 9;
+    ex = 9;
+    ey = 9;
+  }
+  int lol = getTo();
+  auto answ = std::string("((") + char('0' + sx) + ','
+      + char('0' + sy) + "),("
+      + char('0' + ex) + ','
+      + char('0' + ey) + ")";
+  if (isPromotion()) {
+    answ += ",";
+    switch (getNewPieceType()) {
+      case PieceType::KING:answ += "k";
+        break;
+      case PieceType::QUEEN:answ += "q";
+        break;
+      case PieceType::KNIGHT:answ += "n";
+        break;
+      case PieceType::RUCK:answ += "r";
+        break;
+      case PieceType::BISHOP:answ += "b";
+        break;
+      default: answ += "x";
+    }
+  }
+  return answ + ")";
 }
 void BMove::setNewPieceType(PieceType type) {
-  data_ |= static_cast<uint8_t>(type);
+  data_ |= 10 + static_cast<uint8_t>(type);
+  flag = getFlags();
 }
-BMove BMove::makeInvalid() {
-  data_ = -1;
-  return *this;
-}
+
 bool BMove::isInvalid() const {
   return data_ == uint16_t(-1);
 }
 PieceType BMove::getNewPieceType() const {
-  return static_cast<PieceType>(data_
-      & (KING_PROMOTION |
-          KNIGHT_PROMOTION |
-          ROOK_PROMOTION |
-          QUEEN_PROMOTION |
-          BISHOP_PROMOTION));
+  if (isPromotion()) {
+    return getCurrentPieceType();
+  }
+  return PieceType::NONE;
 }
 BMove::BMove() {
   data_ = -1;
+}
+PieceType BMove::getCurrentPieceType() const {
+  auto flags = getFlags();
+  if (flags <= 11) {
+    return static_cast<PieceType>(((flags) % 6) + 1);
+  } else {
+    return static_cast<PieceType>(((flags) - 10));
+  }
+}
+bool BMove::isPromotion() const {
+  return getFlags() >= 12;
+}
+bool BMove::isCapture() const {
+  return getFlags() > 5 && getFlags() < 12;
+}
+void BMove::setFlag(BMove::BFlagType type) {
+  data_ &= ~15;
+  data_ |= type;
+  flag = getFlags();
 }

@@ -9,8 +9,7 @@
 
 class BMovesGenerator {
  public:
-  static std::vector<BMove> generate(BBoard* board,
-                                     BBoard::BPieceType color);
+  static std::vector<BMove> generate(BBoard* board);
   static const int MAX_MOVES = 256;
   static void generateMovesFromPosition(uint8_t position,
                                         uint64_t attacks,
@@ -28,6 +27,29 @@ class BMovesGenerator {
                      const BBoard::BPieceType& enemy_color,
                      const uint64_t& empty,
                      const uint64_t& enemy);
-};
+  static void Bishop(BBoard* p_board,
+                     const BBoard::BPieceType& type,
+                     const BBoard::BPieceType& type_1,
+                     const uint64_t& empty,
+                     const uint64_t& enemy);
+  static void Roock(BBoard* p_board,
+                    const BBoard::BPieceType& type,
+                    const BBoard::BPieceType& type_1,
+                    const uint64_t& empty,
+                    const uint64_t& enemy);
 
+  static void Queen(BBoard* p_board,
+                    const BBoard::BPieceType& type,
+                    const BBoard::BPieceType& type_1,
+                    const uint64_t& empty,
+                    const uint64_t& enemy);
+
+  static void King(BBoard* p_board,
+                    const BBoard::BPieceType& type,
+                    const BBoard::BPieceType& type_1,
+                    const uint64_t& empty,
+                    const uint64_t& enemy);
+
+
+};
 #endif //BMOVESGENERATOR_H

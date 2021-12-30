@@ -84,6 +84,7 @@ class GameController:
 #            try:
             self.__first_player.apply_move(move)
             self.__second_player.apply_move(move)
+            print(move)
 #            except ...:
 #                print("Move error...")
 

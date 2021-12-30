@@ -23,8 +23,7 @@ class Pricer {
                  bool is_white,
                  double endgamecoef,
                  PieceType type);
-  int valOnBoard(int x,
-                 int y,
+  int valOnBoard(uint8_t pos,
                  bool is_white,
                  double endgamecoef,
                  PieceType type);

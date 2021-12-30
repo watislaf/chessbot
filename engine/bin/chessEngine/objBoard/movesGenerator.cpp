@@ -14,7 +14,7 @@ std::shared_ptr<std::list<Move>> MovesGenerator::generateMoves() {
   defende_score = 0;
   // Create simple moves
   switch (piece_->getType()) {
-    case PieceType::NIGHT:horseMove();
+    case PieceType::KNIGHT:horseMove();
       break;
     case PieceType::KING:kingMove();
       castleMove();
@@ -151,7 +151,7 @@ void MovesGenerator::ponePacificMove(bool reduce_tNone) {
       moves_.emplace_front(iter->getStart(), iter->getEnd());
       moves_.front().setNewPieceType(PieceType::RUCK);
       moves_.emplace_front(iter->getStart(), iter->getEnd());
-      moves_.front().setNewPieceType(PieceType::NIGHT);
+      moves_.front().setNewPieceType(PieceType::KNIGHT);
     }
   }
   // DOUBLE MOVE
@@ -314,6 +314,7 @@ bool MovesGenerator::isShahDanger(const Move& move) {
                              (move.getStart()->getPosition().getX()
                                  + move.getEnd()->getPosition().getX()) / 2,
                              move.getStart()->getPosition().getY())));
+    non_castle_move.setPrevPassant(move.getPrevPassant());
     non_castle_move.setIsCastle(false);
     board_->apply(non_castle_move);
     is_under_shach =
@@ -338,7 +339,7 @@ bool MovesGenerator::isShah(bool is_white) {
       return true;
     }
     switch (piece->getType()) {
-      case PieceType::NIGHT:
+      case PieceType::KNIGHT:
         if (abs(king_pos.getX() - piece_pos.getX()) == 1 &&
             abs(king_pos.getY() - piece_pos.getY()) == 2 ||
             abs(king_pos.getX() - piece_pos.getX()) == 2 &&

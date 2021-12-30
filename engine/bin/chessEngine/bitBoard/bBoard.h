@@ -8,12 +8,13 @@
 class
 BBoard {
  public:
+  BBoard(const BBoard&) = default;
   explicit BBoard(FEN fen);
   static void staticDataInit();
   static bool _data_initialised;
-
-  /// void apply(const Move& )
-  // void unapply(cont Move& )
+  bool operator==(const BBoard& other);
+  void apply(const BMove& move);
+  void unApply(const BMove& move);
 
   enum BPieceType {
     WHITE_PIECES = 0,     // any white piece
@@ -35,9 +36,6 @@ BBoard {
   BPieceType whosTurn() const;
   bool isShah(BPieceType whos_move) const;
   uint8_t countPieces() const;
-  std::string str;
-  uint64_t pieceBB[14]{};
-  uint64_t occupiedBB;
   uint8_t getMoveCount() const;
   std::string toStr() const;
 
@@ -212,7 +210,7 @@ BBoard {
   uint64_t rankAttacks(const uint64_t& occupied, int sq);
   static uint64_t rookAttacks(uint64_t occupied, int sq);
   static uint64_t bishopAttacks(uint64_t occupied, int sq);
-  uint64_t queenAttacks(uint64_t occupied, int sq);
+  static uint64_t queenAttacks(uint64_t occupied, int sq);
 
   ///          ---             BOARD ANALYZE           ---           ////
 
@@ -248,8 +246,20 @@ BBoard {
   static uint64_t bPawnsAble2EastEP(uint64_t bpawns, const uint64_t& file);
   BPieceType getPiece(uint8_t square, BPieceType side) const;
 
- private:
   static uint64_t one_square_[64];
+  static uint64_t two_squares_[64][64];
+
+  bool isCastle(const BMove& move) const;
+  bool isBrakeCastle(const BMove& move) const;
+  bool canLeftCastle() const;
+  bool canRightCastle() const;
+
+  static uint64_t bishopDiagonals(int sq);
+  static uint64_t rookDiagonals(int sq);
+  static uint64_t kingAttacks(uint8_t pos);
+  static uint64_t queenDiagonal(uint8_t pos);
+
+ private:
   static uint64_t pawn_attacks_[2][64];
   static uint64_t king_attacks_[64];
   static uint64_t knight_attacks_[64];
@@ -257,19 +267,43 @@ BBoard {
 
   static uint64_t file_attacks_[64];
 
-  static uint64_t rank_attacks_[64];
+  static uint64_t rank_attacks_[65];
   static uint64_t diagonal_attacks_[64];
   static uint64_t anti_diagonal_attacks_[64];
-  static uint64_t rook_attacks_[64];
-  static uint64_t bishop_attacks_[64];
-  static uint64_t queen_attacks_[64];
+  static uint64_t rook_diagonals_[64];
+  static uint64_t bishop_diagonals_[64];
+  static uint64_t queen_diagonals_[64];
+  static uint64_t right_castle_spaces[2];
+  static uint64_t left_castle_spaces[2];
+
   static const uint64_t debruijn64 = 0x03f79d71b4cb0a89;
-  uint8_t pieces_count_=0;
-  uint8_t move_count_ = 0;
-  bool is_white_move_ = 0;
-  uint64_t _last_double_push = 0;
 
   BPieceType onPos(uint8_t pos, uint64_t i) const;
+  bool isBrakeLeftCastle(const BMove& move) const;
+  bool isBrakeRightCastle(const BMove& move) const;
+  bool isCanLeftCastle() const;
+  bool isCanRightCastle() const;
+
+  void setPieceCapturedThisMove(BPieceType type);
+  BPieceType getPieceCapturedThisMove();
+
+  uint8_t last_double_push_[400];
+  BPieceType piece_captured_this_move_[400];
+  bool last_left_castle[400];
+  bool last_right_castle[400];
+
+  uint8_t pieces_count_ = 0;
+  uint8_t move_count_ = 0;
+  bool is_white_turn_ = 0;
+  uint64_t pieceBB[14]{};
+  uint64_t occupiedBB;
+  bool left_castle_[2];
+  bool right_castle_[2];
+
+  void setPrevLeftCastle(bool b);
+  void setPrevRightCastle(bool b);
+  bool getPrevLeftCastle();
+  bool getPrevRightCastle();
 };
 
 #endif //BBOARD_H

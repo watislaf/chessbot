@@ -27,7 +27,7 @@ std::string Piece::toStr() const {
       break;
     case PieceType::PAWN:letter = 'p';
       break;
-    case PieceType::NIGHT:letter = 'n';
+    case PieceType::KNIGHT:letter = 'n';
       break;
     case PieceType::RUCK:letter = 'r';
       break;

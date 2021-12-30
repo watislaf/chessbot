@@ -12,7 +12,6 @@
 #include <mutex>
 #include "tools/pricer.h"
 
-
 #if ARCH == 32
 #include "objBoard/objBoard.h"
 #include "objBoard/movesGenerator.h"
@@ -53,7 +52,7 @@ class MovesTree {
   void makeTreeDeeper(const std::shared_ptr<Node>& current_node,
                       const std::shared_ptr<ObjBoard>& board_coppy,
                       short max_height,
-                      bool unaply,
+                      bool unaply, int father_price, int grand_father_price,
                       int prev_node_price = 10000001,
                       bool capture_only = false);
 
@@ -70,11 +69,13 @@ class MovesTree {
   void ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree::Node>& current_node,
                                        const std::shared_ptr<ObjBoard>& board_coppy,
                                        int max_height,
-                                       int alpha);
+                                       int alpha, int father_price,
+                                       int grand_father_price);
 
   void ProcessUntilHightLimit(const std::shared_ptr<MovesTree::Node>& current_node,
                               const std::shared_ptr<ObjBoard>& board_coppy,
-                              short max_height, int alpha);
+                              short max_height, int alpha,
+                              int father_price, int grand_father_price);
   bool updateBest(const std::shared_ptr<MovesTree::Node>& current_node,
                   int child_tmp, int alpha, bool move);
 };

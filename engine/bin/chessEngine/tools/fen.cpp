@@ -37,7 +37,7 @@ Piece FEN::getPiece(short i, short j) {
   switch (tolower(fen_matrix_[i][j])) {
     case 'r':my_piece.setType(PieceType::RUCK);
       break;
-    case 'n':my_piece.setType(PieceType::NIGHT);
+    case 'n':my_piece.setType(PieceType::KNIGHT);
       break;
     case 'b':my_piece.setType(PieceType::BISHOP);
       break;

@@ -1,3 +1,4 @@
+#include <iostream>
 #include "bBoard.h"
 #include "magicsWrapper.cpp"
 
@@ -12,24 +13,35 @@ const int BBoard::index64[64] = {
     25, 39, 14, 33, 19, 30, 9, 24,
     13, 18, 8, 12, 7, 6, 5, 63
 };
+uint64_t BBoard::right_castle_spaces[2];
+uint64_t BBoard::left_castle_spaces[2];
+
 uint64_t BBoard::pawn_attacks_[2][64];
 uint64_t BBoard::king_attacks_[64];
 uint64_t BBoard::knight_attacks_[64];
 uint64_t BBoard::ray_attacks_[64][8];
 uint64_t BBoard::file_attacks_[64];
-uint64_t BBoard::rank_attacks_[64];
+uint64_t BBoard::rank_attacks_[65];
 uint64_t BBoard::diagonal_attacks_[64];
 uint64_t BBoard::anti_diagonal_attacks_[64];
-uint64_t BBoard::rook_attacks_[64];
-uint64_t BBoard::bishop_attacks_[64];
-uint64_t BBoard::queen_attacks_[64];
+uint64_t BBoard::rook_diagonals_[64];
+uint64_t BBoard::bishop_diagonals_[64];
+uint64_t BBoard::queen_diagonals_[64];
 uint64_t BBoard::arrRectangular[64][64];
 uint64_t BBoard::one_square_[64];
+uint64_t BBoard::two_squares_[64][64];
 
 BBoard::BBoard(FEN fen) {
+  last_double_push_[0] = 64;
   for (int i = 0; i < 14; i++) {
     pieceBB[i] = 0;
   }
+  left_castle_[BPieceType::WHITE_PIECES] = fen.getWLC();
+  right_castle_[BPieceType::WHITE_PIECES] = fen.getWRC();
+
+  left_castle_[BPieceType::BLACK_PIECES] = fen.getBLC();
+  right_castle_[BPieceType::BLACK_PIECES] = fen.getBRC();
+
   pieces_count_ = 64;
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
@@ -45,11 +57,9 @@ BBoard::BBoard(FEN fen) {
           |= (u_int64_t(1) << ((7 - i) * 8 + j));
     }
   }
-  is_white_move_ = fen.getIsWhiteMowe();
+  is_white_turn_ = fen.getIsWhiteMowe();
   occupiedBB = pieceBB[0] | pieceBB[1];
   staticDataInit();
-  str = toStr();
-
 }
 
 int BBoard::bitScanReverse(const uint64_t& bits) {
@@ -323,7 +333,7 @@ uint64_t BBoard::bPawnsAble2Push(const uint64_t& bpawns,
 
 uint64_t BBoard::bPawnsAble2DblPush(const uint64_t& bpawns,
                                     const uint64_t& empty) {
-  return wPawnsAble2Push(bpawns, nortOne(empty & rank5) & empty);
+  return bPawnsAble2Push(bpawns, nortOne(empty & rank5) & empty);
 }
 
 uint64_t BBoard::wPawnsAble2Push(const uint64_t& wpawns,
@@ -362,12 +372,12 @@ uint64_t BBoard::wPawnsAble2CaptureWest(const uint64_t& wpawns,
 
 uint64_t BBoard::bPawnsAble2CaptureEast(const uint64_t& bpawns,
                                         const uint64_t& wpieces) {
-  return bpawns & bPawnWestAttacks(wpieces);
+  return bpawns & wPawnWestAttacks(wpieces);
 }
 
 uint64_t BBoard::bPawnsAble2CaptureWest(const uint64_t& bpawns,
                                         const uint64_t& wpieces) {
-  return bpawns & bPawnEastAttacks(wpieces);
+  return bpawns & wPawnEastAttacks(wpieces);
 }
 
 uint64_t BBoard::noNoEa(const uint64_t& bit) {
@@ -433,6 +443,10 @@ uint64_t BBoard::kingAttacks(uint64_t kingSet) {
   kingSet |= attacks;
   attacks |= nortOne(kingSet) | soutOne(kingSet);
   return attacks;
+}
+uint64_t BBoard::kingAttacks(uint8_t pos) {
+  return  king_attacks_[pos];
+
 }
 
 uint64_t BBoard::getPositiveRayAttacks(const uint64_t& occupied,
@@ -512,17 +526,26 @@ uint64_t BBoard::queenAttacks(uint64_t occupied, int square) {
 }
 
 uint64_t BBoard::bishopAttacks(uint64_t occupied, int sq) {
-  return Magics::get_bishop_attacks(Magics::d4, occupied);
+  return Magics::get_bishop_attacks(sq, occupied);
+}
+
+uint64_t BBoard::bishopDiagonals(int sq) {
+  return bishop_diagonals_[sq];
+}
+
+uint64_t BBoard::rookDiagonals(int sq) {
+  return rook_diagonals_[sq];
 }
 
 uint64_t BBoard::rookAttacks(uint64_t occupied, int sq) {
-  return Magics::get_rook_attacks(Magics::d4, occupied);
+  return Magics::get_rook_attacks(sq, occupied);
 }
 
 void BBoard::staticDataInit() {
   if (_data_initialised) {
     return;
   }
+
   init_sliders_attacks(Magics::bishop);
   init_sliders_attacks(Magics::rook);
 
@@ -573,6 +596,7 @@ void BBoard::staticDataInit() {
 
   for (int square = 63; square >= 0; square--) {
     one_square_[square] = uint64_t(1) << square;
+
     rank_attacks_[square] =
         ray_attacks_[square][East] | ray_attacks_[square][West];
     file_attacks_[square] =
@@ -581,12 +605,18 @@ void BBoard::staticDataInit() {
         ray_attacks_[square][NoEa] | ray_attacks_[square][SoWe];
     anti_diagonal_attacks_[square] =
         ray_attacks_[square][NoWe] | ray_attacks_[square][SoEa];
-    rook_attacks_[square] = rank_attacks_[square] | file_attacks_[square];
-    bishop_attacks_[square] =
+    rook_diagonals_[square] = rank_attacks_[square] | file_attacks_[square];
+    bishop_diagonals_[square] =
         diagonal_attacks_[square] | anti_diagonal_attacks_[square];
-    queen_attacks_[square] = rook_attacks_[square] | bishop_attacks_[square];
+    queen_diagonals_[square] =
+        rook_diagonals_[square] | bishop_diagonals_[square];
   }
-
+  for (int square1 = 63; square1 >= 0; square1--) {
+    for (int square2 = 63; square2 >= 0; square2--) {
+      two_squares_[square1][square2] =
+          one_square_[square1] | one_square_[square2];
+    }
+  }
   for (int f = 0; f < 8; f++) {
     for (int r8 = 0; r8 < 8; r8++) {
       auto pos = uint64_t(1) << (r8 + 8 * f);
@@ -619,6 +649,11 @@ void BBoard::staticDataInit() {
       arrRectangular[sq1][sq2] = line & btwn;
     }
   }
+  right_castle_spaces[0] = one_square_[5] || one_square_[6];
+  right_castle_spaces[1] = one_square_[61] || one_square_[62];
+  left_castle_spaces[0] = one_square_[1] || one_square_[2] || one_square_[3];
+  left_castle_spaces[1] = one_square_[57] || one_square_[58] || one_square_[59];
+
 }
 
 uint64_t BBoard::attacksTo(const uint64_t& occupied, int sq) {
@@ -754,7 +789,7 @@ std::string BBoard::toStr() const {
   std::string answer;
   for (short y = 0; y <= 7; y++) {
     for (short x = 0; x <= 7; x++) {
-      BPieceType type = getType((7 - y) * 8 + x);
+      BPieceType type = getType((x) * 8 + (y));
       std::string on_pos;
       switch (type) {
         case WHITE_PIECES:on_pos = "_";
@@ -787,7 +822,8 @@ std::string BBoard::toStr() const {
       answer += on_pos + " ";
 
     }
-    answer += "\n";
+    if (y != 7)
+      answer += "\n";
   }
   return answer;
 }
@@ -804,7 +840,7 @@ BBoard::BPieceType BBoard::onPos(uint8_t pos, uint64_t bit) const {
   return static_cast<BPieceType>(((bit >> (((pos) % 8) + 8 * (pos / 8))) & 1));
 }
 const uint64_t& BBoard::getLastDoublePush() const {
-  return _last_double_push;
+  return file_attacks_[last_double_push_[move_count_]];
 }
 
 uint64_t BBoard::wPawnsAble2WestEP(uint64_t wpawns,
@@ -823,51 +859,307 @@ uint64_t BBoard::wPawnsAble2EastEP(uint64_t wpawns,
 uint64_t BBoard::bPawnsAble2EastEP(uint64_t bpawns,
                                    const uint64_t& file) {
   bpawns &= rank4;
-  bpawns &= (eastOne(file));
+  bpawns &= (westOne(file));
   return bpawns;
 }
 
 uint64_t BBoard::bPawnsAble2WestEP(uint64_t bpawns,
                                    const uint64_t& file) {
   bpawns &= rank4;
-  bpawns &= (westOne(file));
+  bpawns &= (eastOne(file));
   return bpawns;
 }
 bool BBoard::isWhiteTurn() const {
-  return is_white_move_;
+  return is_white_turn_;
 }
 BBoard::BPieceType BBoard::whosTurn() const {
   return static_cast<BPieceType>(!isWhiteTurn());
 }
 
 bool BBoard::isShah(BPieceType whos_move) const {
+  return false;
   return attacksToKing(get(WHITE_KING, whos_move), whos_move) == 0;
 }
 
-BBoard::BPieceType BBoard::getPiece(uint8_t  square,
+BBoard::BPieceType BBoard::getPiece(uint8_t square,
                                     BPieceType side) const {
   if (get(BPieceType::WHITE_PAWN, side) & one_square_[square]) {
-    return BPieceType::WHITE_PAWN;
+    return static_cast<BPieceType>(BPieceType::WHITE_PAWN + side);
   }
   if (get(BPieceType::WHITE_KNIGHT, side) & one_square_[square]) {
-    return BPieceType::WHITE_KNIGHT;
+    return static_cast<BPieceType>(BPieceType::WHITE_KNIGHT + side);
   }
   if (get(BPieceType::WHITE_BISHOP, side) & one_square_[square]) {
-    return BPieceType::WHITE_BISHOP;
+    return static_cast<BPieceType>(BPieceType::WHITE_BISHOP + side);
   }
   if (get(BPieceType::WHITE_ROOK, side) & one_square_[square]) {
-    return BPieceType::WHITE_ROOK;
+    return static_cast<BPieceType>(BPieceType::WHITE_ROOK + side);
   }
   if (get(BPieceType::WHITE_QUEEN, side) & one_square_[square]) {
-    return BPieceType::WHITE_QUEEN;
+    return static_cast<BPieceType>(BPieceType::WHITE_QUEEN + side);
   }
   if (get(BPieceType::WHITE_KING, side) & one_square_[square]) {
-    return BPieceType::WHITE_KING;
+    return static_cast<BPieceType>(BPieceType::WHITE_KING + side);
   }
-  throw 42;
-  return BPieceType::WHITE_QUEEN;
+  return BPieceType::WHITE_PIECES;
 }
 
 uint8_t BBoard::countPieces() const {
   return pieces_count_;
+}
+
+void BBoard::apply(const BMove& move) {
+  uint8_t to = move.getTo();
+  uint8_t from = move.getFrom();
+  auto his_move = whosTurn();
+  auto not_his_move = !whosTurn();
+  move_count_++;
+  is_white_turn_ = !is_white_turn_;
+
+  pieceBB[his_move] ^= two_squares_[from][to];
+  auto my_piece = (int(move.getCurrentPieceType()) * 2 + his_move);
+  if (move.isPromotion()) {
+    pieceBB[my_piece] ^= one_square_[to];
+    pieceBB[WHITE_PAWN + his_move] ^= one_square_[from];
+  } else {
+    pieceBB[my_piece] ^= two_squares_[from][to];
+  }
+
+  if (move.getFlags() == BMove::BFlagType::PAWN_MOVE
+      && abs(to - from) == 16) {
+    last_double_push_[move_count_] = from % 8;
+  } else {
+    last_double_push_[move_count_] = 64;
+  }
+
+  if (move.isCapture()) {
+    pieces_count_--;
+    auto his_piece =
+        getPiece(to, static_cast<BPieceType>(not_his_move));
+    setPieceCapturedThisMove(his_piece);
+
+    if (his_piece == WHITE_PIECES) { // EPASSANT !!!!
+      if (isWhiteTurn()) {
+        to += 8;
+      } else {
+        to -= 8;
+      }
+      his_piece = static_cast<BPieceType>(WHITE_PAWN + not_his_move);
+    }
+    pieceBB[not_his_move] ^= one_square_[to];
+    pieceBB[his_piece] ^= one_square_[to];
+  }
+
+  // CASTLE
+  if (isCastle(move)) {
+    if (move.getTo() + 2 == -move.getFrom()) {
+      if (isWhiteTurn()) {
+        // left white
+        pieceBB[WHITE_PIECES] ^= two_squares_[0][3];
+        pieceBB[WHITE_ROOK] ^= two_squares_[0][3];
+      } else {
+        // left black
+        pieceBB[BLACK_PIECES] ^= two_squares_[56][59];
+        pieceBB[BLACK_PIECES] ^= two_squares_[56][59];
+      }
+    } else {
+      if (isWhiteTurn()) {
+        // right white
+        pieceBB[WHITE_PIECES] ^= two_squares_[7][5];
+        pieceBB[WHITE_ROOK] ^= two_squares_[7][5];
+      } else {
+        // right black
+        pieceBB[BLACK_PIECES] ^= two_squares_[63][61];
+        pieceBB[BLACK_ROOK] ^= two_squares_[63][61];
+      }
+    }
+    left_castle_[his_move] = false;
+    right_castle_[his_move] = false;
+  } else {
+    if (isBrakeLeftCastle(move)) {
+      left_castle_[his_move] = false;
+    }
+    if (isBrakeRightCastle(move)) {
+      right_castle_[his_move] = false;
+    }
+  }
+  setPrevLeftCastle(left_castle_[his_move]);
+  setPrevRightCastle(left_castle_[his_move]);
+
+}
+
+void BBoard::unApply(const BMove& move) {
+  uint8_t to = move.getTo();
+  uint8_t from = move.getFrom();
+  auto his_move = !whosTurn();
+  auto not_his_move = whosTurn();
+  // i am the player whos move is retirning
+  // place back piece in my board
+  pieceBB[his_move] ^= two_squares_[from][to];
+  auto my_piece = (int(move.getCurrentPieceType()) * 2 + his_move);
+
+  if (move.isPromotion()) {
+    pieceBB[my_piece] ^= one_square_[to];
+    pieceBB[WHITE_PAWN + his_move] ^= one_square_[from];
+  } else {
+    pieceBB[my_piece] ^= two_squares_[from][to];
+  }
+
+  if (move.isCapture()) {
+    pieces_count_++;
+    BPieceType his_piece = getPieceCapturedThisMove();
+    if (his_piece == WHITE_PIECES) { // EPASSANT !!!!
+      if (isWhiteTurn()) {
+        to += 8;
+      } else {
+        to -= 8;
+      }
+      his_piece = static_cast<BPieceType>(WHITE_PAWN + not_his_move);
+    }
+    pieceBB[not_his_move] ^= one_square_[to];
+    pieceBB[his_piece] ^= one_square_[to];
+  }
+
+
+  // CASTLE
+  if (isCastle(move)) {
+    if (move.getTo() + 2 == -move.getFrom()) {
+      if (!isWhiteTurn()) {
+        // left white
+        pieceBB[WHITE_PIECES] ^= two_squares_[0][3];
+        pieceBB[WHITE_ROOK] ^= two_squares_[0][3];
+      } else {
+        // left black
+        pieceBB[BLACK_PIECES] ^= two_squares_[56][59];
+        pieceBB[BLACK_PIECES] ^= two_squares_[56][59];
+      }
+    } else {
+      if (!isWhiteTurn()) {
+        // right white
+        pieceBB[WHITE_PIECES] ^= two_squares_[7][5];
+        pieceBB[WHITE_ROOK] ^= two_squares_[7][5];
+      } else {
+        // right black
+        pieceBB[BLACK_PIECES] ^= two_squares_[63][61];
+        pieceBB[BLACK_ROOK] ^= two_squares_[63][61];
+      }
+    }
+  }
+
+  left_castle_[his_move] = getPrevLeftCastle();
+  right_castle_[his_move] = getPrevRightCastle();
+
+  move_count_--;
+  is_white_turn_ = !is_white_turn_;
+}
+
+bool BBoard::isCastle(const BMove& move) const {
+  return move.getIsFlagSet(BMove::KING_MOVE)
+      && ((move.getFrom() - move.getTo() == 2)
+          || (move.getFrom() - move.getTo() == -2));
+}
+
+bool BBoard::isBrakeCastle(const BMove& move) const {
+  return !isCastle(move)
+      && (isBrakeLeftCastle(move) || isBrakeRightCastle(move));
+}
+
+bool BBoard::isBrakeLeftCastle(const BMove& move) const {
+  if (isCanLeftCastle()) {
+    return move.getIsFlagSet(BMove::KING_MOVE)
+        || move.getIsFlagSet(BMove::CAPTURE_BY_KING) ||
+        (move.getFrom() % 8 == 0 && (move.getIsFlagSet(BMove::RUCK_MOVE)
+            || move.getIsFlagSet(BMove::CAPTURE_BY_RUCK)));
+  }
+  return false;
+}
+bool BBoard::isBrakeRightCastle(const BMove& move) const {
+  if (isCanRightCastle()) {
+    return move.getIsFlagSet(BMove::KING_MOVE)
+        || move.getIsFlagSet(BMove::CAPTURE_BY_KING) ||
+        (move.getFrom() % 8 == 7 && (move.getIsFlagSet(BMove::RUCK_MOVE)
+            || move.getIsFlagSet(BMove::CAPTURE_BY_RUCK)));
+  }
+  return false;
+}
+bool BBoard::isCanLeftCastle() const {
+  return left_castle_[whosTurn()];
+}
+bool BBoard::isCanRightCastle() const {
+  return right_castle_[whosTurn()];
+}
+void BBoard::setPieceCapturedThisMove(BBoard::BPieceType type) {
+  piece_captured_this_move_[move_count_] = type;
+}
+BBoard::BPieceType BBoard::getPieceCapturedThisMove() {
+  return piece_captured_this_move_[move_count_];
+}
+
+bool BBoard::operator==(const BBoard& other) {
+  for (int i = 0; i < 14; i++) {
+    if (pieceBB[i] != other.pieceBB[i]) {
+      std::cout << "pieces " << i;
+
+      return false;
+    }
+  }
+  if (pieces_count_ != other.pieces_count_) {
+    std::cout << "piece_count";
+    return false;
+  }
+  if (move_count_ != other.move_count_) {
+    std::cout << "move_count";
+    return false;
+  }
+  if (is_white_turn_ != other.is_white_turn_) {
+    std::cout << "white_turn";
+    return false;
+  }
+  if (occupiedBB != other.occupiedBB) {
+    std::cout << "occupied";
+    return false;
+  }
+  if (left_castle_[0] != other.left_castle_[0]) {
+    std::cout << "white_lc";
+    return false;
+  }
+  if (left_castle_[1] != other.left_castle_[1]) {
+    std::cout << "black_lc";
+    return false;
+  }
+  if (right_castle_[1] != other.right_castle_[1]) {
+    std::cout << "black_rc";
+    return false;
+  }
+  if (right_castle_[0] != other.right_castle_[0]) {
+    std::cout << "black_lc";
+    return false;
+  }
+  return true;
+}
+uint64_t BBoard::queenDiagonal(uint8_t pos) {
+  return queen_diagonals_[pos];
+}
+
+bool BBoard::canLeftCastle() const {
+  return left_castle_[whosTurn()]
+      && ((left_castle_spaces[whosTurn()] & occupiedBB) == 0)
+      && (pieceBB[WHITE_ROOK + whosTurn()] & one_square_[56 * whosTurn()]);
+}
+bool BBoard::canRightCastle() const {
+  return right_castle_[whosTurn()]
+      && ((right_castle_spaces[whosTurn()] & occupiedBB) == 0)
+      && (pieceBB[WHITE_ROOK + whosTurn()] & one_square_[7 + 56 * whosTurn()]);
+}
+void BBoard::setPrevLeftCastle(bool b) {
+  last_left_castle[move_count_] = b;
+}
+void BBoard::setPrevRightCastle(bool b) {
+  last_right_castle[move_count_] = b;
+}
+bool BBoard::getPrevLeftCastle() {
+  return last_left_castle[move_count_];
+}
+bool BBoard::getPrevRightCastle() {
+  return last_right_castle[move_count_];
 }

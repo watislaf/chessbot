@@ -6,7 +6,7 @@
 
 class BMove {
  public:
-  explicit BMove(uint8_t from , uint8_t to , uint8_t flags = 0);
+  explicit BMove(uint8_t from, uint8_t to, uint8_t flags);
   explicit BMove();
   BMove(const BMove&) = default;
   BMove& operator=(const BMove& left);
@@ -15,31 +15,28 @@ class BMove {
   uint8_t getTo() const;
   uint8_t getFrom() const;
   uint8_t getFlags() const;
-  BMove makeInvalid() ;
-  bool isInvalid() const ;
+  bool isInvalid() const;
   enum BFlagType {
-      KNIGHT_PROMOTION=2, //or
-      BISHOP_PROMOTION=3,//or
-      ROOK_PROMOTION=4,//or
-      QUEEN_PROMOTION=5,//or
-    KING_PROMOTION=6,//or means that this is GG
-
-    DOUBLE_PAWN_PUSH=8,//or
-    KING_CASTLE=16,//or
-    QUEEN_CASTLE=24,//or
-    CAPTURES=32, // or
-    BRAKE_QUEEN_CASTLE=48,//or
-    BRAKE_KING_CASTLE=64,//or
-    EP_CAPTURE=128,
-
-    // empty 9
-    // empty 10
+    PAWN_MOVE = 0,
+    KNIGHT_MOVE = 1,
+    BISHOP_MOVE = 2,
+    RUCK_MOVE = 3,
+    QUEEN_MOVE = 4,
+    KING_MOVE = 5,
+    CAPTURE_BY_PAWN = 6,
+    CAPTURE_BY_KNIGHT = 7,
+    CAPTURE_BY_BISHOP = 8,
+    CAPTURE_BY_RUCK = 9,
+    CAPTURE_BY_QUEEN = 10,
+    CAPTURE_BY_KING = 11,
+    PROMOTE_TO_KNIGHT = 12,
+    PROMOTE_TO_BISHOP = 13,
+    PROMOTE_TO_RUCK = 14,
+    PROMOTE_TO_QUEEN = 15,
   };
-  void xorFlags(BFlagType flag);
+
   uint16_t data() const;
-  std::string toStr() const ;
-  void setTo(uint8_t to);
-  void setFrom(uint8_t from);
+  std::string toStr() const;
 
   bool getIsFlagSet(BFlagType flag_type) const;
   std::pair<uint8_t, uint8_t> getToPair() const;
@@ -47,9 +44,16 @@ class BMove {
 
   void setNewPieceType(PieceType type);
   PieceType getNewPieceType() const;
+  PieceType getCurrentPieceType() const;
+  bool isCapture() const;
+  void setFlag(BFlagType type);
+  bool isPromotion() const;
  private:
   /// 4bits flags, 6bits from, 6bits to
   uint16_t data_ = 0; // or short or template type
+  uint8_t from=0;
+  uint8_t to=0;
+  uint8_t flag=0;
 };
 
 #endif //BMOVE_H
