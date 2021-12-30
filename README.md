@@ -65,8 +65,8 @@ To run a board-game:
 ```bat
     ./ChessBot  --mode=board 
                 --white_player=[human|engine] # default is human
-                --black_player=[human|engine]# default is engine
-                --level=[bullet|blitz|rapid]  # 1,3,10 min games. default is bullet
+                --black_player=[human|engine] # default is engine
+                --lvl=[easy|bullet|blitz|rapid]  # 0,1,3,10 min games. default is bullet
 ```
 
 Or to run the second mode (only if you pressed Yes in setup.sh script). Check settings.png file with your chess.com settings.
