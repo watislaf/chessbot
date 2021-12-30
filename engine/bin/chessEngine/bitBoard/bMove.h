@@ -4,6 +4,7 @@
 #include <cstdint>
 #include "abstracts/pieceType.h"
 
+
 class BMove {
  public:
   explicit BMove(uint8_t from, uint8_t to, uint8_t flags);
@@ -51,9 +52,11 @@ class BMove {
  private:
   /// 4bits flags, 6bits from, 6bits to
   uint16_t data_ = 0; // or short or template type
+#if DEBUG
   uint8_t from=0;
   uint8_t to=0;
   uint8_t flag=0;
+#endif
 };
 
 #endif //BMOVE_H

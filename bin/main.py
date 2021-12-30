@@ -91,7 +91,8 @@ if __name__ == "__main__":
     while True:
         try:
             winner = _controller.start_game(
-                "4k2b/8/8/8/8/8/8/R3K2R b KQkq - 0 1"
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+                #                "4k2b/8/8/8/8/8/8/R3K2R w KQkq - 0 1"
                 #                               "r3k2r/4pp2/8/8/8/8/4PP2/4K2R w KQkq - 0 1"
             )
             print(winner)

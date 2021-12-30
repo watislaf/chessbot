@@ -3,13 +3,13 @@
 
 #include <string>
 #include <utility>
-#include <objBoard/piece.h>
+#include "bitBoard/piece.h"
 #include <sstream>
 #include <vector>
 
 class FEN {
  public:
-  explicit FEN(std::string fen_str="k7/p3pp2/1p6/2p5/4nP1/3PP3/PPP5/7K");
+  explicit FEN(std::string fen_str="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
 
   Piece getPiece(short i, short j);

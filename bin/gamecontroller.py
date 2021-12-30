@@ -67,7 +67,6 @@ class GameController:
                 move = self.__first_player.get_move()
             else:
                 move = self.__second_player.get_move()
-                print(move)
             """
             Invalid move means that there is no move can be done that is equal 
             to lose. If move have new_piece==k flag, that means Draw 
@@ -96,8 +95,11 @@ class GameController:
                     print("DIFFERENT BOARDS BETWEEN PLAYERS")
                     print(self.__first_player.get_board_str())
                     print(self.__second_player.get_board_str())
-                if self.__first_player.get_board_str() != \
-                        self.__second_player.get_board_str():
+                if self.__first_player.get_board_str().replace(" ", "").replace(
+                        "\n", "") != \
+                        self.__second_player.get_board_str().replace(" ",
+                                                                     "").replace(
+                            "\n", ""):
                     print("DIFFERENT BOARDS BETWEEN PLAYERS")
                     print(self.__first_player.get_board_str())
                     print(self.__second_player.get_board_str())

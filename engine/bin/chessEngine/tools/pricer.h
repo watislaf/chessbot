@@ -3,8 +3,6 @@
 
 #include "memory"
 
-#include "objBoard/objBoard.h"
-#include "objBoard/movesGenerator.h"
 #include "bitBoard/bBoard.h"
 #include "bitBoard/bMove.h"
 #include "bitBoard/bMovesGenerator.h"
@@ -12,12 +10,10 @@
 class Pricer {
  public:
 
-  int countOrder(const std::shared_ptr<ObjBoard>& board, const Move& move);
   int countOrder(const BBoard* board, const BMove& move);
   static int getPrice(const std::shared_ptr<const Piece>& piece);
   static int getPrice(PieceType type);
   static int getPrice(BBoard::BPieceType type);
-  double endGameCoef(const std::shared_ptr<const ObjBoard>& board);
   double endGameCoef(const BBoard& board);
   int valOnBoard(Position pos,
                  bool is_white,

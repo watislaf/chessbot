@@ -9,9 +9,11 @@ BMove::BMove(uint8_t from_, uint8_t to_, uint8_t flags) {
   data_ |= (flags);
   // to from flags
   //000000 000000 0000
-  from=getFrom();
-  to=getTo();
+#if DEBUG
+  from = getFrom();
+  to = getTo();
   flag = getFlags();
+#endif
 }
 
 BMove& BMove::operator=(const BMove& right) = default;
@@ -34,7 +36,7 @@ std::pair<uint8_t, uint8_t> BMove::getFromPair() const {
 }
 
 bool BMove::getIsFlagSet(BFlagType flag_type) const {
-  return data_ == flag_type;
+  return (data_ & 15) == flag_type;
 }
 
 bool BMove::operator==(const BMove& a) const {
@@ -83,7 +85,9 @@ std::string BMove::toStr() const {
 }
 void BMove::setNewPieceType(PieceType type) {
   data_ |= 10 + static_cast<uint8_t>(type);
+#if DEBUG
   flag = getFlags();
+#endif
 }
 
 bool BMove::isInvalid() const {
@@ -115,5 +119,7 @@ bool BMove::isCapture() const {
 void BMove::setFlag(BMove::BFlagType type) {
   data_ &= ~15;
   data_ |= type;
+#if DEBUG
   flag = getFlags();
+#endif
 }

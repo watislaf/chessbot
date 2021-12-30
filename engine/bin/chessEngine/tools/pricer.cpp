@@ -54,7 +54,7 @@ int Pricer::countOrder(const BBoard* board, const BMove& move) {
   if (board->isCastle(move)) {
     answer += 20;
   }
-  if (board->isBrakeCastle(move)) {
+  if (board->isBrakeCastle(move, board->whosTurn())) {
     answer -= 20;
   }
 
@@ -66,51 +66,6 @@ int Pricer::countOrder(const BBoard* board, const BMove& move) {
 
 }
 
-int Pricer::countOrder(const std::shared_ptr<ObjBoard>& board,
-                       const Move& move) {
-  int answer = move.getAttackScore();
-  if (move.getNewPieceType() != PieceType::NONE) {
-    answer += getPrice(move.getNewPieceType());
-  }
-  auto coef = endGameCoef(board);
-  answer += valOnBoard(move.getEnd()->getPosition(),
-                       move.getStart()->getPieceColor() == ColorType::WHITE,
-                       coef,
-                       move.getStart()->getType());
-  answer -= valOnBoard(move.getStart()->getPosition(),
-                       move.getStart()->getPieceColor() == ColorType::WHITE,
-                       coef,
-                       move.getStart()->getType());
-  if (move.getAttackScore() != 0) {
-    answer += valOnBoard(move.getEnd()->getPosition(),
-                         move.getEnd()->getPieceColor() == ColorType::WHITE,
-                         coef,
-                         move.getEnd()->getType());
-  }
-
-  if (move.getStart()->getType() == PieceType::QUEEN) {
-    if (endGameCoef(board) < 0.2)
-      answer -= 3;
-  }
-
-  if (move.getStart()->getType() == PieceType::PAWN) {
-    if (endGameCoef(board) < 0.1)
-      answer += 3;
-  }
-
-  if (move.isCastle()) {
-    answer += 20;
-  }
-  if (move.isBrakeLeftCastle() || move.isBrakeLeftCastle()) {
-    answer -= 20;
-  }
-
-  if (board->isBlackTurn()) {
-    answer *= -1;
-  }
-  // check for mate
-  return answer;
-}
 
 int Pricer::getPrice(PieceType type) {
   switch (type) {
@@ -122,13 +77,6 @@ int Pricer::getPrice(PieceType type) {
     case PieceType::KING:return 99999;
     default :return 0;
   }
-}
-//[0:1]
-double Pricer::endGameCoef(const std::shared_ptr<const ObjBoard>& board) {
-  int white_count = board->getActivePieceList(true).size();
-  int black_count = board->getActivePieceList(false).size();
-  double weg = 32. / 30. - (white_count + black_count) / 30.;
-  return ((weg)) * ((weg));
 }
 
 double Pricer::endGameCoef(const BBoard& board) {

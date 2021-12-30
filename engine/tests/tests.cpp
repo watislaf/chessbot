@@ -46,9 +46,12 @@ TEST(BBoard, test1) {/*
   //move = ai.getBestMove();
   //std::cout << move.toStr();
 
-  BBoard board(FEN("r3k2r/8/8/8/8/8/8/4K2R w KQkq - 0 1"));
-  BBoard board2(FEN("r3k2r/8/8/8/8/8/8/4K2R w KQkq - 0 1"));
+  BBoard board(FEN("7k/8/8/8/8/ppp5/8/K5R1 w KQkq - 0 1"));
+  BBoard board2(FEN("7k/8/8/8/8/ppp5/8/K5R1 w KQkq - 0 1"));
+  board.apply(Move(0, 1, BMove::KING_MOVE));
+  board.apply(Move(18, 10, BMove::PAWN_MOVE));
 
+  std::cout << board.toStr();
   auto vector_bmove = BMovesGenerator::generate(&board);
   for (const auto& move: vector_bmove) {
     board.apply(move);
@@ -58,17 +61,31 @@ TEST(BBoard, test1) {/*
     }
     std::cout << move.toStr() << "\n";
   }
+//  board.apply(Move(4, 6, BMove::KING_MOVE));
+///  board2.apply(Move(4, 6, BMove::KING_MOVE));
+  return;
+//  board.apply(Move(60, 52, BMove::RUCK_MOVE));
+//  board2.apply(Move(60, 52, BMove::RUCK_MOVE));
 
-  ChessEngine chess_ai("random");
-  chess_ai.startNewGame(
-      "r3k2r/8/8/8/8/8/8/4K2R w KQkq - 0 1");
-  chess_ai.applyMoveParams(7,0,5,0);
+  std::cout << board.toStr();
+  vector_bmove = BMovesGenerator::generate(&board);
+  for (const auto& move: vector_bmove) {
+    board.apply(move);
+    board.unApply(move);
+    if (!(board == board2)) {
+      std::cout << "PO";
+    }
+    std::cout << move.toStr() << "\n";
+  }
 }
 
 TEST(ChessAi, TEMP) {
   ChessEngine chess_ai("bullet");
   chess_ai.startNewGame(
-      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+      "k2r5/8/8/1b6/8/2N1n4/PPP5/K7 w KQkq - 0 1");
+  chess_ai.applyMove(chess_ai.getBestMove());
+
+
 }
 
 TEST(ChessAi, AlphaBeta) {
@@ -110,7 +127,7 @@ TEST(ChessAi, TreeGenerator) {
   ChessEngine chess_ai("bullet");
   chess_ai.startNewGame(
       "r1bqkbnr/pppppppp/n7/8/1P6/8/P1PPPPPP/RNBQKBNR w KQkq - 0 1");
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 30; i++) {
     auto move = chess_ai.getBestMove();
     chess_ai.isMoveExists();
     chess_ai.applyMove(move);

@@ -22,17 +22,50 @@ std::vector<BMove> BMovesGenerator::generate(BBoard* board) {
   Roock(board, color, enemy_color, empty, enemy);
   //QUEEN
   Queen(board, color, enemy_color, empty, enemy);
+  // CLEAR UNNILIGAL MOVES
+  uint8_t i = 0;
+  uint8_t j = 0;
+  uint8_t
+      king_pos = BBoard::bitScanForward(board->get(BBoard::WHITE_KING, color));
+
+  while (i < cur_moves_count_) {
+    board->apply(moves_free_space[i]);
+    if (!board->attacked((board->getOccupied()),
+                         king_pos,
+                         enemy_color)) {
+      moves_free_space[j] = moves_free_space[i];
+      j++;
+    }
+    board->unApply(moves_free_space[i]);
+    i++;
+  }
+  cur_moves_count_ = j;
+  uint8_t start = cur_moves_count_;
+
   // KING
   King(board, color, enemy_color, empty, enemy);
+
+  i = 0;
+  j = 0;
+  while (start + i < cur_moves_count_) {
+    if (!board->attacked((~empty) ^ board->get(BBoard::WHITE_KING, color),
+                         moves_free_space[start + i].getTo(),
+                         enemy_color)) {
+      moves_free_space[start + j] = moves_free_space[start + i];
+      j++;
+    }
+    i++;
+  }
+  cur_moves_count_ = start + j;
 
   std::vector<BMove> answer(cur_moves_count_);
   memcpy(answer.data(), moves_free_space, cur_moves_count_ * sizeof(BMove));
   return answer;
 }
 
-void BMovesGenerator::generateMovesFromPosition(uint8_t start_pos,
+void BMovesGenerator::generateMovesFromPosition(const uint8_t& start_pos,
                                                 uint64_t attacks,
-                                                uint8_t flag) {
+                                                const uint8_t& flag) {
   uint8_t end_position;
   while (attacks) {
     end_position = BBoard::bitScanForward(attacks);
@@ -40,6 +73,7 @@ void BMovesGenerator::generateMovesFromPosition(uint8_t start_pos,
     moves_free_space[cur_moves_count_++] = BMove(start_pos, end_position, flag);
   }
 }
+
 void BMovesGenerator::Pawn(const BBoard* board,
                            const BBoard::BPieceType& color,
                            const BBoard::BPieceType& enemy_color,
@@ -233,7 +267,7 @@ void BMovesGenerator::Bishop(BBoard* board,
 
     bishop_attacks =
         BBoard::bishopAttacks(
-            ~empty ,
+            ~empty,
             start_pos);
     generateMovesFromPosition(
         start_pos,
@@ -265,7 +299,7 @@ void BMovesGenerator::Queen(BBoard* board,
 
     queen_atack =
         BBoard::queenAttacks(
-            ~empty ,
+            ~empty,
             start_pos);
     generateMovesFromPosition(
         start_pos,
@@ -318,7 +352,6 @@ void BMovesGenerator::King(BBoard* board,
                            const BBoard::BPieceType& enemy_color,
                            const uint64_t& empty,
                            const uint64_t& enemy) {
-
   uint8_t
       king_pos = BBoard::bitScanForward(board->get(BBoard::WHITE_KING, color));
 
@@ -335,18 +368,26 @@ void BMovesGenerator::King(BBoard* board,
       king_atack & enemy,
       BMove::BFlagType::CAPTURE_BY_KING
   );
-
   if (board->attacksToKing(king_pos, color) != 0) {
     return;
   }
 
   if (board->canLeftCastle()) {
-    moves_free_space[cur_moves_count_++] =
-        BMove(king_pos, king_pos - 2, BMove::KING_MOVE);
+    if (!board->attacked(
+        ~empty,
+        king_pos - 1,
+        enemy_color)) {
+      moves_free_space[cur_moves_count_++] =
+          BMove(king_pos, king_pos - 2, BMove::KING_MOVE);
+    }
   }
   if (board->canRightCastle()) {
-    moves_free_space[cur_moves_count_++] =
-        BMove(king_pos, king_pos + 2, BMove::KING_MOVE);
+    if (!board->attacked(
+        ~empty,
+        king_pos + 1,
+        enemy_color)) {
+      moves_free_space[cur_moves_count_++] =
+          BMove(king_pos, king_pos + 2, BMove::KING_MOVE);
+    }
   }
-
 }

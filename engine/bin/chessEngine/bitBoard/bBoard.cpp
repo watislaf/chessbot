@@ -445,7 +445,7 @@ uint64_t BBoard::kingAttacks(uint64_t kingSet) {
   return attacks;
 }
 uint64_t BBoard::kingAttacks(uint8_t pos) {
-  return  king_attacks_[pos];
+  return king_attacks_[pos];
 
 }
 
@@ -622,9 +622,9 @@ void BBoard::staticDataInit() {
       auto pos = uint64_t(1) << (r8 + 8 * f);
       int index = f * 8 + r8;
       pawn_attacks_[BLACK_PIECES][index] =
-          bPawnEastAttacks(pos) & bPawnEastAttacks(pos);
+          bPawnEastAttacks(pos) | bPawnWestAttacks(pos);
       pawn_attacks_[WHITE_PIECES][index] =
-          wPawnEastAttacks(pos) & wPawnEastAttacks(pos);
+          wPawnEastAttacks(pos) | wPawnWestAttacks(pos);
       knight_attacks_[index] = knightAttacks(pos);
       king_attacks_[index] = kingAttacks(pos);
     }
@@ -649,10 +649,10 @@ void BBoard::staticDataInit() {
       arrRectangular[sq1][sq2] = line & btwn;
     }
   }
-  right_castle_spaces[0] = one_square_[5] || one_square_[6];
-  right_castle_spaces[1] = one_square_[61] || one_square_[62];
-  left_castle_spaces[0] = one_square_[1] || one_square_[2] || one_square_[3];
-  left_castle_spaces[1] = one_square_[57] || one_square_[58] || one_square_[59];
+  right_castle_spaces[0] = one_square_[5] | one_square_[6];
+  right_castle_spaces[1] = one_square_[61] | one_square_[62];
+  left_castle_spaces[0] = one_square_[1] | one_square_[2] | one_square_[3];
+  left_castle_spaces[1] = one_square_[57] | one_square_[58] | one_square_[59];
 
 }
 
@@ -675,19 +675,21 @@ uint64_t BBoard::attacksTo(const uint64_t& occupied, int sq) {
 
 bool BBoard::attacked(const uint64_t& occupied,
                       int square,
-                      BPieceType bySide) {
-  uint64_t pawns = pieceBB[WHITE_PAWN + bySide];
-  if (pawn_attacks_[bySide ^ 1][square] & pawns) return true;
-  uint64_t knights = pieceBB[WHITE_KNIGHT + bySide];
-  if (knight_attacks_[square] & knights) return true;
-  uint64_t king = pieceBB[WHITE_KING + bySide];
-  if (king_attacks_[square] & king) return true;
-  uint64_t bishopsQueens = pieceBB[WHITE_QUEEN + bySide]
+                      const BPieceType& bySide) const {
+  uint64_t figures = pieceBB[WHITE_PAWN + bySide];
+
+  if (pawn_attacks_[!bySide ][square] & figures) return true;
+  figures = pieceBB[WHITE_KNIGHT + bySide];
+  if (knight_attacks_[square] & figures) return true;
+  figures = pieceBB[WHITE_QUEEN + bySide]
       | pieceBB[WHITE_BISHOP + bySide];
-  if (bishopAttacks(occupied, square) & bishopsQueens) return true;
-  uint64_t rooksQueens = pieceBB[WHITE_QUEEN + bySide]
+  if (bishopAttacks(occupied, square) & figures) return true;
+  figures = pieceBB[WHITE_QUEEN + bySide]
       | pieceBB[WHITE_ROOK + bySide];
-  if (rookAttacks(occupied, square) & rooksQueens) return true;
+  if (rookAttacks(occupied, square) & figures) return true;
+  figures = pieceBB[WHITE_KING + bySide];
+  if (king_attacks_[square] & figures) return true;
+
   return false;
 }
 
@@ -725,7 +727,8 @@ uint64_t BBoard::xrayDiagonalAttacks(const uint64_t& occupied,
   if (blockers == 0) return blockers;
   return attacks ^ diagonalAttacks(occupied ^ blockers, bishopSq);
 }
-uint64_t BBoard::attacksToKing(int squareOfKing, BPieceType colorOfKing) const {
+uint64_t BBoard::attacksToKing(int squareOfKing,
+                               const BPieceType& colorOfKing) const {
   uint64_t opPawns, opKnights, opRQ, opBQ;
   opPawns = pieceBB[BLACK_PAWN - colorOfKing];
   opKnights = pieceBB[BLACK_NIGHT - colorOfKing];
@@ -750,7 +753,10 @@ uint64_t BBoard::getLeastValuablePiece(uint64_t attadef,
 }
 
 //TODO  https://www.chessprogramming.org/SEE_-_The_Swap_Algorithm
-int BBoard::see(int toSq, BPieceType target, int frSq, BPieceType aPiece) {/*
+int BBoard::see(int toSq,
+                const BPieceType& target,
+                int frSq,
+                const BPieceType& aPiece) {/*
   int gain[32], d = 0;
   U64 mayXray = pawns | bishops | rooks | queen;
   U64 fromSet = 1ULL << frSq;
@@ -775,8 +781,8 @@ int BBoard::see(int toSq, BPieceType target, int frSq, BPieceType aPiece) {/*
 const uint64_t& BBoard::getOccupied() const {
   return this->occupiedBB;
 }
-uint64_t BBoard::get(BBoard::BPieceType white_piece_type,
-                     BBoard::BPieceType color) const {
+uint64_t BBoard::get(const BPieceType& white_piece_type,
+                     const BPieceType& color) const {
   return pieceBB[white_piece_type + color];
 }
 uint64_t BBoard::knightAttacks(int pos) {
@@ -876,13 +882,17 @@ BBoard::BPieceType BBoard::whosTurn() const {
   return static_cast<BPieceType>(!isWhiteTurn());
 }
 
-bool BBoard::isShah(BPieceType whos_move) const {
-  return false;
-  return attacksToKing(get(WHITE_KING, whos_move), whos_move) == 0;
+bool BBoard::isShah(const BPieceType& whos_move) const {
+  uint8_t king_pos = BBoard::bitScanForward(get(BBoard::WHITE_KING, whos_move));
+  BPieceType enemy_side = static_cast<BPieceType>(!whos_move);
+  return (attacked((getOccupied()),
+                   king_pos,
+                   enemy_side));
+
 }
 
 BBoard::BPieceType BBoard::getPiece(uint8_t square,
-                                    BPieceType side) const {
+                                    const BPieceType& side) const {
   if (get(BPieceType::WHITE_PAWN, side) & one_square_[square]) {
     return static_cast<BPieceType>(BPieceType::WHITE_PAWN + side);
   }
@@ -917,6 +927,8 @@ void BBoard::apply(const BMove& move) {
   is_white_turn_ = !is_white_turn_;
 
   pieceBB[his_move] ^= two_squares_[from][to];
+  occupiedBB ^= two_squares_[from][to];
+
   auto my_piece = (int(move.getCurrentPieceType()) * 2 + his_move);
   if (move.isPromotion()) {
     pieceBB[my_piece] ^= one_square_[to];
@@ -948,44 +960,49 @@ void BBoard::apply(const BMove& move) {
     }
     pieceBB[not_his_move] ^= one_square_[to];
     pieceBB[his_piece] ^= one_square_[to];
+    occupiedBB ^= one_square_[to];
   }
 
+  setPrevLeftCastle(left_castle_[his_move]);
+  setPrevRightCastle(right_castle_[his_move]);
   // CASTLE
   if (isCastle(move)) {
-    if (move.getTo() + 2 == -move.getFrom()) {
-      if (isWhiteTurn()) {
+    if (move.getTo() + 2 == move.getFrom()) {
+      if (!isWhiteTurn()) {
         // left white
         pieceBB[WHITE_PIECES] ^= two_squares_[0][3];
         pieceBB[WHITE_ROOK] ^= two_squares_[0][3];
+        occupiedBB ^= two_squares_[0][3];
+
       } else {
         // left black
         pieceBB[BLACK_PIECES] ^= two_squares_[56][59];
-        pieceBB[BLACK_PIECES] ^= two_squares_[56][59];
+        pieceBB[BLACK_ROOK] ^= two_squares_[56][59];
+        occupiedBB ^= two_squares_[56][59];
       }
     } else {
-      if (isWhiteTurn()) {
+      if (!isWhiteTurn()) {
         // right white
         pieceBB[WHITE_PIECES] ^= two_squares_[7][5];
         pieceBB[WHITE_ROOK] ^= two_squares_[7][5];
+        occupiedBB ^= two_squares_[7][5];
       } else {
         // right black
         pieceBB[BLACK_PIECES] ^= two_squares_[63][61];
         pieceBB[BLACK_ROOK] ^= two_squares_[63][61];
+        occupiedBB ^= two_squares_[63][61];
       }
     }
     left_castle_[his_move] = false;
     right_castle_[his_move] = false;
   } else {
-    if (isBrakeLeftCastle(move)) {
+    if (isBrakeLeftCastle(move, his_move)) {
       left_castle_[his_move] = false;
     }
-    if (isBrakeRightCastle(move)) {
+    if (isBrakeRightCastle(move, his_move)) {
       right_castle_[his_move] = false;
     }
   }
-  setPrevLeftCastle(left_castle_[his_move]);
-  setPrevRightCastle(left_castle_[his_move]);
-
 }
 
 void BBoard::unApply(const BMove& move) {
@@ -996,6 +1013,8 @@ void BBoard::unApply(const BMove& move) {
   // i am the player whos move is retirning
   // place back piece in my board
   pieceBB[his_move] ^= two_squares_[from][to];
+  occupiedBB ^= two_squares_[from][to];
+
   auto my_piece = (int(move.getCurrentPieceType()) * 2 + his_move);
 
   if (move.isPromotion()) {
@@ -1018,30 +1037,35 @@ void BBoard::unApply(const BMove& move) {
     }
     pieceBB[not_his_move] ^= one_square_[to];
     pieceBB[his_piece] ^= one_square_[to];
+    occupiedBB ^= one_square_[to];
   }
 
 
   // CASTLE
   if (isCastle(move)) {
-    if (move.getTo() + 2 == -move.getFrom()) {
+    if (move.getTo() + 2 == move.getFrom()) {
       if (!isWhiteTurn()) {
         // left white
         pieceBB[WHITE_PIECES] ^= two_squares_[0][3];
         pieceBB[WHITE_ROOK] ^= two_squares_[0][3];
+        occupiedBB ^= two_squares_[0][3];
       } else {
         // left black
         pieceBB[BLACK_PIECES] ^= two_squares_[56][59];
-        pieceBB[BLACK_PIECES] ^= two_squares_[56][59];
+        pieceBB[BLACK_ROOK] ^= two_squares_[56][59];
+        occupiedBB ^= two_squares_[56][59];
       }
     } else {
       if (!isWhiteTurn()) {
         // right white
         pieceBB[WHITE_PIECES] ^= two_squares_[7][5];
         pieceBB[WHITE_ROOK] ^= two_squares_[7][5];
+        occupiedBB ^= two_squares_[7][5];
       } else {
         // right black
         pieceBB[BLACK_PIECES] ^= two_squares_[63][61];
         pieceBB[BLACK_ROOK] ^= two_squares_[63][61];
+        occupiedBB ^= two_squares_[63][61];
       }
     }
   }
@@ -1059,13 +1083,13 @@ bool BBoard::isCastle(const BMove& move) const {
           || (move.getFrom() - move.getTo() == -2));
 }
 
-bool BBoard::isBrakeCastle(const BMove& move) const {
+bool BBoard::isBrakeCastle(const BMove& move, const bool& side) const {
   return !isCastle(move)
-      && (isBrakeLeftCastle(move) || isBrakeRightCastle(move));
+      && (isBrakeLeftCastle(move, side) || isBrakeRightCastle(move, side));
 }
 
-bool BBoard::isBrakeLeftCastle(const BMove& move) const {
-  if (isCanLeftCastle()) {
+bool BBoard::isBrakeLeftCastle(const BMove& move, const bool& side) const {
+  if (isCanLeftCastle(side)) {
     return move.getIsFlagSet(BMove::KING_MOVE)
         || move.getIsFlagSet(BMove::CAPTURE_BY_KING) ||
         (move.getFrom() % 8 == 0 && (move.getIsFlagSet(BMove::RUCK_MOVE)
@@ -1073,8 +1097,8 @@ bool BBoard::isBrakeLeftCastle(const BMove& move) const {
   }
   return false;
 }
-bool BBoard::isBrakeRightCastle(const BMove& move) const {
-  if (isCanRightCastle()) {
+bool BBoard::isBrakeRightCastle(const BMove& move, const bool& side) const {
+  if (isCanRightCastle(side)) {
     return move.getIsFlagSet(BMove::KING_MOVE)
         || move.getIsFlagSet(BMove::CAPTURE_BY_KING) ||
         (move.getFrom() % 8 == 7 && (move.getIsFlagSet(BMove::RUCK_MOVE)
@@ -1082,13 +1106,13 @@ bool BBoard::isBrakeRightCastle(const BMove& move) const {
   }
   return false;
 }
-bool BBoard::isCanLeftCastle() const {
-  return left_castle_[whosTurn()];
+bool BBoard::isCanLeftCastle(const bool& side) const {
+  return left_castle_[side];
 }
-bool BBoard::isCanRightCastle() const {
-  return right_castle_[whosTurn()];
+bool BBoard::isCanRightCastle(const bool& side) const {
+  return right_castle_[side];
 }
-void BBoard::setPieceCapturedThisMove(BBoard::BPieceType type) {
+void BBoard::setPieceCapturedThisMove(const BPieceType& type) {
   piece_captured_this_move_[move_count_] = type;
 }
 BBoard::BPieceType BBoard::getPieceCapturedThisMove() {
@@ -1103,6 +1127,11 @@ bool BBoard::operator==(const BBoard& other) {
       return false;
     }
   }
+  if (occupiedBB != other.occupiedBB) {
+    std::cout << "occcupied";
+    return false;
+  }
+
   if (pieces_count_ != other.pieces_count_) {
     std::cout << "piece_count";
     return false;
