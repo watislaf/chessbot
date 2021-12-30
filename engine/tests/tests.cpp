@@ -48,8 +48,8 @@ TEST(BBoard, test1) {/*
 
   BBoard board(FEN("7k/8/8/8/8/ppp5/8/K5R1 w KQkq - 0 1"));
   BBoard board2(FEN("7k/8/8/8/8/ppp5/8/K5R1 w KQkq - 0 1"));
-  board.apply(Move(0, 1, BMove::KING_MOVE));
-  board.apply(Move(18, 10, BMove::PAWN_MOVE));
+  board.apply(BMove(0, 1, BMove::KING_MOVE));
+  board.apply(BMove(18, 10, BMove::PAWN_MOVE));
 
   std::cout << board.toStr();
   auto vector_bmove = BMovesGenerator::generate(&board);
@@ -82,8 +82,10 @@ TEST(BBoard, test1) {/*
 TEST(ChessAi, TEMP) {
   ChessEngine chess_ai("bullet");
   chess_ai.startNewGame(
-      "k2r5/8/8/1b6/8/2N1n4/PPP5/K7 w KQkq - 0 1");
-  chess_ai.applyMove(chess_ai.getBestMove());
+      "8/8/8/8/6k1/4K3/7p/5R2 b - - 1 57");
+  auto move = chess_ai.getBestMove();
+  std::cout<<move.toStr();
+  chess_ai.applyMove(move);
 
 
 }
@@ -98,7 +100,7 @@ TEST(ChessAi, AlphaBeta) {
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     int move_p = 0;
     while (true) {
-      Move move = chess_ai.getBestMove();;
+      BMove move = chess_ai.getBestMove();;
       if (move_p == 0) {
         move = chess_ai.getBestMove();
         move_p = 1;
@@ -129,8 +131,11 @@ TEST(ChessAi, TreeGenerator) {
       "r1bqkbnr/pppppppp/n7/8/1P6/8/P1PPPPPP/RNBQKBNR w KQkq - 0 1");
   for (int i = 0; i < 30; i++) {
     auto move = chess_ai.getBestMove();
-    chess_ai.isMoveExists();
-    chess_ai.applyMove(move);
+    if(chess_ai.isMoveExists()) {
+      chess_ai.applyMove(move);
+    }else{
+      std::cout<<"END";
+    }
   }
 
   // 3sec 666mc  4 default 6 attack

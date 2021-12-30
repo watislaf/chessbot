@@ -24,6 +24,7 @@ int Pricer::countOrder(const BBoard* board, const BMove& move) {
 
   if (move.getNewPieceType() != PieceType::NONE) {
     answer += getPrice(move.getNewPieceType());
+    answer -= 200;
   }
   auto coef = endGameCoef(*board);
 
@@ -66,14 +67,13 @@ int Pricer::countOrder(const BBoard* board, const BMove& move) {
 
 }
 
-
 int Pricer::getPrice(PieceType type) {
   switch (type) {
     case PieceType::PAWN:return 100;
     case PieceType::KNIGHT:return 300;
     case PieceType::BISHOP: return 305;
     case PieceType::RUCK:return 500;
-    case PieceType::QUEEN:return 9000;
+    case PieceType::QUEEN:return 900;
     case PieceType::KING:return 99999;
     default :return 0;
   }

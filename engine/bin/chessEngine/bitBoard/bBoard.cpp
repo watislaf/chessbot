@@ -678,7 +678,7 @@ bool BBoard::attacked(const uint64_t& occupied,
                       const BPieceType& bySide) const {
   uint64_t figures = pieceBB[WHITE_PAWN + bySide];
 
-  if (pawn_attacks_[!bySide ][square] & figures) return true;
+  if (pawn_attacks_[!bySide][square] & figures) return true;
   figures = pieceBB[WHITE_KNIGHT + bySide];
   if (knight_attacks_[square] & figures) return true;
   figures = pieceBB[WHITE_QUEEN + bySide]
@@ -944,23 +944,25 @@ void BBoard::apply(const BMove& move) {
     last_double_push_[move_count_] = 64;
   }
 
-  if (move.isCapture()) {
-    pieces_count_--;
+  if (move.isCapture() || move.isPromotion()) {
     auto his_piece =
         getPiece(to, static_cast<BPieceType>(not_his_move));
     setPieceCapturedThisMove(his_piece);
 
-    if (his_piece == WHITE_PIECES) { // EPASSANT !!!!
-      if (isWhiteTurn()) {
-        to += 8;
-      } else {
-        to -= 8;
+    if (!move.isPromotion() || his_piece != WHITE_PIECES) {
+      pieces_count_--;
+      if (his_piece == WHITE_PIECES) { // EPASSANT !!!!
+        if (isWhiteTurn()) {
+          to += 8;
+        } else {
+          to -= 8;
+        }
+        his_piece = static_cast<BPieceType>(WHITE_PAWN + not_his_move);
       }
-      his_piece = static_cast<BPieceType>(WHITE_PAWN + not_his_move);
+      pieceBB[not_his_move] ^= one_square_[to];
+      pieceBB[his_piece] ^= one_square_[to];
+      occupiedBB ^= one_square_[to];
     }
-    pieceBB[not_his_move] ^= one_square_[to];
-    pieceBB[his_piece] ^= one_square_[to];
-    occupiedBB ^= one_square_[to];
   }
 
   setPrevLeftCastle(left_castle_[his_move]);
@@ -1024,22 +1026,24 @@ void BBoard::unApply(const BMove& move) {
     pieceBB[my_piece] ^= two_squares_[from][to];
   }
 
-  if (move.isCapture()) {
-    pieces_count_++;
+  if (move.isCapture() || move.isPromotion()) {
     BPieceType his_piece = getPieceCapturedThisMove();
-    if (his_piece == WHITE_PIECES) { // EPASSANT !!!!
-      if (isWhiteTurn()) {
-        to += 8;
-      } else {
-        to -= 8;
-      }
-      his_piece = static_cast<BPieceType>(WHITE_PAWN + not_his_move);
-    }
-    pieceBB[not_his_move] ^= one_square_[to];
-    pieceBB[his_piece] ^= one_square_[to];
-    occupiedBB ^= one_square_[to];
-  }
+    if (!move.isPromotion() || his_piece != WHITE_PIECES) {
 
+      pieces_count_++;
+      if (his_piece == WHITE_PIECES) { // EPASSANT !!!!
+        if (isWhiteTurn()) {
+          to += 8;
+        } else {
+          to -= 8;
+        }
+        his_piece = static_cast<BPieceType>(WHITE_PAWN + not_his_move);
+      }
+      pieceBB[not_his_move] ^= one_square_[to];
+      pieceBB[his_piece] ^= one_square_[to];
+      occupiedBB ^= one_square_[to];
+    }
+  }
 
   // CASTLE
   if (isCastle(move)) {

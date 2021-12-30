@@ -2,11 +2,12 @@
 #define CHESS_MOVESTREE_H
 
 #include "movesTree.h"
+#include "tools/redirector.cpp"
 
 MovesTree::MovesTree(const BBoard& original_board,
                      short tree_grow)
-    : board_(std::make_shared<BBoard>(original_board)) { 
-  main_node_ = std::make_shared<Node>(BMove(), 0); 
+    : board_(std::make_shared<BBoard>(original_board)) {
+  main_node_ = std::make_shared<Node>(BMove(), 0);
   current_tree_height_ = original_board.getMoveCount();
   max_height_ = original_board.getMoveCount() + tree_grow;
   generateMovesForNode(main_node_);
@@ -16,7 +17,7 @@ void MovesTree::generateMovesForNode(const std::shared_ptr<MovesTree::Node>& nod
   if (node->edges.size() != 0) {
     return;
   }
- 
+
   const auto& moves =
       BMovesGenerator::generate(&*board_);
 
@@ -37,7 +38,7 @@ void MovesTree::generateMovesForNode(const std::shared_ptr<MovesTree::Node>& nod
     node->edges.emplace_back(std::make_shared<MovesTree::Node>(BMove,
                                                                new_board_sum));
 
-  } 
+  }
 
   std::sort(node->edges.begin(),
             node->edges.end(),
@@ -53,6 +54,7 @@ void MovesTree::generateMovesForNode(const std::shared_ptr<MovesTree::Node>& nod
 
 BMove MovesTree::getBestMove() {
   if (max_height_ != board_->getMoveCount()) {
+    Redirector::exec("free");
     makeTreeDeeper(
         main_node_, board_->getMoveCount(), 0,
         -getMinusInf(board_->isWhiteTurn()), false);
@@ -65,13 +67,13 @@ BMove MovesTree::getBestMove() {
 
   if (main_node_->edges.size() != 0) {
     std::cerr << "DOUBLESUKA ";
-  } 
-  return BMove(); 
+  }
+  return BMove();
 }
 
 BMove MovesTree::apply(const BMove& BMove) {
   std::shared_ptr<Node> node_by_this_move;
- 
+
   for (auto& node: main_node_->edges) {
     if (node->move_to_get_here.getFrom() == BMove.getFrom() &&
         node->move_to_get_here.getTo() == BMove.getTo() &&
@@ -89,7 +91,7 @@ BMove MovesTree::apply(const BMove& BMove) {
     max_height_ += 1;
     current_tree_height_ += 1;
     main_node_ = node_by_this_move;
-  } 
+  }
   if (node_by_this_move == nullptr) {
     std::cout << "CANT APPLY BMove, DOES NOT EXIST -> " << BMove.toStr();
     throw 42;
@@ -109,10 +111,10 @@ void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_n
   generateMovesForNode(current_node);
   current_node->best_price_ = getMinusInf(board_->isWhiteTurn());
 
-  if (current_node->edges.empty()) { 
+  if (current_node->edges.empty()) {
     if (!board_->isShah(board_->whosTurn())) {
       current_node->best_price_ *= -1;
-    } 
+    }
 
     current_node->best_price_ -= 5 * (board_->getMoveCount() + 1);
   } else {
@@ -130,6 +132,17 @@ void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_n
   }
 
   if (current_tree_height_ != board_->getMoveCount()) {
+/*
+    std::sort(current_node->edges.begin(),
+              current_node->edges.end(),
+              [this](const std::shared_ptr<Node>& l,
+                     const std::shared_ptr<Node>& r) {
+                if (board_->isWhiteTurn()) {
+                  return l->best_price_ > r->best_price_;
+                } else {
+                  return l->best_price_ < r->best_price_;
+                }
+              });*/
     board_->unApply(current_node->move_to_get_here);
   }
 }
@@ -140,6 +153,7 @@ void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree:
                                                 const int& grand_father_price) {
 
   for (const auto& child_node: current_node->edges) {
+
     if (isNodeToWeak(current_childs_height - current_tree_height_,
                      board_->isWhiteTurn(),
                      grand_father_price, child_node->best_price_)
@@ -152,10 +166,11 @@ void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree:
       continue;
     }
     //TODO: GENERATE ONLY CAPTURES 
-    if (!child_node->move_to_get_here.isCapture()) {
+    if (!child_node->move_to_get_here.isCapture()
+        && !child_node->move_to_get_here.isPromotion()) {
       board_->apply(child_node->move_to_get_here);
       bool is_shah = board_->isShah(board_->whosTurn());
-      board_->unApply(child_node->move_to_get_here); 
+      board_->unApply(child_node->move_to_get_here);
 
       if (!is_shah) {
         if (current_childs_height <= max_height_) {
@@ -196,8 +211,9 @@ void MovesTree::ProcessUntilHightLimit(const std::shared_ptr<MovesTree::Node>& c
                                        const short& current_childs_height,
                                        const int& alpha,
                                        const int& grand_father_price) {
-  for (const auto& child_node: current_node->edges) { 
-    bool capture_only = child_node->move_to_get_here.isCapture(); 
+  for (const auto& child_node: current_node->edges) {
+    bool capture_only = child_node->move_to_get_here.isCapture()
+        || child_node->move_to_get_here.isPromotion();
     if (!isNodeToWeak(current_childs_height - current_tree_height_,
                       board_->isWhiteTurn(),
                       grand_father_price,

@@ -114,7 +114,7 @@ bool BMove::isPromotion() const {
   return getFlags() >= 12;
 }
 bool BMove::isCapture() const {
-  return getFlags() > 5 && getFlags() < 12;
+  return (getFlags() > 5 && getFlags() < 12);
 }
 void BMove::setFlag(BMove::BFlagType type) {
   data_ &= ~15;

@@ -20,13 +20,13 @@ void ChessEngine::startNewGame(const std::string& fen_str) {
   main_board_ = std::make_shared<BBoard>(FEN(fen_str));
   short tree_grow = 0;
   if (mode_ == AiAdvanceLvl::RANDOM) {
-    tree_grow = 0;
+    tree_grow = 1;
   }
   if (mode_ == AiAdvanceLvl::A1) {
     tree_grow = 3;
   }
   if (mode_ == AiAdvanceLvl::A2) {
-    tree_grow = 3;
+    tree_grow = 4;
   }
   if (mode_ == AiAdvanceLvl::A3) {
     tree_grow = 5;
