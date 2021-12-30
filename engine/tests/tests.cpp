@@ -59,73 +59,16 @@ TEST(BBoard, test1) {/*
     std::cout << move.toStr() << "\n";
   }
 
+  ChessEngine chess_ai("random");
+  chess_ai.startNewGame(
+      "r3k2r/8/8/8/8/8/8/4K2R w KQkq - 0 1");
+  chess_ai.applyMoveParams(7,0,5,0);
 }
 
 TEST(ChessAi, TEMP) {
   ChessEngine chess_ai("bullet");
   chess_ai.startNewGame(
       "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(4, 6, 4, 4);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(4, 4, 3, 3);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(1, 7, 2, 5);
-
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(6, 7, 5, 5);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(1, 6, 1, 5);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(2, 7, 1, 6);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(5, 7, 3, 5);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(7, 7, 6, 7);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(6, 7, 6, 1);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(3, 5, 4, 6);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(5, 5, 6, 7);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(3, 7, 4, 6);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(4, 7, 2, 7);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(4, 6, 4, 4);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(4, 4, 1, 1);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(2, 5, 3, 3);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(3, 3, 4, 1);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(1, 6, 3, 4);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(6, 7, 4, 6);
-  //
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(4, 6, 2, 5);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(2, 5, 3, 3);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(1, 1, 0, 1);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(6, 1, 5, 1);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(3, 3, 4, 1);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(5, 1, 4, 1);
-  chess_ai.applyMove(chess_ai.getBestMove());
-  chess_ai.applyMoveParams(3, 6, 3, 5);
-  //  !!!!!!!!!!
-  std::cout << chess_ai.getBestMove().toStr();
-  // ((0,6),(2,6)) <- mistake
-
-
-
 }
 
 TEST(ChessAi, AlphaBeta) {

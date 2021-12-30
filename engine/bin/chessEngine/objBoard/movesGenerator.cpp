@@ -261,18 +261,17 @@ void MovesGenerator::castleMove() {
     auto rock_mo_move = board_->getPiece(
         Position(0, 7 * (piece_->getPieceColor()
             != ColorType::WHITE)));
-    if (rock_mo_move->getType() != PieceType::RUCK
-        || rock_mo_move->getPieceColor() != piece_->getPieceColor()) {
-      return;
-    }
+    if (rock_mo_move->getType() == PieceType::RUCK
+        && rock_mo_move->getPieceColor() == piece_->getPieceColor()) {
 
-    auto positions_left =
-        goByVector(piece_->getPosition(), Position(-1, 0));
-    if (positions_left.size() == 4) {
-      moves_.emplace_back(
-          piece_,
-          board_->getPiece(piece_->getPosition() + Position(-2, 0)));
-      moves_.back().setIsCastle(true);
+      auto positions_left =
+          goByVector(piece_->getPosition(), Position(-1, 0));
+      if (positions_left.size() == 4) {
+        moves_.emplace_back(
+            piece_,
+            board_->getPiece(piece_->getPosition() + Position(-2, 0)));
+        moves_.back().setIsCastle(true);
+      }
     }
   }
   if (board_->RcIsPossible(
@@ -280,18 +279,16 @@ void MovesGenerator::castleMove() {
     auto rock_mo_move = board_->getPiece(
         Position(7, 7 * (piece_->getPieceColor()
             != ColorType::WHITE)));
-    if (rock_mo_move->getType() != PieceType::RUCK
-        || rock_mo_move->getPieceColor() != piece_->getPieceColor()) {
-      return;
+    if (rock_mo_move->getType() == PieceType::RUCK
+        && rock_mo_move->getPieceColor() == piece_->getPieceColor()) {
+      auto positions_right =
+          goByVector(piece_->getPosition(), Position(1, 0));
+      if (positions_right.size() == 3) {
+        moves_.emplace_back(piece_, board_->getPiece(
+            piece_->getPosition() + Position(2, 0)));
+        moves_.back().setIsCastle(true);
+      }
     }
-    auto positions_right =
-        goByVector(piece_->getPosition(), Position(1, 0));
-    if (positions_right.size() == 3) {
-      moves_.emplace_back(piece_, board_->getPiece(
-          piece_->getPosition() + Position(2, 0)));
-      moves_.back().setIsCastle(true);
-    }
-
   }
 }
 

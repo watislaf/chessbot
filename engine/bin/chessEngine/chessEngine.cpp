@@ -5,7 +5,7 @@
 ChessEngine::ChessEngine(std::string advance) {
   mode_ = AiAdvanceLvl::A1;
 
-  if (advance == "random")
+  if (advance == "random" ||advance == "easy")
     mode_ = AiAdvanceLvl::RANDOM;
 
   if (advance == "bullet")
@@ -18,9 +18,9 @@ ChessEngine::ChessEngine(std::string advance) {
 
 void ChessEngine::startNewGame(const std::string& fen_str) {
   main_board_ = std::make_shared<ObjBoard>(FEN(fen_str));
-  short tree_grow = 3;
+  short tree_grow = 0;
   if (mode_ == AiAdvanceLvl::RANDOM) {
-    tree_grow = 1;
+    tree_grow = 0;
   }
   if (mode_ == AiAdvanceLvl::A1) {
     tree_grow = 3;

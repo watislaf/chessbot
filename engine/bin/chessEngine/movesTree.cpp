@@ -83,9 +83,11 @@ void MovesTree::generateMovesForNode(const std::shared_ptr<MovesTree::Node>& nod
 }
 
 Move MovesTree::getBestMove() {
-  makeTreeDeeper(
-      main_node_, board_, max_height_, 0,
-      -getMinusInf(board_->isWhiteTurn()), 0, 0);
+  if (max_height_ != main_node_->height) {
+    makeTreeDeeper(
+        main_node_, board_, max_height_, 0,
+        -getMinusInf(board_->isWhiteTurn()), 0, 0);
+  }
   for (const auto& node: main_node_->edges) {
     if (node->best_price_ == main_node_->best_price_) {
       return node->move_to_get_here;
@@ -145,7 +147,7 @@ Move MovesTree::apply(const Move& move) {
   }
 #endif
   if (node_by_this_move == nullptr) {
-    std::cout << "CANT APPLY MOVE, DOES NOT EXIST";
+    std::cout << "CANT APPLY MOVE, DOES NOT EXIST -> " << move.toStr();
     throw 42;
   }
   return main_node_->move_to_get_here;

@@ -81,11 +81,11 @@ class GameController:
                 if self.__first_player.is_my_move:
                     return "Game end"
                 return "Game endt"
-#            try:
+            #            try:
             self.__first_player.apply_move(move)
             self.__second_player.apply_move(move)
-#            except ...:
-#                print("Move error...")
+            #            except ...:
+            #                print("Move error...")
 
             if self.__window_is_initialized:
                 self.window.apply_move(move)
@@ -93,6 +93,11 @@ class GameController:
                         self.__first_player.get_board_str()
                 ) != clean_from_piece_name(
                     self.__second_player.get_board_str()):
+                    print("DIFFERENT BOARDS BETWEEN PLAYERS")
+                    print(self.__first_player.get_board_str())
+                    print(self.__second_player.get_board_str())
+                if self.__first_player.get_board_str() != \
+                        self.__second_player.get_board_str():
                     print("DIFFERENT BOARDS BETWEEN PLAYERS")
                     print(self.__first_player.get_board_str())
                     print(self.__second_player.get_board_str())
