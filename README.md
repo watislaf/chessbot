@@ -4,14 +4,20 @@
 Bot to play chess on [chess.com](https://www.qt.io) for me  (cause
 i am to lazy to learn how to bee good at chess)(Linux only).
 
-Current ELO rating is **20014**.
+Current ELO rating is **2014**.
 ___
 
-#### You can try out the Engine or compete it with other players.
-<p align="center">
-<img src="https://github.com/watislaf/chessbot/blob/main/resources/board_show.gif" width="500 px">
-<img src="https://github.com/watislaf/chessbot/blob/main/resources/bot_show.gif"  >
-</p>  
+## You can try out the Engine . 
+
+<p align=center>
+  <img  src="https://github.com/watislaf/chessbot/blob/main/resources/board_show.gif" width="40%"> 
+  </p>
+  
+## Or compete it with other players
+
+<p align=center>
+  <img  src="https://github.com/watislaf/chessbot/blob/main/resources/bot_show.gif"  width="70% " >
+  </p>
 
 ### Features
 * 64 bit board representation. 
