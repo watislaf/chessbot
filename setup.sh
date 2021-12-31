@@ -11,6 +11,13 @@ elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ||  "$(expr substr $(u
     exit 1
 fi
 
+if  lscpu|grep "CPU op-mode" | grep 64-bit 1>/dev/null ; then
+  echo "-- Found an x64 arch. "
+else
+  echo "-- This engine works only on x64 bit arch"
+  exit 0
+fi
+
 if [[ ! -f "./unis.sh" ]]; then
   echo "#!/bin/bash" > "./unis.sh"
   echo "# remove all installed with project libraries" >> "./unis.sh"
@@ -80,14 +87,7 @@ if [[ ! -f "extra/magics/magics.c" ]]; then
 fi
  
 # checks x64 version
-if  lscpu|grep "CPU op-mode" | grep 64-bit 1>/dev/null ; then
-  echo "-- Found an x64 arch. "
-  cmake  -DCMAKE_BUILD_TYPE=Release -D ARCH=64 cmake -B./"$CHESS_ENGINE_BUILD_DIR_NAME" -S./
-
-else
-  echo "-- Cant find an x64 arch, your chess algorithm will be slow down. "
-  cmake  -DCMAKE_BUILD_TYPE=Release -D ARCH=32 cmake -B./"$CHESS_ENGINE_BUILD_DIR_NAME" -S./
-
+cmake  -DCMAKE_BUILD_TYPE=Release   cmake -B./"$CHESS_ENGINE_BUILD_DIR_NAME" -S./
 
 # checks if cmake is installed
 if command -v cmake 1> /dev/null ; then
@@ -103,14 +103,8 @@ cd ./"$CHESS_ENGINE_BUILD_DIR_NAME"
 make
 cd ..
 
-
-cd ./"$CHESS_ENGINE_BUILD_DIR_NAME"
-make
-cd ..
-
-
 echo "#!/bin/bash" > ChessBot
 echo "export PYGAME_HIDE_SUPPORT_PROMPT=1" >> ChessBot
 echo "export PYTHONPATH=\"\$PYTHONPATH:bin/bash\"" >> ChessBot
 echo "./venv/bin/python3 ./bin/main.py \$@" >> ChessBot
-chmod +x ChessBot 
+chmod +x ChessBot

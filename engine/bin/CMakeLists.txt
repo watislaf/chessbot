@@ -19,9 +19,6 @@ set(LIB_HEADERS
 
 set(LIB_HEADERS ${LIB_HEADERS} ${EXTRA_DIR}/magics/magics.c)
 ADD_LIBRARY(${AI_LIB_NAME} STATIC ${LIB_HEADERS})
-target_compile_definitions(${AI_LIB_NAME} PRIVATE ARCH=${ARCH})
-
-target_compile_definitions(${AI_LIB_NAME} PUBLIC DEBUG=0)
 
 
 target_include_directories(${AI_LIB_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/chessEngine)

@@ -3,7 +3,7 @@ The project is created to play chess on chess.com, this is the main function
 witch divide two main modes - play on your own board with bot and make
 engine to play versus chess.com player.
 """
-import sys 
+import sys
 
 from bin.gamecontroller import GameController
 from bin.player.ai_player import AiPlayer
@@ -45,15 +45,16 @@ def init_board_finder(args: dict):
     """
     Create OpenCv class and window to track OpenCv progress
     """
-    print("Please, check your board settings on chess.com with the "
-          "settings.png settings.")
     try:
         from bin.player.chesscom_player import ChesscomPlayer
     except ModuleNotFoundError:
-        print("Please reinstall project with Yest option to have all modules.")
+        print("Please reinstall project with Yest option to have all modules, "
+              "or run with '--mode=board' flag")
         exit(0)
         return
 
+    print("Please, check your board settings on chess.com with the "
+          "settings.png settings.")
     _controller = GameController()
     # controller.start_window()
     # view_player = ViewPlayer(controller.window.last_move,
