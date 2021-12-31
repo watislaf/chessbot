@@ -54,7 +54,8 @@ If you don't need the bot part, but want a taste of a losing game in chess,
 press No, so the OpenCv library will not be downloaded.
 
 ```bat
-  bash ./setup.sh      
+  bash ./setup.sh    
+  cd ./dir
 ```
  Build the project, answer No only if you do not Bot version
  
