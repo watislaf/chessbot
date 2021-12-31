@@ -119,4 +119,6 @@ for f in $( find "$SCRIPTPATH/dist/" -type f -name '*.png' ); do
   mv  "$f" -t "$SCRIPTPATH/dist/main/resources/"
 done
 
-rm "$SCRIPTPATH/dist/main/"
+rm "$SCRIPTPATH/dist/main/board_show.gif"
+rm "$SCRIPTPATH/dist/main/bot_show.gif"
+echo "bash ./main \$@" > "$SCRIPTPATH/dist/ChessBot"
