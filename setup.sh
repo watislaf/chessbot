@@ -51,6 +51,7 @@ if [[ ! -f "./venv/pyvenv.cfg" ]]; then
 
   pip3 install pygame
   echo "-- Do you want to setup chess.com Bot? (Y/N) "
+
   read -p "---- if not, then only Playable chess board could be used." yn
   case $yn in
       [Yy]* )   pip3 install pyautogui
