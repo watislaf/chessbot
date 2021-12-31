@@ -86,8 +86,6 @@ TEST(ChessAi, TEMP) {
   auto move = chess_ai.getBestMove();
   std::cout<<move.toStr();
   chess_ai.applyMove(move);
-
-
 }
 
 TEST(ChessAi, AlphaBeta) {
