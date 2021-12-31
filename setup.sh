@@ -103,9 +103,8 @@ cd ./"$CHESS_ENGINE_BUILD_DIR_NAME"
 make
 cd ..
 
-echo "#!/bin/bash" > ChessBot
-echo "export PYGAME_HIDE_SUPPORT_PROMPT=1" >> ChessBot
-echo "SCRIPTPATH=\"\$( cd -- \"\$(dirname \"\$\0\")\" >/dev/null 2>&1 ; pwd -P )\""
-echo "export PYTHONPATH=\"\$PYTHONPATH:\$SCRIPTPATH/bin/bash\"" >> ChessBot
-echo "\$SCRIPTPATH/venv/bin/python3 \$SCRIPTPATH/bin/main.py \$@" >> ChessBot
-chmod +x ChessBot
+export PYGAME_HIDE_SUPPORT_PROMPT=1
+SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+export PYTHONPATH="$PYTHONPATH:'$SCRIPTPATH'/bin/bash" >> ChessBot
+"$SCRIPTPATH"/venv/bin/python3 "$SCRIPTPATH"/bin/main.py $@
+ 
