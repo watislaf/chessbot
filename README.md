@@ -36,8 +36,7 @@ ___
 
 ## Development status
 
-The development continues. My goal is 2000 ELO on chess.com, and I won't stop
-until I reach it (or get banned).
+My goal waas 2000 ELO on chess.com, and still i'm not banned, so i think this is sukcess.
 
 ## Build 
 
