@@ -22,17 +22,18 @@ class ChessEngine:
         self.__cpp_chess_lib = lib.ChessEngine(mode)
 
     def start_new_game(self, _fen: str):
-        try:
-            self.__cpp_chess_lib.startNewGame(_fen)
-        except:
-            raise ChessException("FEN is wrong")
+        #        try:
+        self.__cpp_chess_lib.startNewGame(_fen)
+
+    #        except:
+    #        raise ChessException("FEN is wrong")
 
     def get_possible_moves_for_position(self, _x: int, _y: int):
         mowes_strings = self.__cpp_chess_lib.getPossibleMovesForPosition(
             _x, _y).split(" ")[:-1]
         return tuple(map(PieceMove, mowes_strings))
 
-    def apply_move(self, move):
+    def apply_move(self, move: PieceMove):
         self.__cpp_chess_lib.applyMoveParams(
             *move.position_from, *move.position_to, move.new_piece
         )

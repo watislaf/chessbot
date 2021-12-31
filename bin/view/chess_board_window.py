@@ -45,10 +45,10 @@ class ChessBoardWindow:
         return self.__fen.getBoardStr()
 
     def start_new_game_from_fen_str(self, str_fen: str):
-        try:
-            self.__fen = FEN(str_fen)
-        except IndexError:
-            raise ChessException("FEN IS WRONG")
+#        try:
+        self.__fen = FEN(str_fen)
+#        except IndexError:
+#            raise ChessException("FEN IS WRONG")
 
         self.__chessAi.start_new_game(self.__fen.fen_str)
         self.__is_dragging = False

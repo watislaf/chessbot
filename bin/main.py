@@ -3,9 +3,7 @@ The project is created to play chess on chess.com, this is the main function
 witch divide two main modes - play on your own board with bot and make
 engine to play versus chess.com player.
 """
-import sys
-import argparse
-import time
+import sys 
 
 from bin.gamecontroller import GameController
 from bin.player.ai_player import AiPlayer
@@ -21,7 +19,7 @@ def init_personal_board(args: dict):
     _controller = GameController()
     _controller.start_window()
     if args.get("white_player", "player") == "engine":
-        white_player = AiPlayer(ChessEngine(args.get("lvl", "A1")))
+        white_player = AiPlayer(ChessEngine(args.get("lvl", "bullet")))
     else:
         white_player = ViewPlayer(
             _controller.window.last_move,
@@ -36,7 +34,7 @@ def init_personal_board(args: dict):
             _controller.window.get_window_board_str,
         )
     else:
-        black_player = AiPlayer(ChessEngine(args.get("lvl", "A1")))
+        black_player = AiPlayer(ChessEngine(args.get("lvl", "bullet")))
 
     #  controller.set_players( AiPlayer(ChessAi(lvl)),view_player)
     _controller.set_players(white_player, black_player)
@@ -77,7 +75,8 @@ if __name__ == "__main__":
     except ValueError:
         print("Bad arguments")
         exit(0)
-    if args.get("lvl", "bullet") not in ["bullet", "blitz", "rapid"]:
+    if args.get("lvl", "bullet") not in ["bullet", "blitz", "rapid", "easy",
+                                         "random"]:
         args["lvl"] = "bullet"
     print("Engine level is: ", args.get("lvl", "bullet"))
     if args.get("mode", "chesscom") == "board":
@@ -93,6 +92,8 @@ if __name__ == "__main__":
         try:
             winner = _controller.start_game(
                 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+                #                "4k2b/8/8/8/8/8/8/R3K2R w KQkq - 0 1"
+                #                               "r3k2r/4pp2/8/8/8/8/4PP2/4K2R w KQkq - 0 1"
             )
             if not CHESSCOM:
                 time.sleep(3)

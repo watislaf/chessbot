@@ -186,7 +186,8 @@ class OpenCvController:
                     self.__board.get_color_board(
                         not self.__game_controller.is_play_as_white,
                         screen_to_read)):
-                print("Board Changed unproperly")
+                print("Board Changed improperly, you can try to change size "
+                      "of chessboard")
                 return
 
             self.__counter += 1

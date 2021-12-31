@@ -5,66 +5,72 @@
 #include <utility>
 #include "abstracts/aiAdvanceLvl.h"
 #include <thread>
-#include "objBoard/movesGenerator.h"
-#include "objBoard/objBoard.h"
+
 #include <algorithm>
 #include <iostream>
 #include <atomic>
 #include <mutex>
 #include "tools/pricer.h"
+ 
+#include "bitBoard/bBoard.h"
+#include "bitBoard/bMove.h"
+#include "bitBoard/bMovesGenerator.h"  
 
 class MovesTree {
  public:
-  Move apply(const Move& move);
-  explicit MovesTree(const ObjBoard& original_board,
+  BMove apply(const BMove& BMove);
+  explicit MovesTree(const BBoard& original_board,
                      short tree_grow);
 
   struct Node {
-    explicit Node(Move move, short height, int board_sum) :
-        move_to_get_here(std::move(move)),
-        height(height),
-        board_sum(board_sum) {
-      if (height % 2) {
-        best_price_ = -100000000;
-      } else {
-        best_price_ = 100000000;
-      }
-      best_price_ = board_sum;
-    }
+    explicit Node(BMove BMove, const int& board_sum) :
+        move_to_get_here(BMove),
+        board_sum(board_sum),
+        best_price_(board_sum) {};
     int board_sum = 0;
-    int height;
     std::vector<std::shared_ptr<Node>> edges;
-    Move move_to_get_here;
+    BMove move_to_get_here;
     int best_price_;
   };
-  Move getBestMove();
+
+  BMove getBestMove();
   void makeTreeDeeper(const std::shared_ptr<Node>& current_node,
-                      const std::shared_ptr<ObjBoard>& board_coppy,
-                      short max_height,
-                      bool unaply,
-                      int prev_node_price = 10000001,
-                      bool capture_only = false);
+                      const short& current_height,
+                      const int& grand_father_price,
+                      const int& prev_node_price,
+                      bool capture_only );
 
   bool isMoveExists();
 
  private:
   std::shared_ptr<Node> main_node_;
-  std::shared_ptr<ObjBoard> board_;
+  std::shared_ptr<BBoard> board_;
   short max_height_;
+  short current_tree_height_;
   Pricer pricer;
-  void generateMovesForNode(const std::shared_ptr<Node>& node,
-                            const std::shared_ptr<ObjBoard>& board_coppy);
+  void generateMovesForNode(const std::shared_ptr<Node>& node);
 
   void ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree::Node>& current_node,
-                                       const std::shared_ptr<ObjBoard>& board_coppy,
-                                       int max_height,
-                                       int alpha);
+                                       const short& current_height,
+                                       const int& alpha,
+                                       const int& grand_father_price
+  );
 
   void ProcessUntilHightLimit(const std::shared_ptr<MovesTree::Node>& current_node,
-                              const std::shared_ptr<ObjBoard>& board_coppy,
-                              short max_height, int alpha);
-  bool updateBest(const std::shared_ptr<MovesTree::Node>& current_node,
-                  int child_tmp, int alpha, bool move);
+                              const short& current_height,
+                              const int& alpha,
+                              const int& grand_father_price
+  );
+
+  static bool updateBestResultAndReturnReasonToContinue(
+      const std::shared_ptr<MovesTree::Node>& current_node,
+      const int& child_tmp, const int& alpha, bool is_white_move);
+
+  static bool isNodeToWeak(const int& delta_moves,
+                           bool is_white_turn,
+                           const int& grand_father_price,
+                           const int& current_price);
+  static int getMinusInf(bool turn);
 };
 
 #endif //ONLYCPP_MOVESTREE_H

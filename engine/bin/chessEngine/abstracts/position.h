@@ -7,6 +7,7 @@ class Position {
  public:
   Position(short px, short py);
 
+  Position(std::pair<uint8_t, uint8_t> pair_1);
   std::string toStr() const;
 
   short getX() const;

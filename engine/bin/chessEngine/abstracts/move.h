@@ -1,7 +1,7 @@
 #ifndef MOVE_H
 #define MOVE_H
 
-#include <objBoard/piece.h>
+#include "bitBoard/piece.h"
 #include <string>
 #include "position.h"
 #include "memory"

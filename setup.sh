@@ -73,11 +73,11 @@ fi
 
 
 # install magics numbers algo from github
-if [[ ! -f "extra/magics/magics.c" ]]; then
-    MAGIC_LINK="https://raw.githubusercontent.com/maksimKorzh/chess_programming/master/src/magics/magics.c" 
+if [[ ! -f "extra/magics/magics.c" ]]; then 
+    MAGIC_LINK="https://raw.githubusercontent.com/maksimKorzh/chess_programming/master/src/magics/magics.c"
     echo "-- add magic generator to ./extra" | wget "$MAGIC_LINK" -P extra/magics
 fi
-  
+ 
 # checks x64 version
 if  lscpu|grep "CPU op-mode" | grep 64-bit 1>/dev/null ; then
   echo "-- Found an x64 arch. "
@@ -86,7 +86,7 @@ if  lscpu|grep "CPU op-mode" | grep 64-bit 1>/dev/null ; then
 else
   echo "-- Cant find an x64 arch, your chess algorithm will be slow down. "
   cmake  -DCMAKE_BUILD_TYPE=Release -D ARCH=32 cmake -B./"$CHESS_ENGINE_BUILD_DIR_NAME" -S./
-fi
+
 
 # checks if cmake is installed
 if command -v cmake 1> /dev/null ; then
@@ -103,9 +103,13 @@ make
 cd ..
 
 
+cd ./"$CHESS_ENGINE_BUILD_DIR_NAME"
+make
+cd ..
+
+
 echo "#!/bin/bash" > ChessBot
 echo "export PYGAME_HIDE_SUPPORT_PROMPT=1" >> ChessBot
 echo "export PYTHONPATH=\"\$PYTHONPATH:bin/bash\"" >> ChessBot
 echo "./venv/bin/python3 ./bin/main.py \$@" >> ChessBot
-chmod +x ChessBot
-
+chmod +x ChessBot 

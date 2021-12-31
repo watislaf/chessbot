@@ -95,7 +95,7 @@ std::string Move::toStr() const {
         break;
       case PieceType::QUEEN:answer += "q";
         break;
-      case PieceType::NIGHT:answer += "n";
+      case PieceType::KNIGHT:answer += "n";
         break;
       case PieceType::RUCK:answer += "r";
         break;

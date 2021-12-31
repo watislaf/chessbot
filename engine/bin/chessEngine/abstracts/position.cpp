@@ -19,3 +19,8 @@ std::string Position::toStr() const {
 bool Position::operator==(const Position& other) const {
   return x == other.x && y == other.y;
 }
+
+Position::Position(std::pair<uint8_t, uint8_t> pair) {
+  x = pair.first;
+  y = pair.second;
+}
