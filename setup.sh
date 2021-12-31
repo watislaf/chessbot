@@ -121,5 +121,5 @@ done
 
 rm "$SCRIPTPATH/dist/main/board_show.gif"
 rm "$SCRIPTPATH/dist/main/bot_show.gif"
-echo "bash $SCRIPTPATH/main/main \$@" > "$SCRIPTPATH/dist/ChessBot"
+echo "bash $SCRIPTPATH/dist/main/main \$@" > "$SCRIPTPATH/dist/ChessBot"
 chmod +x $SCRIPTPATH/dist/ChessBot
