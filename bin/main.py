@@ -3,7 +3,7 @@ The project is created to play chess on chess.com, this is the main function
 witch divide two main modes - play on your own board with bot and make
 engine to play versus chess.com player.
 """
-import sys
+import sys 
 
 from bin.gamecontroller import GameController
 from bin.player.ai_player import AiPlayer
@@ -95,6 +95,8 @@ if __name__ == "__main__":
                 #                "4k2b/8/8/8/8/8/8/R3K2R w KQkq - 0 1"
                 #                               "r3k2r/4pp2/8/8/8/8/4PP2/4K2R w KQkq - 0 1"
             )
+            if not CHESSCOM:
+                time.sleep(3)
             print(winner)
         except ChessException as _e:
             print(_e)

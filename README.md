@@ -1,11 +1,10 @@
-# ChessBot
+# ChessBot  <img src="https://user-images.githubusercontent.com/45079123/147250964-53ae261a-dbf4-4c46-9a4d-3f1f3d6d2ab8.png" width="40 px">     [![en](https://img.shields.io/badge/lang-en-yellow.svg)](README.md)
 
-[![en](https://img.shields.io/badge/lang-en-yellow.svg)](README.md)
 
-Bot on **Linux** to play chess on [chess.com](https://www.qt.io) for me  (cause
-i am to lazy to learn how to bee good at chess).
+Bot to play chess on [chess.com](https://www.qt.io) for me  (cause
+i am to lazy to learn how to bee good at chess)(Linux only).
 
-Current ELO rating is **1456**.
+Current ELO rating is **1696**.
 ___
 
 #### You can try out the Engine or compete it with other players.
@@ -35,37 +34,45 @@ ___
 The development continues. My goal is 2000 ELO on chess.com, and I won't stop
 until I reach it (or get banned).
 
-## Install and run the project
+## Build 
 
 Download source files.
 
-```bash
-  $ git-clone https://github.com/watislaf/chessbot.git # install
-  $ cd ./chessbot
+```bat
+  git clone https://github.com/watislaf/chessbot.git # install
+  cd ./chessbot
 ```
+if you don't have git, just download source from [this page](https://github.com/watislaf/chessbot/releases/tag/V1.0.1600Elo).
 
 Next, there is a small script to build the project.
 
 If you don't need the bot part, but want a taste of a losing game in chess,
 press No, so the OpenCv library will not be downloaded.
 
-```bash
-  $ ./setup.sh       # run to buil the project and answer No only if you do not need 
+```bat
+  bash ./setup.sh      
 ```
+ Build the project, answer No only if you do not Bot version
+ 
+## Or just Install 
 
-At the end, to run a board-game:
+Check [releases](https://github.com/watislaf/chessbot/releases), and download latest ChessBot.zip
 
-```bash
-  $ ./ChessBot  --mode=board 
+## Run
+
+To run a board-game:
+
+```bat
+    ./ChessBot  --mode=board 
                 --white_player=[human|engine] # default is human
-                --black_player=[human|engine]# default is engine
-                --level=[bullet|blitz|rapid]  # 1,3,10 min games. default is bullet
+                --black_player=[human|engine] # default is engine
+                --lvl=[easy|bullet|blitz|rapid]  # 0,1,3,10 min games. default is bullet
 ```
 
 Or to run the second mode (only if you pressed Yes in setup.sh script). Check settings.png file with your chess.com settings.
 
-```bash
-  $ ./ChessBot --mode=chesscom                 
+```bat
+    ./ChessBot --mode=chesscom                 
                 --level=[bullet|blitz|rapid]  
 ```
 
@@ -73,13 +80,15 @@ Or to run the second mode (only if you pressed Yes in setup.sh script). Check se
 
 If you pressed No, but changed your mind, type
 
-```bash
-  $ ./setup.sh reinstall # and answer you can answer Yes
+```bat
+  bash ./setup.sh reinstall 
 ```
+Here you can answer Yes again.
 
+## Uninstall
 It is also possible to uninstall the script (and all downloaded with this
 project libraries).   
 
-```bash
-  $ ./setup.sh uninstall 
+```bat
+  bash ./unis.sh  
 ```
