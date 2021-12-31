@@ -9,8 +9,9 @@ from bin.tools.pieceMove import PieceMove
 
 #    Pythons linker cant see CPPChessLib.so, if it is not in path variables
 #    https://youtrack.jetbrains.com/issue/PY-12238
-ENGINE_PATH = "/".join(__file__.split("/")[:-1])
-sys.path.append(ENGINE_PATH)
+
+#ENGINE_PATH = "/".join(__file__.split("/")[:-1])
+#sys.path.append(ENGINE_PATH)
 
 import CPPChessLib as lib
 
