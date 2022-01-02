@@ -59,6 +59,7 @@ if [[ ! -f "$SCRIPTPATH/venv/pyvenv.cfg" ]]; then
   source $SCRIPTPATH/venv/bin/activate
 
   pip3 install pygame
+  pip3 install PySide2
   pip3 install pyinstaller
   echo "-- Do you want to setup chess.com Bot? (Y/N) "
 
@@ -107,19 +108,17 @@ make
 cd ..
 
 
-export PYGAME_HIDE_SUPPORT_PROMPT=1
-#export PYTHONPATH="$PYTHONPATH:$SCRIPTPATH"
 
 
 source $SCRIPTPATH/venv/bin/activate
 
-pyinstaller -p "$SCRIPTPATH/engine/output"  --add-data "$SCRIPTPATH/resources:."  $SCRIPTPATH/bin/main.py
-mkdir "$SCRIPTPATH/dist/main/resources/"
-for f in $( find "$SCRIPTPATH/dist/" -type f -name '*.png' ); do
-  mv  "$f" -t "$SCRIPTPATH/dist/main/resources/"
-done
+#pyinstaller --onefile --noconfirm -p "$SCRIPTPATH/venv/lib/python3.8/site-packages/cv2" -p "$SCRIPTPATH/engine/output"  -p "$SCRIPTPATH/resources"  $SCRIPTPATH/bin/main.py
+pyinstaller  --onefile --noconfirm -p "$SCRIPTPATH/venv/lib/python3.8/site-packages/cv2" --add-data "$SCRIPTPATH/resources/:." -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py
 
-rm "$SCRIPTPATH/dist/main/board_show.gif"
-rm "$SCRIPTPATH/dist/main/bot_show.gif"
-echo "bash $SCRIPTPATH/dist/main/main \$@" > "$SCRIPTPATH/dist/ChessBot"
-chmod +x $SCRIPTPATH/dist/ChessBot
+# mkdir "$SCRIPTPATH/dist/main/resources/"
+#for f in $( find "$SCRIPTPATH/dist/" -type f -name '*.png' ); do
+#  mv  "$f" -t "$SCRIPTPATH/dist/main/resources/"
+#done
+
+# echo "bash $SCRIPTPATH/dist/main/main \$@" > "$SCRIPTPATH/dist/ChessBot"
+# chmod +x $SCRIPTPATH/dist/ChessBot

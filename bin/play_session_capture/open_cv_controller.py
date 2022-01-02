@@ -5,6 +5,11 @@ from time import sleep
 import numpy as np
 import cv2
 
+#print(cv2.__file__)
+
+#os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH")
+#os.environ.pop("QT_QPA_FONTDIR")
+
 from mss import mss
 
 from bin.play_session_capture.chess_board import ChessBoard

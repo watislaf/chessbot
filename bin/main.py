@@ -3,13 +3,17 @@ The project is created to play chess on chess.com, this is the main function
 witch divide two main modes - play on your own board with bot and make
 engine to play versus chess.com player.
 """
+import os
 import sys
+import time
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 
 from bin.gamecontroller import GameController
 from bin.player.ai_player import AiPlayer
 from bin.tools.chess_exception import ChessException
 from engine.output.chessengine import ChessEngine
 from bin.player.view_player import ViewPlayer
+
 
 
 def init_personal_board(args: dict):

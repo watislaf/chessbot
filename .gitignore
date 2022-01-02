@@ -9,6 +9,8 @@ extra/magics/*
 
 unis.sh
 ChessBot
+/resources/board_show.gif
+/resources/bot_show.gif
 
 /cppimport/output/*.so
 /cppimport/bin/lib/*.a
