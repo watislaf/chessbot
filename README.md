@@ -81,7 +81,7 @@ Or to run the second mode (only if you pressed Yes in setup.sh script). Check se
                 --level=[bullet|blitz|rapid]  
 ```
 
-## Reinstall and uninstall
+## Reinstall and uninstall (only if source was code downloaded)
 
 If you pressed No, but changed your mind, type
 
