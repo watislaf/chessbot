@@ -127,11 +127,11 @@ if [[ -f $SCRIPTPATH/bin/play_session_capture ]]; then
         mkdir "$SCRIPTPATH/dist/main/cv2/qt/fonts"
         for f in $( find "$SCRIPTPATH/venv/lib/python3.8/site-packages/cv2/qt/fonts" -type f -name '*.ttf' ); do
           mv  "$f" -t "$SCRIPTPATH/dist/main/cv2/qt/fonts"
-        done ;;
+        done 
 else
          pyinstaller  --onefile --noconfirm \
          --add-data "$SCRIPTPATH/resources/*.png:." \
-         -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py ;;
+         -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py 
 fi;
 
 
