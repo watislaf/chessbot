@@ -1,3 +1,4 @@
+import os
 import threading
 from threading import Thread, Lock
 from time import sleep
@@ -7,8 +8,6 @@ import cv2
 
 #print(cv2.__file__)
 
-#os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH")
-#os.environ.pop("QT_QPA_FONTDIR")
 
 from mss import mss
 

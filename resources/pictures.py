@@ -1,6 +1,8 @@
 import os
 
 import sys
+import os
+
 
 if hasattr(sys, '_MEIPASS'):
     RESOURCES_PATH=sys._MEIPASS

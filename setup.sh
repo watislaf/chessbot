@@ -112,13 +112,19 @@ cd ..
 
 source $SCRIPTPATH/venv/bin/activate
 
-#pyinstaller --onefile --noconfirm -p "$SCRIPTPATH/venv/lib/python3.8/site-packages/cv2" -p "$SCRIPTPATH/engine/output"  -p "$SCRIPTPATH/resources"  $SCRIPTPATH/bin/main.py
-pyinstaller  --onefile --noconfirm -p "$SCRIPTPATH/venv/lib/python3.8/site-packages/cv2" --add-data "$SCRIPTPATH/resources/:." -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py
+#pyinstaller  --onefile --noconfirm   --add-data "$SCRIPTPATH/resources/:." -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py
+pyinstaller  --noconfirm \
+--add-data  "$SCRIPTPATH/venv/lib/python3.8/site-packages/opencv_python.libs/:." \
+--add-data  "$SCRIPTPATH/venv/lib/python3.8/site-packages/cv2/qt/plugins/platforms/:." \
+--add-data "$SCRIPTPATH/resources/*.png:." \
+ -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py
 
-# mkdir "$SCRIPTPATH/dist/main/resources/"
-#for f in $( find "$SCRIPTPATH/dist/" -type f -name '*.png' ); do
-#  mv  "$f" -t "$SCRIPTPATH/dist/main/resources/"
-#done
+mkdir "$SCRIPTPATH/dist/main/cv2/qt/"
+mkdir "$SCRIPTPATH/dist/main/cv2/qt/fonts"
+for f in $( find "$SCRIPTPATH/venv/lib/python3.8/site-packages/cv2/qt/fonts" -type f -name '*.ttf' ); do
+  mv  "$f" -t "$SCRIPTPATH/dist/main/cv2/qt/fonts"
+done
 
-# echo "bash $SCRIPTPATH/dist/main/main \$@" > "$SCRIPTPATH/dist/ChessBot"
-# chmod +x $SCRIPTPATH/dist/ChessBot
+
+echo "$SCRIPTPATH/dist/main/main \$@" > "$SCRIPTPATH/dist/ChessBot"
+chmod +x $SCRIPTPATH/dist/ChessBot

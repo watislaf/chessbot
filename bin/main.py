@@ -3,10 +3,15 @@ The project is created to play chess on chess.com, this is the main function
 witch divide two main modes - play on your own board with bot and make
 engine to play versus chess.com player.
 """
-import os
 import sys
 import time
+import os
+
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
+
+#if hasattr(sys, '_MEIPASS'):
+#    os.environ["QT_QPA_FONTDIR"] =sys._MEIPASS
+#    print(os.environ["QT_QPA_FONTDIR"])
 
 from bin.gamecontroller import GameController
 from bin.player.ai_player import AiPlayer
@@ -52,7 +57,7 @@ def init_board_finder(args: dict):
     try:
         from bin.player.chesscom_player import ChesscomPlayer
     except ModuleNotFoundError:
-        print("Please reinstall project with Yest option to have all modules, "
+        print("Please reinstall project with this option, "
               "or run with '--mode=board' flag")
         exit(0)
         return
