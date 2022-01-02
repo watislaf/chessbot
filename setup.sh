@@ -69,7 +69,9 @@ if [[ ! -f "$SCRIPTPATH/venv/pyvenv.cfg" ]]; then
                 pip3 install opencv-python
                 pip3 install mss;;
 
-      [Nn]* ) ;;
+      [Nn]* ) rm -r $SCRIPTPATH/bin/play_session_capture
+              rm  $SCRIPTPATH/bin/player/chesscom_player.py
+        ;;
           * ) echo "-- Please answer yes or no.";;
   esac
 else
@@ -80,7 +82,7 @@ fi
 if [[ ! -f "extra/pybind11/LICENSE" ]]; then
   PYBIND_LINK="https://github.com/pybind/pybind11.git"
   rm extra/pybind11 -r
-  echo "add pybind to extra $SCRIPTPATH/dir" | git clone $PYBIND_LINK extra/pybind11
+  echo "add pybind to extra $SCRIPTPATH/extra" | git clone $PYBIND_LINK extra/pybind11
 fi
 
 
@@ -113,17 +115,25 @@ cd ..
 source $SCRIPTPATH/venv/bin/activate
 
 #pyinstaller  --onefile --noconfirm   --add-data "$SCRIPTPATH/resources/:." -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py
-pyinstaller  --noconfirm \
---add-data  "$SCRIPTPATH/venv/lib/python3.8/site-packages/opencv_python.libs/:." \
---add-data  "$SCRIPTPATH/venv/lib/python3.8/site-packages/cv2/qt/plugins/platforms/:." \
---add-data "$SCRIPTPATH/resources/*.png:." \
- -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py
 
-mkdir "$SCRIPTPATH/dist/main/cv2/qt/"
-mkdir "$SCRIPTPATH/dist/main/cv2/qt/fonts"
-for f in $( find "$SCRIPTPATH/venv/lib/python3.8/site-packages/cv2/qt/fonts" -type f -name '*.ttf' ); do
-  mv  "$f" -t "$SCRIPTPATH/dist/main/cv2/qt/fonts"
-done
+if [[ -f $SCRIPTPATH/bin/play_session_capture ]]; then
+       [Yy]* )
+       pyinstaller  --noconfirm \
+       --add-data  "$SCRIPTPATH/venv/lib/python3.8/site-packages/opencv_python.libs/:." \
+       --add-data  "$SCRIPTPATH/venv/lib/python3.8/site-packages/cv2/qt/plugins/platforms/:." \
+       --add-data "$SCRIPTPATH/resources/*.png:." \
+        -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py
+
+        mkdir "$SCRIPTPATH/dist/main/cv2/qt/"
+        mkdir "$SCRIPTPATH/dist/main/cv2/qt/fonts"
+        for f in $( find "$SCRIPTPATH/venv/lib/python3.8/site-packages/cv2/qt/fonts" -type f -name '*.ttf' ); do
+          mv  "$f" -t "$SCRIPTPATH/dist/main/cv2/qt/fonts"
+        done ;;
+else
+         pyinstaller  --onefile --noconfirm \
+         --add-data "$SCRIPTPATH/resources/*.png:." \
+         -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py ;;
+fi;
 
 
 echo "$SCRIPTPATH/dist/main/main \$@" > "$SCRIPTPATH/dist/ChessBot"
