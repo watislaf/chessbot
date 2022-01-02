@@ -117,7 +117,6 @@ source $SCRIPTPATH/venv/bin/activate
 #pyinstaller  --onefile --noconfirm   --add-data "$SCRIPTPATH/resources/:." -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py
 
 if [[ -f $SCRIPTPATH/bin/play_session_capture ]]; then
-       [Yy]* )
        pyinstaller  --noconfirm \
        --add-data  "$SCRIPTPATH/venv/lib/python3.8/site-packages/opencv_python.libs/:." \
        --add-data  "$SCRIPTPATH/venv/lib/python3.8/site-packages/cv2/qt/plugins/platforms/:." \
