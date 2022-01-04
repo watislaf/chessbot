@@ -32,19 +32,19 @@ int Pricer::countOrder(BBoard* board, const BMove& move) {
           &&  // was not isolated
               board->isolatedPawn(move.getFrom(),
                                   move.getTo())) { // became isolated
-        attack_score -= 40;
+        attack_score -= 30;
       }
       if (board->isolatedPawn(move.getFrom(), move.getFrom())
           &&  // was   isolated
               !board->isolatedPawn(move.getFrom(),
                                    move.getTo())) { // became unisolated
-        attack_score += 40;
+        attack_score += 30;
       }
       if (board->doublePawn(move.getFrom(), move.getTo())) {
-        attack_score -= 30;
+        attack_score -= 20;
       } else {
         if (board->doublePawn(move.getFrom(), move.getFrom())) {
-          attack_score += 30;
+          attack_score += 20;
         }
       }
     }
@@ -76,7 +76,7 @@ int Pricer::countOrder(BBoard* board, const BMove& move) {
     if (board->isPassedPawn(move.getFrom(), board->isWhiteTurn())) {
       answer += 10 + 20 * coef; // if we move free pawn get score
     }
-    if (coef<0.7 && board->isDefendKingPawn(move.getFrom())) {
+    if (coef < 0.7 && board->isDefendKingPawn(move.getFrom())) {
       answer -= 30;
     } else {
       if (board->isAttackKingPawn(move.getTo())) { // if we attack king side by this pawn
@@ -102,10 +102,10 @@ int Pricer::countOrder(BBoard* board, const BMove& move) {
     answer -= 30;
   }
 
-    uint8_t king_pression = board->kingPression();
-    board->apply(move);
-      answer += (king_pression-board->kingPression())*5;
-    board->unApply(move);
+  uint8_t king_pression = board->kingPression();
+  board->apply(move);
+  answer += (king_pression - board->kingPression()) * 5;
+  board->unApply(move);
   if (!board->isWhiteTurn()) {
     answer *= -1;
   }

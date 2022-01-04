@@ -10,7 +10,7 @@ MovesTree::MovesTree(const BBoard& original_board)
   generateMovesForNode(main_node_);
 }
 
-void MovesTree::generateMovesForNode(const std::shared_ptr<MovesTree::Node>& node) {
+void MovesTree::generateMovesForNode(const std::shared_ptr <MovesTree::Node>& node) {
   if (node->edges.size() != 0) {
     return;
   }
@@ -39,8 +39,8 @@ void MovesTree::generateMovesForNode(const std::shared_ptr<MovesTree::Node>& nod
 
   std::sort(node->edges.begin(),
             node->edges.end(),
-            [this](const std::shared_ptr<Node>& l,
-                   const std::shared_ptr<Node>& r) {
+            [this](const std::shared_ptr <Node>& l,
+                   const std::shared_ptr <Node>& r) {
               if (board_->isWhiteTurn()) {
                 return l->board_sum > r->board_sum;
               } else {
@@ -51,20 +51,23 @@ void MovesTree::generateMovesForNode(const std::shared_ptr<MovesTree::Node>& nod
 
 BMove MovesTree::getBestMove() {
   if (max_height_ != board_->getMoveCount()) {
-    auto start = std::chrono::high_resolution_clock::now();
+    start_ = std::chrono::high_resolution_clock::now();
 
     makeTreeDeeper(
         main_node_, board_->getMoveCount(), 0,
         -getMinusInf(board_->isWhiteTurn()), false);
+
     auto stop = std::chrono::high_resolution_clock::now();
 
     auto duration =
-        std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+        std::chrono::duration_cast<std::chrono::milliseconds>(stop - start_);
     if (duration > max_time_to_make_move_) {
-      max_height_--;
-      max_increase_times++;
-      going_to_increase_ = false;
-      std::cerr << "Decreased tree deep\n";
+      if (max_increase_times != 2) {
+        max_height_--;
+        max_increase_times++;
+        going_to_increase_ = false;
+        std::cerr << "Decreased tree deep\n";
+      }
     }
     if (duration < max_time_to_make_move_ / 40) {
       if (going_to_increase_ && max_increase_times > 0) {
@@ -95,7 +98,7 @@ BMove MovesTree::getBestMove() {
 }
 
 BMove MovesTree::apply(const BMove& BMove) {
-  std::shared_ptr<Node> node_by_this_move;
+  std::shared_ptr <Node> node_by_this_move;
 
   for (auto& node: main_node_->edges) {
     if (node->move_to_get_here.getFrom() == BMove.getFrom() &&
@@ -126,7 +129,7 @@ bool MovesTree::isMoveExists() {
   return !main_node_->edges.empty();
 }
 
-void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_node,
+void MovesTree::makeTreeDeeper(const std::shared_ptr <MovesTree::Node>& current_node,
                                const short& current_childs_height,
                                const int& grand_father_price,
                                const int& prev_node_price,
@@ -159,7 +162,7 @@ void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_n
   }
 }
 
-void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree::Node>& current_node,
+void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr <MovesTree::Node>& current_node,
                                                 const short& current_childs_height,
                                                 const int& alpha,
                                                 const int& grand_father_price) {
@@ -219,10 +222,11 @@ void MovesTree::ProcessUntilAttacksAndShachsEnd(const std::shared_ptr<MovesTree:
   }
 
 }
-void MovesTree::ProcessUntilHightLimit(const std::shared_ptr<MovesTree::Node>& current_node,
+void MovesTree::ProcessUntilHightLimit(const std::shared_ptr <MovesTree::Node>& current_node,
                                        const short& current_childs_height,
                                        const int& alpha,
                                        const int& grand_father_price) {
+
   for (const auto& child_node: current_node->edges) {
     bool capture_only = child_node->move_to_get_here.isCapture()
         || child_node->move_to_get_here.isPromotion();
@@ -244,10 +248,25 @@ void MovesTree::ProcessUntilHightLimit(const std::shared_ptr<MovesTree::Node>& c
         alpha, board_->isWhiteTurn())) {
       break;
     }
+    if (current_tree_height_ != board_->getMoveCount()) {
+
+      start_ = std::chrono::high_resolution_clock::now();
+
+      makeTreeDeeper(
+          main_node_, board_->getMoveCount(), 0,
+          -getMinusInf(board_->isWhiteTurn()), false);
+
+      auto stop = std::chrono::high_resolution_clock::now();
+      if (std::chrono::duration_cast<std::chrono::milliseconds>( stop - start_) > max_time_to_make_move_) {
+        return;
+      }
+
+    }
   }
 }
-bool MovesTree::updateBestResultAndReturnReasonToContinue(const std::shared_ptr<
-    MovesTree::Node>& current_node,
+
+bool MovesTree::updateBestResultAndReturnReasonToContinue(const std::shared_ptr <
+MovesTree::Node>& current_node,
                                                           const int& child_tmp,
                                                           const int& alpha,
                                                           bool is_white_move) {

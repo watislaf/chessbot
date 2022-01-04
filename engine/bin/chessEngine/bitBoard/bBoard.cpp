@@ -1281,7 +1281,7 @@ bool BBoard::isAttackKingPawn(uint8_t pos) const {
 uint8_t BBoard::kingPression() {
   uint8_t king_pos =
       bitScanForward(get(WHITE_KING, static_cast<BPieceType>(!whosTurn())));
-  uint64_t king_nearby = kingAttacks(king_pos) & one_square_[king_pos];
+  uint64_t king_nearby = kingAttacks(king_pos) | one_square_[king_pos];
   uint8_t ans = 0;
   while (king_nearby) {
     king_pos =
