@@ -116,7 +116,7 @@ source $SCRIPTPATH/venv/bin/activate
 
 #pyinstaller  --onefile --noconfirm   --add-data "$SCRIPTPATH/resources/:." -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py
 
-if [[ -f $SCRIPTPATH/bin/play_session_capture ]]; then
+if [[ -f $SCRIPTPATH/bin/play_session_capture/chess_board.py ]]; then
        pyinstaller  --noconfirm \
        --add-data  "$SCRIPTPATH/venv/lib/python3.8/site-packages/opencv_python.libs/:." \
        --add-data  "$SCRIPTPATH/venv/lib/python3.8/site-packages/cv2/qt/plugins/platforms/:." \
@@ -127,13 +127,16 @@ if [[ -f $SCRIPTPATH/bin/play_session_capture ]]; then
         mkdir "$SCRIPTPATH/dist/main/cv2/qt/fonts"
         for f in $( find "$SCRIPTPATH/venv/lib/python3.8/site-packages/cv2/qt/fonts" -type f -name '*.ttf' ); do
           mv  "$f" -t "$SCRIPTPATH/dist/main/cv2/qt/fonts"
-        done 
+        done
+        mv "$SCRIPTPATH/dist/main/main" "$SCRIPTPATH/dist/main/ChessBot"
+        zip -r ChessBot_2100ELO_x64.zip "$SCRIPTPATH/dist/main/"
+
 else
          pyinstaller  --onefile --noconfirm \
          --add-data "$SCRIPTPATH/resources/*.png:." \
-         -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py 
+         -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py
+         zip -r Engine_2100ELO_x64.zip "$SCRIPTPATH/dist/"
+
 fi;
 
 
-echo "$SCRIPTPATH/dist/main/main \$@" > "$SCRIPTPATH/dist/ChessBot"
-chmod +x $SCRIPTPATH/dist/ChessBot
