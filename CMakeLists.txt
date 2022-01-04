@@ -14,6 +14,7 @@ add_subdirectory(engine/bin)
 target_compile_definitions(${AI_LIB_NAME} PUBLIC DEBUG=${DEBUG})
 
 #TESTING
+
 #add_subdirectory(engine/tests)
 
 # links output directory, so python can use it
