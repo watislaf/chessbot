@@ -18,6 +18,9 @@ ___
 <p align=center>
   <img  src="https://github.com/watislaf/chessbot/blob/main/resources/bot_show.gif"  width="70% " >
   </p>
+## Quick Install 
+
+Check [releases](https://github.com/watislaf/chessbot/releases), and download latest ChessBot.zip(board and bot) or Engine.zip (board only). And run it with Run instructions 
 
 ### Features
 * 64 bit board representation. 
@@ -57,11 +60,8 @@ press No, so the OpenCv library will not be downloaded.
   bash ./setup.sh    
   cd ./dir
 ```
- Build the project, answer No only if you do not Bot version
+ Build the project, answer No only if you do not Bot version, now there is an .zip that u can unpack.
  
-## Or just Install 
-
-Check [releases](https://github.com/watislaf/chessbot/releases), and download latest ChessBot.zip
 
 ## Run
 
