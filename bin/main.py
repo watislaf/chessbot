@@ -105,9 +105,9 @@ if __name__ == "__main__":
                 #                "4k2b/8/8/8/8/8/8/R3K2R w KQkq - 0 1"
                 #                               "r3k2r/4pp2/8/8/8/8/4PP2/4K2R w KQkq - 0 1"
             )
-            if not CHESSCOM:
-                time.sleep(3)
             print(winner)
+            if not CHESSCOM:
+                time.sleep(4)
         except ChessException as _e:
             print(_e)
             exit(0)
