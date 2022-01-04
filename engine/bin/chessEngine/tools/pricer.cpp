@@ -74,10 +74,10 @@ int Pricer::countOrder(BBoard* board, const BMove& move) {
 
   if (start_piece == PieceType::PAWN) {
     if (board->isPassedPawn(move.getFrom(), board->isWhiteTurn())) {
-      answer += 10 + 20 * coef; // if we move free pawn get score
+      answer += 10 + 30 * coef; // if we move free pawn get score
     }
     if (coef < 0.7 && board->isDefendKingPawn(move.getFrom())) {
-      answer -= 30;
+      answer -= 20;
     } else {
       if (board->isAttackKingPawn(move.getTo())) { // if we attack king side by this pawn
         answer += 5;
@@ -102,9 +102,20 @@ int Pricer::countOrder(BBoard* board, const BMove& move) {
     answer -= 30;
   }
 
-  uint8_t king_pression = board->kingPression();
+  uint8_t king_pression = board->kingPression(
+      static_cast<BBoard::BPieceType>(!board->whosTurn()));
   board->apply(move);
-  answer += (king_pression - board->kingPression()) * 5;
+  answer += (
+      board->kingPression(static_cast<BBoard::BPieceType>(board->whosTurn())))
+      - king_pression
+          * 10;
+  if (board->attacksToKing(
+      BBoard::bitScanForward(
+          board->get(BBoard::BPieceType::WHITE_KING,
+                     static_cast<BBoard::BPieceType>(board->whosTurn()))),
+      static_cast<BBoard::BPieceType>(!board->whosTurn()))) {
+    answer += 10;
+  }
   board->unApply(move);
   if (!board->isWhiteTurn()) {
     answer *= -1;

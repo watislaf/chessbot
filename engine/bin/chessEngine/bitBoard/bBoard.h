@@ -269,7 +269,7 @@ BBoard {
   bool doublePawn(uint8_t from, uint8_t to) const;
   bool isDefendKingPawn(uint8_t pos) const;
   bool isAttackKingPawn(uint8_t i) const;
-  uint8_t kingPression();
+  uint8_t kingPression(BPieceType enemy_color);
 
   static uint64_t after_castle_king_positions[2][2];
   static uint64_t defending_pawns[2][2];

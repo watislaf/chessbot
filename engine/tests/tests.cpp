@@ -133,7 +133,7 @@ TEST(ChessAi, TreeGenerator) {
   ChessEngine chess_ai("bullet");
   chess_ai.startNewGame(
       "r1bqkbnr/pppppppp/n7/8/1P6/8/P1PPPPPP/RNBQKBNR w KQkq - 0 1");
-  for (int i = 0; i < 30; i++) {
+  for (int i = 0; i < 10; i++) {
     auto move = chess_ai.getBestMove();
     if (chess_ai.isMoveExists()) {
       chess_ai.applyMove(move);

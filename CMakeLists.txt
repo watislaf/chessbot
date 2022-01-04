@@ -14,8 +14,7 @@ add_subdirectory(engine/bin)
 target_compile_definitions(${AI_LIB_NAME} PUBLIC DEBUG=${DEBUG})
 
 #TESTING
-
-#add_subdirectory(engine/tests)
+add_subdirectory(engine/tests)
 
 # links output directory, so python can use it
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/engine/output)

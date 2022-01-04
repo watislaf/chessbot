@@ -1278,16 +1278,16 @@ bool BBoard::isAttackKingPawn(uint8_t pos) const {
       & get(BLACK_KING, static_cast<BPieceType>(!whosTurn()))) != 0;
 }
 
-uint8_t BBoard::kingPression() {
+uint8_t BBoard::kingPression(BPieceType enemy_color) {
   uint8_t king_pos =
-      bitScanForward(get(WHITE_KING, static_cast<BPieceType>(!whosTurn())));
+      bitScanForward(get(WHITE_KING,enemy_color ));
   uint64_t king_nearby = kingAttacks(king_pos) | one_square_[king_pos];
   uint8_t ans = 0;
   while (king_nearby) {
     king_pos =
         BBoard::bitScanForward(king_nearby);
     king_nearby &= king_nearby - 1;
-    ans += countBits(attacked(pieceBB[whosTurn()], king_pos, whosTurn()));
+    ans += attacked(pieceBB[!enemy_color], king_pos, static_cast<BPieceType>(!enemy_color));
   }
   return ans;
 }
