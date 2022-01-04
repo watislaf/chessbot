@@ -129,13 +129,17 @@ if [[ -f $SCRIPTPATH/bin/play_session_capture/chess_board.py ]]; then
           mv  "$f" -t "$SCRIPTPATH/dist/main/cv2/qt/fonts"
         done
         mv "$SCRIPTPATH/dist/main/main" "$SCRIPTPATH/dist/main/ChessBot"
-        zip -r ChessBot_2100ELO_x64.zip "$SCRIPTPATH/dist/main/"
+        cd "$SCRIPTPATH/dist/main/"
+        zip -r ChessBot_2100ELO_x64.zip ./
+        mv ./ChessBot_2100ELO_x64.zip ./../../
 
 else
          pyinstaller  --onefile --noconfirm \
          --add-data "$SCRIPTPATH/resources/*.png:." \
          -p  "$SCRIPTPATH/engine/output"   $SCRIPTPATH/bin/main.py
-         zip -r Engine_2100ELO_x64.zip "$SCRIPTPATH/dist/"
+         cd "$SCRIPTPATH/dist/main/"
+         zip -r Engine_2100ELO_x64.zip ./
+         mv ./ChessBot_2100ELO_x64.zip ./../
 
 fi;
 
