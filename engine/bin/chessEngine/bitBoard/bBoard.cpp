@@ -17,8 +17,12 @@ uint64_t BBoard::right_castle_spaces[2];
 uint64_t BBoard::left_castle_spaces[2];
 
 uint64_t BBoard::pawn_attacks_[2][64];
+uint64_t BBoard::free_pawn_[2][64];
 uint64_t BBoard::king_attacks_[64];
 uint64_t BBoard::knight_attacks_[64];
+uint64_t BBoard::after_castle_king_positions[2][2];
+uint64_t BBoard::defending_pawns[2][2];
+uint64_t BBoard::pawn_road_[64];
 uint64_t BBoard::ray_attacks_[64][8];
 uint64_t BBoard::file_attacks_[64];
 uint64_t BBoard::rank_attacks_[65];
@@ -30,6 +34,7 @@ uint64_t BBoard::queen_diagonals_[64];
 uint64_t BBoard::arrRectangular[64][64];
 uint64_t BBoard::one_square_[64];
 uint64_t BBoard::two_squares_[64][64];
+uint64_t BBoard::good_castle_pawns;
 
 BBoard::BBoard(FEN fen) {
   last_double_push_[0] = 64;
@@ -653,7 +658,54 @@ void BBoard::staticDataInit() {
   right_castle_spaces[1] = one_square_[61] | one_square_[62];
   left_castle_spaces[0] = one_square_[1] | one_square_[2] | one_square_[3];
   left_castle_spaces[1] = one_square_[57] | one_square_[58] | one_square_[59];
+  for (int i = 0; i < 64; i++) {
+    free_pawn_[0][i] = northFill(nortOne(one_square_[i]));
+    free_pawn_[0][i] |= eastOne(northFill(nortOne(one_square_[i])));
+    free_pawn_[0][i] |= westOne(northFill(nortOne(one_square_[i])));
+  }
+  for (int i = 0; i < 64; i++) {
+    free_pawn_[1][i] = soutFill(soutOne(one_square_[i]));
+    free_pawn_[1][i] |= eastOne(soutFill(soutOne(one_square_[i])));
+    free_pawn_[1][i] |= westOne(soutFill(soutOne(one_square_[i])));
+  }
+  for (int i = 0; i < 64; i++) {
+    pawn_road_[i] =
+        soutFill(westOne(one_square_[i])) | northFill(westOne(one_square_[i]));
+    pawn_road_[i] |=
+        soutFill(eastOne(one_square_[i])) | northFill(eastOne(one_square_[i]));
+  }
+  after_castle_king_positions[0][0] =
+      one_square_[0] | one_square_[1] | one_square_[2];
+  after_castle_king_positions[0][0] |=
+      nortOne(after_castle_king_positions[0][0]);
+  defending_pawns[0][0] =
+      nortOne(after_castle_king_positions[0][0]);
 
+  after_castle_king_positions[0][1] =
+      one_square_[7] | one_square_[6] | one_square_[5];
+  after_castle_king_positions[0][1] |=
+      nortOne(after_castle_king_positions[0][1]);
+  defending_pawns[0][1] =
+      nortOne(after_castle_king_positions[0][1]);
+
+  after_castle_king_positions[1][0] =
+      one_square_[56] | one_square_[57] | one_square_[58];
+  after_castle_king_positions[1][0] |=
+      soutOne(after_castle_king_positions[1][0]);
+  defending_pawns[1][0] =
+      soutOne(after_castle_king_positions[1][0]);
+
+  after_castle_king_positions[1][1] =
+      one_square_[61] | one_square_[62] | one_square_[63];
+  after_castle_king_positions[1][1] |=
+      soutOne(after_castle_king_positions[1][1]);
+  defending_pawns[1][1] =
+      soutOne(after_castle_king_positions[1][1]);
+
+  good_castle_pawns = one_square_[8] | one_square_[9] | one_square_[10] |
+      one_square_[13] | one_square_[48] | one_square_[54] |
+      one_square_[14] | one_square_[49] | one_square_[53] |
+      one_square_[15] | one_square_[50] | one_square_[55] ;
 }
 
 uint64_t BBoard::attacksTo(const uint64_t& occupied, int sq) {
@@ -1195,4 +1247,52 @@ bool BBoard::getPrevLeftCastle() {
 }
 bool BBoard::getPrevRightCastle() {
   return last_right_castle[move_count_];
+}
+bool BBoard::isPassedPawn(uint8_t i, bool b) const {
+  return (free_pawn_[b][i]
+      & get(static_cast<BPieceType>(BLACK_PAWN - b))) == 0;
+}
+
+bool BBoard::isolatedPawn(uint8_t from, uint8_t to) const {
+  return ((get(WHITE_PAWN, whosTurn()) ^ one_square_[from]) & pawn_road_[to])
+      == 0;
+}
+
+bool BBoard::doublePawn(uint8_t from, uint8_t to) const {
+  return ((get(WHITE_PAWN, whosTurn()) ^ one_square_[from]) & file_attacks_[to])
+      != 0;
+}
+bool BBoard::isDefendKingPawn(uint8_t pos) const {
+  if ((get(WHITE_KING, whosTurn())
+      & after_castle_king_positions[whosTurn()][0])) {
+    return (one_square_[pos] & defending_pawns[whosTurn()][0]) != 0;
+  }
+  if ((get(WHITE_KING, whosTurn())
+      & after_castle_king_positions[whosTurn()][1])) {
+    return (one_square_[pos] & defending_pawns[whosTurn()][1]) != 0;
+  }
+  return false; // no one to defend
+}
+bool BBoard::isAttackKingPawn(uint8_t pos) const {
+  return (free_pawn_[whosTurn()][pos]
+      & get(BLACK_KING, static_cast<BPieceType>(!whosTurn()))) != 0;
+}
+
+uint8_t BBoard::kingPression() {
+  uint8_t king_pos =
+      bitScanForward(get(WHITE_KING, static_cast<BPieceType>(!whosTurn())));
+  uint64_t king_nearby = kingAttacks(king_pos) & one_square_[king_pos];
+  uint8_t ans = 0;
+  while (king_nearby) {
+    king_pos =
+        BBoard::bitScanForward(king_nearby);
+    king_nearby &= king_nearby - 1;
+    ans += countBits(attacked(pieceBB[whosTurn()], king_pos, whosTurn()));
+  }
+  return ans;
+}
+bool BBoard::goodCastle(uint8_t pos_from) {
+  return ((knight_attacks_[bitScanForward( eastOne(one_square_[pos_from])
+      | westOne(one_square_[pos_from]))]
+      & (pieceBB[WHITE_PAWN] | pieceBB[BLACK_PAWN])) | good_castle_pawns) != 0;
 }

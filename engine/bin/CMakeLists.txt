@@ -9,7 +9,6 @@ set(LIB_HEADERS
         chessEngine/bitBoard/bMovesGenerator.cpp
         chessEngine/tools/pricer.cpp
         chessEngine/tools/fen.cpp
-        chessEngine/tools/redirector.cpp
         chessEngine/abstracts/move.cpp
         chessEngine/abstracts/position.cpp
         chessEngine/abstracts/aiAdvanceLvl.h

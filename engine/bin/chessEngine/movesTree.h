@@ -16,12 +16,14 @@
 #include "bitBoard/bMove.h"
 #include "bitBoard/bMovesGenerator.h"  
 
+#include <chrono>
+
 class MovesTree {
  public:
   BMove apply(const BMove& BMove);
-  explicit MovesTree(const BBoard& original_board,
-                     short tree_grow);
-
+  explicit MovesTree(const BBoard& original_board);
+  void setTreeGrow(short tree_grow);
+  void setMaxTimeTomakeMove(  std::chrono::milliseconds max_time_to_make_move_);
   struct Node {
     explicit Node(BMove BMove, const int& board_sum) :
         move_to_get_here(BMove),
@@ -45,8 +47,9 @@ class MovesTree {
  private:
   std::shared_ptr<Node> main_node_;
   std::shared_ptr<BBoard> board_;
-  short max_height_;
-  short current_tree_height_;
+  int max_height_;
+  int current_tree_height_;
+  std::chrono::milliseconds max_time_to_make_move_;
   Pricer pricer;
   void generateMovesForNode(const std::shared_ptr<Node>& node);
 
@@ -71,6 +74,8 @@ class MovesTree {
                            const int& grand_father_price,
                            const int& current_price);
   static int getMinusInf(bool turn);
+  bool going_to_increase_=false;
+  int max_increase_times=2;
 };
 
 #endif //ONLYCPP_MOVESTREE_H

@@ -2,14 +2,11 @@
 #define CHESS_MOVESTREE_H
 
 #include "movesTree.h"
-#include "tools/redirector.cpp"
-
-MovesTree::MovesTree(const BBoard& original_board,
-                     short tree_grow)
+MovesTree::MovesTree(const BBoard& original_board)
     : board_(std::make_shared<BBoard>(original_board)) {
   main_node_ = std::make_shared<Node>(BMove(), 0);
   current_tree_height_ = original_board.getMoveCount();
-  max_height_ = original_board.getMoveCount() + tree_grow;
+
   generateMovesForNode(main_node_);
 }
 
@@ -54,10 +51,35 @@ void MovesTree::generateMovesForNode(const std::shared_ptr<MovesTree::Node>& nod
 
 BMove MovesTree::getBestMove() {
   if (max_height_ != board_->getMoveCount()) {
-    Redirector::exec("free");
+    auto start = std::chrono::high_resolution_clock::now();
+
     makeTreeDeeper(
         main_node_, board_->getMoveCount(), 0,
         -getMinusInf(board_->isWhiteTurn()), false);
+    auto stop = std::chrono::high_resolution_clock::now();
+
+    auto duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    if (duration > max_time_to_make_move_) {
+      max_height_--;
+      max_increase_times++;
+      going_to_increase_ = false;
+      std::cerr << "Decreased tree deep\n";
+    }
+    if (duration < max_time_to_make_move_ / 40) {
+      if (going_to_increase_ && max_increase_times > 0) {
+        max_height_++;
+        max_increase_times--;
+        std::cerr << "Increased tree deep\n";
+        going_to_increase_ = false;
+      } else {
+        going_to_increase_ = true;
+      }
+    }
+
+  } else {
+    return main_node_->edges[rand()
+        % main_node_->edges.size()]->move_to_get_here;
   }
   for (const auto& node: main_node_->edges) {
     if (node->best_price_ == main_node_->best_price_) {
@@ -66,7 +88,8 @@ BMove MovesTree::getBestMove() {
   }
 
   if (main_node_->edges.size() != 0) {
-    std::cerr << "DOUBLESUKA ";
+    std::cerr << "I Lost :< ";
+    return main_node_->edges[0]->move_to_get_here;
   }
   return BMove();
 }
@@ -132,17 +155,6 @@ void MovesTree::makeTreeDeeper(const std::shared_ptr<MovesTree::Node>& current_n
   }
 
   if (current_tree_height_ != board_->getMoveCount()) {
-/*
-    std::sort(current_node->edges.begin(),
-              current_node->edges.end(),
-              [this](const std::shared_ptr<Node>& l,
-                     const std::shared_ptr<Node>& r) {
-                if (board_->isWhiteTurn()) {
-                  return l->best_price_ > r->best_price_;
-                } else {
-                  return l->best_price_ < r->best_price_;
-                }
-              });*/
     board_->unApply(current_node->move_to_get_here);
   }
 }
@@ -281,6 +293,12 @@ int MovesTree::getMinusInf(bool turn) {
     return 10000000;
   }
 
+}
+void MovesTree::setTreeGrow(short tree_grow) {
+  max_height_ = current_tree_height_ + tree_grow;
+}
+void MovesTree::setMaxTimeTomakeMove(std::chrono::milliseconds max_time_to_make_move) {
+  max_time_to_make_move_ = max_time_to_make_move;
 }
 
 #endif //CHESS_MOVESTREE_H

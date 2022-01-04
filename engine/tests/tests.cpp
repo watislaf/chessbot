@@ -4,7 +4,13 @@
 #include "bitBoard/bMove.h"
 #include "bitBoard/bMovesGenerator.h"
 
-TEST(BBoard, test1) {/*
+TEST(BBoard, test1) {
+  ChessEngine engine("bullet");
+  engine.startNewGame("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  engine.applyMove( engine.getBestMove());
+  engine.applyMove( engine.getBestMove());
+  engine.applyMove( engine.getBestMove());
+  /*
   ChessEngine chess_ai("random");
   chess_ai.startNewGame("k7/4P3/8/8/8/8/4p3/K7 b KQkq - 0 1");
   chess_ai.applyMoveParams(4, 1, 4, 0, 'q');
@@ -84,7 +90,7 @@ TEST(ChessAi, TEMP) {
   chess_ai.startNewGame(
       "8/8/8/8/6k1/4K3/7p/5R2 b - - 1 57");
   auto move = chess_ai.getBestMove();
-  std::cout<<move.toStr();
+  std::cout << move.toStr();
   chess_ai.applyMove(move);
 }
 
@@ -129,10 +135,10 @@ TEST(ChessAi, TreeGenerator) {
       "r1bqkbnr/pppppppp/n7/8/1P6/8/P1PPPPPP/RNBQKBNR w KQkq - 0 1");
   for (int i = 0; i < 30; i++) {
     auto move = chess_ai.getBestMove();
-    if(chess_ai.isMoveExists()) {
+    if (chess_ai.isMoveExists()) {
       chess_ai.applyMove(move);
-    }else{
-      std::cout<<"END";
+    } else {
+      std::cout << "END";
     }
   }
 

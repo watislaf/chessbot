@@ -5,7 +5,7 @@
 ChessEngine::ChessEngine(std::string advance) {
   mode_ = AiAdvanceLvl::A1;
 
-  if (advance == "random" ||advance == "easy")
+  if (advance == "random" || advance == "easy")
     mode_ = AiAdvanceLvl::RANDOM;
 
   if (advance == "bullet")
@@ -19,19 +19,28 @@ ChessEngine::ChessEngine(std::string advance) {
 void ChessEngine::startNewGame(const std::string& fen_str) {
   main_board_ = std::make_shared<BBoard>(FEN(fen_str));
   short tree_grow = 0;
+  std::chrono::milliseconds max_time_to_make_move(1000);
+
+  tree_moves_ = std::make_shared<MovesTree>(*main_board_);
+
   if (mode_ == AiAdvanceLvl::RANDOM) {
-    tree_grow = 1;
+    tree_grow = 0;
   }
   if (mode_ == AiAdvanceLvl::A1) {
     tree_grow = 3;
+    max_time_to_make_move = std::chrono::milliseconds(1500);
   }
   if (mode_ == AiAdvanceLvl::A2) {
     tree_grow = 4;
+    max_time_to_make_move = std::chrono::milliseconds(3000);
   }
   if (mode_ == AiAdvanceLvl::A3) {
     tree_grow = 5;
+    max_time_to_make_move = std::chrono::milliseconds(10000);
   }
-  tree_moves_ = std::make_shared<MovesTree>(*main_board_, tree_grow);
+
+  tree_moves_->setTreeGrow(tree_grow);
+  tree_moves_->setMaxTimeTomakeMove(max_time_to_make_move);
 }
 
 std::string ChessEngine::getPossibleMovesForPosition(short x, short y) {
@@ -59,8 +68,6 @@ char ChessEngine::whosTurn() const {
 
 bool ChessEngine::isMoveExists() {
   bool answ = tree_moves_->isMoveExists();
-  if (!answ)
-    std::cout << "NO MORE MOVES";
   return answ;
 }
 

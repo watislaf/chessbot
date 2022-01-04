@@ -10,23 +10,19 @@
 class Pricer {
  public:
 
-  int countOrder(const BBoard* board, const BMove& move);
+  int countOrder(  BBoard* board, const BMove& move);
   static int getPrice(const std::shared_ptr<const Piece>& piece);
   static int getPrice(PieceType type);
-  static int getPrice(BBoard::BPieceType type);
   double endGameCoef(const BBoard& board);
-  int valOnBoard(Position pos,
-                 bool is_white,
-                 double endgamecoef,
-                 PieceType type);
   int valOnBoard(uint8_t pos,
                  bool is_white,
                  double endgamecoef,
                  PieceType type);
+
   short PawnTable[64]{
-      90, 90, 90, 90, 90, 90, 90, 90,
-      50, 50, 50, 50, 50, 50, 50, 50,
-      20, 20, 30, 40, 40, 30, 20, 20,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
       5, 5, 10, 30, 30, 10, 5, 5,
       0, 0, 0, 25, 25, 0, 0, 0,
       5, -5, -10, 0, 0, -10, -5, 5,
@@ -76,6 +72,16 @@ class Pricer {
       -30, -10, 20, 30, 30, 20, -10, -30,
       -30, -30, 0, 0, 0, 0, -30, -30,
       -50, -30, -30, -30, -30, -30, -30, -50
+  };
+  short RuckTable[64]{
+      10, 15, 15, 15, 15, 15, 15, 10,
+      5, 10, 10, 10, 10, 10, 10, 5,
+      5, 10, 10, 10, 10, 10, 10, 5,
+      0, 0, 0, 10, 10, 0, 0, 0,
+      0, 0, 0, 10, 10, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 8, 8, 0, 0, 0,
+      0, 0, -5, 5, 5, -5, 0, 0
   };
 };
 

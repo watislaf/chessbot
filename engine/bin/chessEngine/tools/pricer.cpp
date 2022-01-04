@@ -6,19 +6,48 @@ int Pricer::getPrice(const std::shared_ptr<const Piece>& piece) {
 
   return price;
 }
-int Pricer::countOrder(const BBoard* board, const BMove& move) {
-  PieceType end_piece = PieceType::NONE;
+int Pricer::countOrder(BBoard* board, const BMove& move) {
+  PieceType attack_piece = PieceType::NONE;
   if (move.isCapture()) {
-    end_piece =
+    attack_piece =
         static_cast<PieceType>(board->getPiece(
             move.getTo(),
             static_cast<BBoard::BPieceType>(!board->whosTurn())) / 2);
+
   }
   PieceType start_piece = move.getCurrentPieceType();
 
-  int attack_score = getPrice(end_piece);
+  int attack_score = getPrice(attack_piece);
+  if (attack_piece == PieceType::PAWN
+      && board->isPassedPawn(move.getTo(), !board->isWhiteTurn())) {
+    attack_score += 80; // if we capture free pawn == get plus scores
+  }
+
   if (attack_score == 0 && move.isCapture()) {
     attack_score = getPrice(PieceType::PAWN); // EP
+  }
+  if (attack_score != 0) {
+    if (start_piece == PieceType::PAWN) {
+      if (!board->isolatedPawn(move.getFrom(), move.getFrom())
+          &&  // was not isolated
+              board->isolatedPawn(move.getFrom(),
+                                  move.getTo())) { // became isolated
+        attack_score -= 40;
+      }
+      if (board->isolatedPawn(move.getFrom(), move.getFrom())
+          &&  // was   isolated
+              !board->isolatedPawn(move.getFrom(),
+                                   move.getTo())) { // became unisolated
+        attack_score += 40;
+      }
+      if (board->doublePawn(move.getFrom(), move.getTo())) {
+        attack_score -= 30;
+      } else {
+        if (board->doublePawn(move.getFrom(), move.getFrom())) {
+          attack_score += 30;
+        }
+      }
+    }
   }
   int answer = attack_score;
 
@@ -40,25 +69,43 @@ int Pricer::countOrder(const BBoard* board, const BMove& move) {
     answer += valOnBoard(move.getTo(),
                          !board->isWhiteTurn(),
                          coef,
-                         end_piece);
+                         attack_piece);
   }
+
+  if (start_piece == PieceType::PAWN) {
+    if (board->isPassedPawn(move.getFrom(), board->isWhiteTurn())) {
+      answer += 10 + 20 * coef; // if we move free pawn get score
+    }
+    if (coef<0.7 && board->isDefendKingPawn(move.getFrom())) {
+      answer -= 30;
+    } else {
+      if (board->isAttackKingPawn(move.getTo())) { // if we attack king side by this pawn
+        answer += 5;
+      }
+    }
+  }
+
   if (start_piece == PieceType::QUEEN) {
     if (coef < 0.2)
-      answer -= 3;
+      answer -= 15;
   }
 
   if (start_piece == PieceType::PAWN) {
     if (coef < 0.1)
-      answer += 3;
+      answer += 5;
   }
 
-  if (board->isCastle(move)) {
-    answer += 20;
+  if (board->isCastle(move) && board->goodCastle(move.getFrom())) {
+    answer += 30;
   }
   if (board->isBrakeCastle(move, board->whosTurn())) {
-    answer -= 20;
+    answer -= 30;
   }
 
+    uint8_t king_pression = board->kingPression();
+    board->apply(move);
+      answer += (king_pression-board->kingPression())*5;
+    board->unApply(move);
   if (!board->isWhiteTurn()) {
     answer *= -1;
   }
@@ -109,15 +156,11 @@ int Pricer::valOnBoard(uint8_t pos,
   if (type == PieceType::PAWN) {
     return PawnTable[pos];
   }
+  if (type == PieceType::RUCK) {
+    return RuckTable[pos];
+  }
+  if (type == PieceType::QUEEN) {
+    return (RuckTable[pos] + BishopTable[pos]) / 2;
+  }
   return 0;
 }
-int Pricer::valOnBoard(Position pos,
-                       bool is_white,
-                       double endGameCoef,
-                       PieceType type) {
-  return valOnBoard(pos.getX() + 8 * pos.getY(), is_white, endGameCoef, type);
-}
-int Pricer::getPrice(BBoard::BPieceType type) {
-  return getPrice(static_cast<PieceType>(type / 2));
-}
-

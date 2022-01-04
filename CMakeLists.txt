@@ -2,8 +2,7 @@
 cmake_minimum_required(VERSION 3.4...3.18)
 project(ChessBot)
 
-set(DEBUG 0)
-set(TEST 0)
+set(DEBUG 1)
 
 
 set(AI_LIB_NAME ChessEngine)
@@ -15,9 +14,7 @@ add_subdirectory(engine/bin)
 target_compile_definitions(${AI_LIB_NAME} PUBLIC DEBUG=${DEBUG})
 
 #TESTING
-if (TEST==1)
 add_subdirectory(engine/tests)
-endif()
 
 # links output directory, so python can use it
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/engine/output)
