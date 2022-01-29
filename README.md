@@ -1,11 +1,10 @@
-# ChessBot  <img src="https://user-images.githubusercontent.com/45079123/147250964-53ae261a-dbf4-4c46-9a4d-3f1f3d6d2ab8.png" width="40 px">     [![en](https://img.shields.io/badge/lang-en-yellow.svg)](README.md)
+# ChessBot  <img src="https://user-images.githubusercontent.com/45079123/147250964-53ae261a-dbf4-4c46-9a4d-3f1f3d6d2ab8.png" width="40 px">     [![en](https://img.shields.io/badge/lang-en-yellow.svg)](README.md)   [![HitCount](http://hits.dwyl.com/watislaf/chessbot.svg?style=flat)](http://hits.dwyl.com/watislaf/chessbot)
 
 
 Bot to play chess on [chess.com](https://www.qt.io) for me  (cause
 i am to lazy to learn how to bee good at chess)(Linux only).
 
 Current ELO rating is [**2330**](https://www.chess.com/member/watislaf2).
-  [![HitCount](http://hits.dwyl.com/watislaf/chessbot.svg?style=flat)](http://hits.dwyl.com/watislaf/chessbot)
 ___
 
 ## You can try out the Engine . 
