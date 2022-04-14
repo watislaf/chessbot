@@ -30,7 +30,7 @@ Check [releases](https://github.com/watislaf/chessbot/releases), and download la
   during chess game.
 * After you build the project , there is an uninstall script, to remove all
   redundant libraries (and the project 🥲).
-* You Build it on Windows (as well as a) so that's +1 (one more) reason to
+* You can Build only on Linux so that's +1 (one more) reason to
   install linux.
 
 ### Authors
