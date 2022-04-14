@@ -20,6 +20,7 @@ ___
 <p align=center>
   <img  src="https://github.com/watislaf/chessbot/blob/main/resources/bot_show.gif"  width="70% " >
   </p>
+  
 ## Quick Install 
 
 Check [releases](https://github.com/watislaf/chessbot/releases), and download latest ChessBot.zip(board and bot) or Engine.zip (board only). And run it with Run instructions 
