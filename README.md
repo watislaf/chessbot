@@ -1,4 +1,6 @@
-# ChessBot  <img src="https://user-images.githubusercontent.com/45079123/147250964-53ae261a-dbf4-4c46-9a4d-3f1f3d6d2ab8.png" width="40 px">     [![en](https://img.shields.io/badge/lang-en-yellow.svg)](README.md)   [![HitCount](http://hits.dwyl.com/watislaf/chessbot.svg?style=flat)](http://hits.dwyl.com/watislaf/chessbot)
+# ChessBot 
+
+<img src="https://user-images.githubusercontent.com/45079123/147250964-53ae261a-dbf4-4c46-9a4d-3f1f3d6d2ab8.png" width="40 px">     [![en](https://img.shields.io/badge/lang-en-yellow.svg)](README.md)   [![HitCount](http://hits.dwyl.com/watislaf/chessbot.svg?style=flat)](http://hits.dwyl.com/watislaf/chessbot)
 
 
 Bot to play chess on [chess.com](https://www.chess.com) for me  (cause
@@ -32,6 +34,7 @@ Check [releases](https://github.com/watislaf/chessbot/releases), and download la
   redundant libraries (and the project 🥲).
 * You can Build only on Linux so that's +1 (one more) reason to
   install linux.
+* asm insert code
 
 ### Authors
 
