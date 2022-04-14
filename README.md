@@ -41,7 +41,7 @@ Check [releases](https://github.com/watislaf/chessbot/releases), and download la
 
 ## Development status
 
-My goal waas 2000 ELO on chess.com, and still i'm not banned, so i think this is sukces.
+My goal waas 2000 ELO on chess.com, and still i'm not banned (ok iam banned but it is only because of my insolence), so i think this is sukces.
 
 ## Build 
 
