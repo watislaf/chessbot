@@ -8,10 +8,11 @@ Current ELO rating is [**2330**](https://www.chess.com/member/watislaf2).
 ___
 
 ## You can try out the Engine.
-
-
-https://user-images.githubusercontent.com/45079123/222807715-731d15b5-aa91-4827-9d5d-d062e27da238.mp4
   
+
+https://user-images.githubusercontent.com/45079123/222808105-49ca4268-61ad-4479-94ec-6145a6420d94.mp4
+
+
 ## Or compete it with other players
 
 
