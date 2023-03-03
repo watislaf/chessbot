@@ -7,7 +7,7 @@ i am to lazy to learn how to bee good at chess)(Linux only).
 Current ELO rating is [**2330**](https://www.chess.com/member/watislaf2).
 ___
 
-## You can try out the Engine . 
+## You can try out the Engine. (WAIT FOR 2 GIFS TO LOAD) 
 
 <p align=center>
   <img  src="https://github.com/watislaf/chessbot/blob/main/resources/board_show.gif" width="40%"> 
