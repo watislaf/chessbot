@@ -4,6 +4,10 @@ project(ChessBot)
 
 set(DEBUG 1)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF) # Turn on to ensure -std=c++17 and not -std=gnu++17
+
 
 set(AI_LIB_NAME ChessEngine)
 set(TESTS_NAME EngineTests)
@@ -25,5 +29,3 @@ add_subdirectory(extra/pybind11)
 pybind11_add_module(${WRAPPER_NAME} engine/bin/wrapper.cpp)
 target_compile_definitions(${WRAPPER_NAME} PRIVATE WRAPPER_NAME=${WRAPPER_NAME})
 TARGET_LINK_LIBRARIES(${WRAPPER_NAME} PUBLIC ${AI_LIB_NAME})
-
-

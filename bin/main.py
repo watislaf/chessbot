@@ -54,13 +54,7 @@ def init_board_finder(args: dict):
     """
     Create OpenCv class and window to track OpenCv progress
     """
-    try:
-        from bin.player.chesscom_player import ChesscomPlayer
-    except ModuleNotFoundError:
-        print("Please reinstall project with this option, "
-              "or run with '--mode=board' flag")
-        exit(0)
-        return
+    from bin.player.chesscom_player import ChesscomPlayer
 
     print("Please, check your board settings on chess.com with the "
           "settings.png settings.")

@@ -4,7 +4,6 @@ Layer between CPP engine and Python view code
 
 import sys
 
-from bin.tools.chess_exception import ChessException
 from bin.tools.pieceMove import PieceMove
 
 #    Pythons linker cant see CPPChessLib.so, if it is not in path variables
